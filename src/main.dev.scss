@@ -1,0 +1,44 @@
+///////////////////////////
+@use "home";
+@use "header";
+@use "content";
+@use "styles";
+
+.hidden {
+  padding: 8px;
+  position: absolute;
+  background: var(--gray-8);
+  left: 50%;
+  height: 20px;
+  transform: translateY(-100%);
+  transition: transform 0.3s;
+}
+
+a.hidden:focus {
+  transform: translateY(0%);
+}
+
+a.hidden {
+  color: white;
+  text-decoration: none;
+}
+
+html,
+body {
+  box-sizing: border-box;
+}
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
