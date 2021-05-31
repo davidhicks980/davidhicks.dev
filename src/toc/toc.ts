@@ -78,7 +78,8 @@ export class TableOfContents extends LitElement {
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
     }
-    this.headings = querySelectorAll(this.articleContent, 'h2[id], h3[id]');
+
+    this.headings = this.getHeadings();
     this.previousOffset = this.articleContent.getBoundingClientRect().top;
     this.observer = new IntersectionObserver(this.scrollSpy, {
       rootMargin: '0px 0px -40% 0px',
@@ -125,7 +126,15 @@ export class TableOfContents extends LitElement {
     return sign;
   };
 
+  getHeadings(): HTMLHeadingElement[] {
+    return querySelectorAll(this.articleContent, 'h2[id], h3[id]');
+  }
   scrollSpy(headings: IntersectionObserverEntry[]) {
+    this.getHeadings().forEach((heading) =>
+      console.log(
+        heading.getBoundingClientRect().top / this.articleContent.offsetHeight
+      )
+    );
     const lastIndex = this.activeLink?.dataset?.tocIndex;
     if (lastIndex === undefined) {
       this.activeHeadings = new Set(
@@ -139,6 +148,8 @@ export class TableOfContents extends LitElement {
     const isScrollingDown = this.scrollDirFrom(this.previousOffset) < 0;
     const triggerHeader = this._selectLink(target.id);
     const triggerIndex = parseInt((target as HTMLElement).dataset.tocIndex);
+
+    //If the element is not intersecting, select the closest visible header
     if (isIntersecting === false) {
       return this._selectClosestVisibleHeader(target);
     } else {
@@ -146,12 +157,15 @@ export class TableOfContents extends LitElement {
     }
     if (triggerHeader) {
       const isSectionLarger = triggerIndex > index;
-      this.activeLink.classList.remove('is-active');
       if (isScrollingDown) {
         if (isSectionLarger) {
+          this.activeLink.classList.remove('is-active');
+
           triggerHeader.activate();
         }
       } else if (!isSectionLarger) {
+        this.activeLink.classList.remove('is-active');
+
         triggerHeader.activate();
       }
     }

@@ -6,19 +6,22 @@
   margin-left: 200px;
 }
 .header__title {
-  font-size: 28pt;
-  margin-block: 0px;
-  margin: 0px;
-  margin-left: 1rem;
+  font-size: clamp(20pt, 8vw, 3.5rem);
+
   font-family: 'IBM Plex Sans';
   font-weight: 500;
+  color: white;
+  margin: 0px;
+  white-space: nowrap;
+  margin-left: -0.4vw;
 }
 .header__subtitle {
-  font-size: 12pt;
+  font-size: clamp(10pt, 4vw, 1rem);
   margin-block: 0px;
   margin: 0px;
-  margin-left: 1rem;
   font-family: 'Arimo';
+  color: var(--secondary-1);
+  white-space: nowrap;
 }
 /*
 span.one {

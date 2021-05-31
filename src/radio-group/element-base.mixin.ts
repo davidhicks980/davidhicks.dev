@@ -1,8 +1,8 @@
-import "element-internals-polyfill";
-import { IElementInternals } from "element-internals-polyfill";
-import { LitElement } from "lit";
-import { BehaviorSubject } from "rxjs";
-import { property } from "lit/decorators.js";
+import 'element-internals-polyfill';
+import { IElementInternals } from 'element-internals-polyfill';
+import { LitElement } from 'lit';
+import { BehaviorSubject } from 'rxjs';
+import { property } from 'lit/decorators.js';
 import {
   debounceTime,
   filter,
@@ -10,19 +10,19 @@ import {
   skipWhile,
   take,
   tap,
-} from "rxjs/operators";
+} from 'rxjs/operators';
 
 enum Constraint {
-  PATTERN = "patternMismatch",
-  LONG = "tooLong",
-  SHORT = "tooShort",
-  MAX = "rangeOverflow",
-  MIN = "rangeUnderflow",
-  TYPE = "typeMismatch",
-  VALID = "valid",
-  MISSING = "valueMissing",
-  BAD = "badInput",
-  STEP = "stepMismatch",
+  PATTERN = 'patternMismatch',
+  LONG = 'tooLong',
+  SHORT = 'tooShort',
+  MAX = 'rangeOverflow',
+  MIN = 'rangeUnderflow',
+  TYPE = 'typeMismatch',
+  VALID = 'valid',
+  MISSING = 'valueMissing',
+  BAD = 'badInput',
+  STEP = 'stepMismatch',
 }
 const messages = {
   typeMismatch: `Please enter a valid value.`,
@@ -53,7 +53,7 @@ export class LitControl extends LitElement {
   private _value: any;
 
   formAttributes: string[];
-  model: BehaviorSubject<any> = new BehaviorSubject("");
+  model: BehaviorSubject<any> = new BehaviorSubject('');
   modelObserver = this.model.asObservable();
   @property({ type: Boolean, reflect: true })
   required: boolean = false;
@@ -68,7 +68,7 @@ export class LitControl extends LitElement {
   @property({ type: Number, reflect: true })
   minLength: number;
   @property({ type: String, reflect: true })
-  field: string = "default";
+  field: string = 'default';
   @property({ type: Boolean, reflect: true })
   checked: boolean = false;
   loaded: boolean = false;
@@ -90,19 +90,19 @@ export class LitControl extends LitElement {
         take(1)
       )
       .subscribe(() => {
-        this.classList.add("dirty");
+        this.classList.add('dirty');
       });
   }
 
   private getValidityFunctions(booleanField: boolean) {
     const fieldIsEmpty = () =>
-      (booleanField && !this.checked) || (!booleanField && this._value == "");
-    const entryIsString = () => typeof this._value === "string";
+      (booleanField && !this.checked) || (!booleanField && this._value == '');
+    const entryIsString = () => typeof this._value === 'string';
     const entryTooShort = () =>
       this.minLength && this._value.length < this.minLength;
     const entryTooLong = () =>
       this.maxLength && this._value.length > this.minLength;
-    const entryIsNumber = () => typeof this._value === "number";
+    const entryIsNumber = () => typeof this._value === 'number';
     const entryTooSmall = () => this.min && this._value < this.min;
 
     const entryTooLarge = () => this.max && this._value > this.max;
@@ -126,7 +126,7 @@ export class LitControl extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this._listenToInput();
-    this.setAttribute("tabindex", "0");
+    this.setAttribute('tabindex', '0');
     this.loaded = true;
   }
   private _listenToInput() {
@@ -150,13 +150,13 @@ export class LitControl extends LitElement {
 
   _emitChangedModel(newValue: any) {
     this.dispatchEvent(
-      new CustomEvent("ModelChanged", {
+      new CustomEvent('ModelChanged', {
         detail: newValue,
         bubbles: true,
       })
     );
     this.dispatchEvent(
-      new CustomEvent("ValidityChanged", {
+      new CustomEvent('ValidityChanged', {
         detail: { valid: this.validity.valid, message: this.validationMessage },
         bubbles: true,
       })
@@ -171,7 +171,7 @@ export class LitControl extends LitElement {
   }
 
   get name() {
-    return this.getAttribute("name");
+    return this.getAttribute('name');
   }
 
   get validity() {
@@ -200,7 +200,7 @@ export class LitControl extends LitElement {
   }
   private _uiHandler = (val: any): void => {
     throw new Error(
-      "Method not implemented. Define a function that updates the UI when a new modelValue is set "
+      'Method not implemented. Define a function that updates the UI when a new modelValue is set '
     );
   };
   private _valueHandler = (value: string | number | boolean) => {
@@ -211,13 +211,13 @@ export class LitControl extends LitElement {
   };
   private _handleValidity = () => {
     let booleanField = false,
-      selectionType = "default";
+      selectionType = 'default';
 
-    if (this.field === "checkbox" || this.field === "radio") {
+    if (this.field === 'checkbox' || this.field === 'radio') {
       booleanField = true;
-      selectionType = this.field === "radio" ? "radio" : "checkbox";
-    } else if (this.field === "select") {
-      selectionType = "select";
+      selectionType = this.field === 'radio' ? 'radio' : 'checkbox';
+    } else if (this.field === 'select') {
+      selectionType = 'select';
     }
     const {
       fieldIsEmpty,
@@ -267,7 +267,7 @@ export class LitControl extends LitElement {
         {
           title: this.title
             ? this.title
-            : "Your answer does not match the desired format.",
+            : 'Your answer does not match the desired format.',
         },
         false
       );
@@ -294,22 +294,22 @@ export class LitControl extends LitElement {
     return false;
   };
   private _modelHandler = (value) => {
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       this.internals_.setFormValue(value);
       this._value = value;
       return value;
     }
   };
   setHandler(type: string, method: (...args) => void) {
-    this["_" + type + "Handler"] = method;
+    this['_' + type + 'Handler'] = method;
   }
   @property({ type: String })
   set value(value: string | string[]) {
     if (this.loaded) {
-      if (Array.isArray(value)) value = value.join(",");
+      if (Array.isArray(value)) value = value.join(',');
       this.handlers.value(value);
       this.handlers.ui(value);
-      this.requestUpdate("value");
+      this.requestUpdate('value');
     } else {
       setTimeout(() => {
         this.value = value;

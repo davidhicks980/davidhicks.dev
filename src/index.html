@@ -1,63 +1,47 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
+    <meta name="viewport" content="width=device-width">
     <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=PT+Sans:ital;IBM+Plex+Serif:ital&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital;IBM+Plex+Serif:ital&display=swap" rel="stylesheet" />
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
     <link rel="stylesheet" href="styles/main.prod.css" />
     <script defer src="./components.js"></script>
-    <script
-      type="module"
-      src="https://unpkg.com/@fluentui/web-components"
-    ></script>
-    
-    <link
-      href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600&family=Mukta:wght@200;300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;500;600&family=Mukta:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
 
     <title>The Developer Site for David Hicks</title>
-  </head>
-  <body >
-                  
+</head>
 
+<body id="app">
     <div>
         <a tabindex="1" class="hidden" href="#">Skip to content</a>
-    <div>
-          <background-animation>
-            <header>David Hicks</header>
-          </background-animation>
+        <div>
+            <background-animation>
+                <h1 class="header__title" slot='header-title'>David Hicks</h1>
+                <p class="header__subtitle" slot="header-subtitle">Pharmacist & Developer</p>
+            </background-animation>
+            <div class="layout">
+                <div class="layout__header">
+                    <header class="header">
+                        <section class="header__wrapper">
+                        </section>
+                    </header>
+                </div>
+                <div class="layout__main">
+                    <main class="main">
+                        <content-component class="main__content"></content-component>
+                        <hicks-toc class="main__table-of-contents toc" opened></hicks-toc>
+                    </main>
+                </div>
+                <div class="layout__footer">
+                    <footer>Footer</footer>
+                </div>
+            </div>
+</body>
 
-    <div class="layout">
-
-      <div class="layout__header">
-        <header class="header">
-
-          <section class="header__wrapper">
-            <h1 class="header__title">David Hicks</h1>
-            <span class="header__subtitle">Pharmacist & Developer</span>
-          </section>
-          
-         
-        </header>
-
-      </div>
-      
-      <div class="layout__main">
-        <main class="main">
-          <content-component class="main__content"></content-component>
-          <hicks-toc class="main__table-of-contents toc" opened></hicks-toc>
-        </main>
-      </div>
-      <div class="layout__footer"><footer>Footer</footer></div>
-    </div>
-  </body>
 </html>

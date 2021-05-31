@@ -1,6 +1,6 @@
-require("typescript-require");
-const palx = require("palx");
-const palette = palx("blue");
+require('typescript-require');
+const palx = require('palx');
+const palette = palx('blue');
 let sasspalette = Object.entries(palette)
   .filter(([key, value]) => Array.isArray(value))
   .map(([key, value]) =>
@@ -9,5 +9,5 @@ let sasspalette = Object.entries(palette)
     })
   )
   .flat()
-  .join("  ");
+  .join('  ');
 console.log(sasspalette);

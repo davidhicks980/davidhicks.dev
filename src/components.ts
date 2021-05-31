@@ -1,8 +1,13 @@
+import './onload';
+import './state-fns';
+
 import { ContentComponent } from './content.component';
 import { TableOfContents } from './toc/toc';
 import './typing-effect-element';
 import { NavComponent, NavItemComponent } from './nav.component';
-import { BackgroundAnimation } from './animation';
+import { BackgroundAnimation } from './header.component';
+import './onload';
+import { state } from './store';
 ContentComponent;
 TableOfContents;
 NavItemComponent;
