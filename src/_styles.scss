@@ -1,1 +1,3 @@
-@forward 'util';
+@forward 'util/fonts' as font-*;
+@forward 'util/mixins' as std-*;
+@forward 'util/bem-mixin' as bem-*;

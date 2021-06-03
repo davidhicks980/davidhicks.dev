@@ -1,7 +1,4 @@
 @forward 'fonts' as font-*;
 @forward 'mixins' as std-*;
-@forward 'palette' as pal-*;
-@forward 'variables' as var-*;
 @forward 'bem-mixin' as bem-*;
-
 @forward 'normalize';

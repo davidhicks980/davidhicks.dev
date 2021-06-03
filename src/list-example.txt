@@ -1,0 +1,73 @@
+import {LitElement, html, css} from 'lit';
+import {customElement, property, query} from 'lit/decorators.js';
+
+@customElement('my-element')
+export class MyElement extends LitElement {
+  
+  
+  //primitive values update when changed
+  @property()
+  error: string = ''
+  @property()
+  inputValue: string = ''
+      
+  //non-string values should be passed their type constructor
+  @property({type: Number, reflect: true})
+  count: number = 0
+      
+  //Because list is not a primitive, you should call 'requestUpdate' whenever it is changed
+  @property({type: Array, reflect: true})
+  list = ['peas', 'carrots', 'tomatoes', 'spahgetti'];
+  
+ 
+   
+  firstUpdated(){
+   this.count = this.list.length 
+  }
+      
+  addListItem(){
+    if(this.inputValue.length === 0){
+        this.error = "Make sure you enter something for your item!";
+    } else if (this.list.includes(this.inputValue)){
+        this.error = "You already added that item";
+    } else{
+        this.list.push(this.inputValue); 
+        this.count = this.list.length
+    } 
+  }
+  removeItem(){
+    this.list.splice(index,1);
+    this.requestUpdate('list')
+    
+  }
+
+  render() {
+    return html`
+      <p>Render a list:</p>
+        <input @input="${(e)=>this.inputValue=e.target.value}" type="text"/>
+        <button @click="${this.addListItem}">Add</button>
+        <p>${this.error}</p>
+      <ul>
+        <p>Count: ${this.count}</p>
+        ${this.list.map(
+          (item, index) =>
+            html`
+            <li>
+                <button @click="${}}">x</button> 
+                ${item}
+            </li>
+            `
+        )}
+      </ul>
+    `;
+  }
+  
+  static get styles(){
+    return css`
+        li{
+         list-style-type:none;
+         text-transform: capitalize;
+        }
+        `
+    {
+}

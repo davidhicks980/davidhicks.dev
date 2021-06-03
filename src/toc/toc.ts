@@ -19,6 +19,7 @@ import { css, html, LitElement } from 'lit';
 import { property, customElement, query, queryAll } from 'lit/decorators.js';
 import '@material/mwc-icon-button';
 import { IconController } from '../icons/icon.controller';
+import { style } from './toc.css';
 /**
  * Element that renders table of contents.
  * @extends {BaseStateElement}
@@ -30,8 +31,9 @@ export class TableOfContents extends LitElement {
   activeLink: HTMLAnchorElement;
   @queryAll('.is-active')
   links: NodeListOf<HTMLAnchorElement>;
-  @query('h1[id]')
-  contentTitle: HTMLHeadingElement;
+  @queryAll('.list__item__link')
+  links2;
+  activeLinkId: string;
   activeClass: string;
   borderClass: string;
   tocVisibleClass: string;
@@ -41,7 +43,7 @@ export class TableOfContents extends LitElement {
   headings!: HTMLHeadingElement[];
   observer!: IntersectionObserver;
   previousOffset: number = 0;
-  activeHeadings: Set<string>;
+
   icons: IconController;
   constructor() {
     super();
@@ -78,13 +80,14 @@ export class TableOfContents extends LitElement {
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
     }
-
     this.headings = this.getHeadings();
     this.previousOffset = this.articleContent.getBoundingClientRect().top;
     this.observer = new IntersectionObserver(this.scrollSpy, {
-      rootMargin: '0px 0px -40% 0px',
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: [0.1, 0.5, 1],
     });
 
+    this.classList.add('toc');
     this.headings.forEach((heading: HTMLHeadingElement, i) => {
       heading.dataset.tocIndex = i.toString();
       this.observer.observe(heading);
@@ -92,12 +95,7 @@ export class TableOfContents extends LitElement {
     window.addEventListener(
       'hashchange',
       (e) => {
-        const removeLinks = () =>
-          this.links.forEach((link) => link.classList.remove('is-active'));
-        setTimeout(() => {
-          removeLinks();
-          this._selectLink(window.location.hash.slice(1)).activate();
-        }, 30);
+        this._activateLink(window.location.hash.slice(1));
       },
       { passive: true }
     );
@@ -108,7 +106,10 @@ export class TableOfContents extends LitElement {
         html`<li class="list__item">
           <a
             data-toc-index="${heading.dataset.tocIndex}"
-            class="list__item__link"
+            data-toc-id="${heading.id}"
+            class="list__item__link ${this.activeLinkId === heading.id
+              ? 'is-active'
+              : ''}"
             style="--list-item-padding: ${`${
               Number(heading.tagName[1]) - 1
             }em`}"
@@ -130,72 +131,54 @@ export class TableOfContents extends LitElement {
     return querySelectorAll(this.articleContent, 'h2[id], h3[id]');
   }
   scrollSpy(headings: IntersectionObserverEntry[]) {
-    this.getHeadings().forEach((heading) =>
-      console.log(
-        heading.getBoundingClientRect().top / this.articleContent.offsetHeight
-      )
-    );
-    const lastIndex = this.activeLink?.dataset?.tocIndex;
-    if (lastIndex === undefined) {
-      this.activeHeadings = new Set(
-        headings.map((heading) => heading.target.id).values()
-      );
-      this._selectActiveHeader(headings);
+    let midPoint =
+      window.innerHeight || document.documentElement.clientHeight / 2;
+    const lastIndexStr = this.activeLink?.dataset?.tocIndex;
+    if (lastIndexStr === undefined) {
+      this._selectActiveHeader(headings, midPoint);
       return;
     }
-    const { isIntersecting, target } = headings[0];
-    const index = parseInt(lastIndex);
+    let { isIntersecting, target } = headings[0];
+    let tar = target as HTMLElement;
+    const lastIndexNum = Number(lastIndexStr);
+    const targetIndex = Number(tar.dataset.tocIndex);
     const isScrollingDown = this.scrollDirFrom(this.previousOffset) < 0;
-    const triggerHeader = this._selectLink(target.id);
-    const triggerIndex = parseInt((target as HTMLElement).dataset.tocIndex);
-
-    //If the element is not intersecting, select the closest visible header
+    /*If the element is not intersecting, check if the closest visible header is within the viewport*/
     if (isIntersecting === false) {
-      return this._selectClosestVisibleHeader(target);
-    } else {
-      this.activeHeadings.add(target.id);
+      this._selectClosestVisible(targetIndex, isScrollingDown, midPoint);
+      return;
     }
-    if (triggerHeader) {
-      const isSectionLarger = triggerIndex > index;
-      if (isScrollingDown) {
-        if (isSectionLarger) {
-          this.activeLink.classList.remove('is-active');
-
-          triggerHeader.activate();
-        }
-      } else if (!isSectionLarger) {
-        this.activeLink.classList.remove('is-active');
-
-        triggerHeader.activate();
+    const isSectionLarger = targetIndex > lastIndexNum;
+    if (isScrollingDown) {
+      if (isSectionLarger) {
+        this._activateLink(tar.id);
       }
+    } else if (!isSectionLarger) {
+      this._activateLink(tar.id);
     }
   }
 
-  private _selectClosestVisibleHeader(target: Element) {
-    this.activeHeadings.delete(target.id);
-
-    if (this.activeHeadings.size > 0) {
-      this.links.forEach((el) => el.classList.remove('is-active'));
-      const selector = this.activeHeadings.values().next().value;
-      this._selectLink(selector)?.activate();
-      return true;
+  private _selectClosestVisible(
+    currentIndex: number,
+    scrollingDown: boolean,
+    midpoint: number
+  ) {
+    let nextIndex = scrollingDown ? currentIndex + 1 : currentIndex - 1;
+    console.log(this.headings[2].getBoundingClientRect().top);
+    let nextLink = this.links2.item(nextIndex) || false;
+    if (nextLink != false) {
+      let { top } = nextLink.getBoundingClientRect();
+      let bp = scrollingDown ? top < midpoint && top > 0 : top > 0;
+      if (bp === true) {
+        this._activateLink(nextLink.dataset.tocId);
+      } else return;
     }
-    return false;
   }
 
-  private _selectLink(selector: string) {
-    const link = this.shadowRoot.querySelector(`a[href="#${selector}"]`);
-    return {
-      activate: () => {
-        link != null ? link.classList.add('is-active') : null;
-      },
-      deactivate: () => {
-        link != null ? link.classList.remove('is-active') : null;
-      },
-    };
-  }
-  private _selectActiveHeader(headings: IntersectionObserverEntry[]) {
-    const midPoint = headings[0].rootBounds.height / 2;
+  private _selectActiveHeader(
+    headings: IntersectionObserverEntry[],
+    midPoint: number
+  ) {
     let min = Number.MAX_SAFE_INTEGER;
     let max = Number.MIN_VALUE;
     let larger = false;
@@ -211,36 +194,37 @@ export class TableOfContents extends LitElement {
       return acc;
     }, new Map());
     const selector = larger ? bounds.get(min) : bounds.get(max);
-    const queryRes = this._selectLink(selector);
-    queryRes.activate();
+    this._activateLink(selector);
+  }
+  private _activateLink(selector: string) {
+    this.activeLinkId = selector ?? this.activeLinkId;
+    this.requestUpdate('activeLinkId');
   }
   render() {
-    const headerLink = this.contentTitle?.innerText.toLowerCase().trim();
+    const headerLink = []; //= this.contentTitle?.innerText.toLowerCase().trim();
     return html`
-      <section class="toc__container">
-        <div class="toc__head">
-          <mwc-icon-button @click="${this.toggle}"
-            >${this.icons.icon('--gr-8', '--blue3')}</mwc-icon-button
-          >
+      <div class="toc__toggle">
+        <mwc-icon-button @click="${this.toggle}"
+          >${this.icons.icon('--gr-8', '--blue3')}</mwc-icon-button
+        >
+      </div>
 
-          <div class="toc__label">
-            <span>In this article</span>
-          </div>
+      <div class="toc__head">
+        <div class="toc__label">
+          <span>On this page</span>
         </div>
+      </div>
 
-        <div class="toc__content">
-          <h2 class="toc__header">
-            <a href="#${headerLink}" class="toc__header__link"
-              >${this.contentTitle}</a
-            >
-          </h2>
-          <div>
-            <ul class="list">
-              ${this.makeLinks(this.headings)}
-            </ul>
-          </div>
+      <div class="toc__content">
+        <h2 class="toc__header">
+          <a href="#${headerLink}" class="toc__header__link"></a>
+        </h2>
+        <div>
+          <ul class="list">
+            ${this.makeLinks(this.headings)}
+          </ul>
         </div>
-      </section>
+      </div>
     `;
   }
 
@@ -250,87 +234,6 @@ export class TableOfContents extends LitElement {
   }
 
   static get styles() {
-    return css`
-      :host([opened]) .toc__head {
-        display: flex;
-        flex-direction: row;
-      }
-      :host([opened]) .toc__container {
-        background-color: white;
-
-        padding: 24px 0;
-        top: 63px;
-        z-index: 100;
-        width: 200px;
-        position: sticky;
-      }
-
-      .toc__border {
-        margin-left: -24px;
-        padding-left: 21px;
-      }
-      .toc__content {
-        height: calc(100% - 24px);
-        overflow-y: auto;
-        padding: 0 24px;
-      }
-      .toc__content__link-icon {
-        vertical-align: middle;
-      }
-      .toc__header {
-        margin-bottom: 12px;
-        margin-top: 12px;
-      }
-      .toc__header__link {
-        font-size: 1.4rem;
-        font-weight: 500;
-        appearance: none;
-      }
-
-      .toc__header__link:hover {
-        color: var(--orange-8);
-      }
-      .toc__label {
-        font-size: 1.4rem;
-      }
-
-      .toc__head {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-      }
-      .list {
-        --list-item-padding: 0%;
-        margin-left: 30px;
-        padding: 0;
-        list-style-type: none;
-        margin-block: 0px;
-        padding-inline: 0px;
-        border-left: 3px solid var(--blue4);
-        display: grid;
-      }
-
-      .list__item {
-        list-style-type: none;
-        margin: 0.5rem 0px;
-      }
-      .list__item__link {
-        font-size: 0.8rem;
-        margin-left: var(--list-item-padding);
-        color: gray;
-        text-decoration: none;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-      .list__item__link.is-active {
-        color: var(--blue9);
-        font-weight: 500;
-      }
-
-      .list__item.is-bordered {
-        border: 2px dotted blue;
-      }
-    `;
+    return [style, css``];
   }
 }

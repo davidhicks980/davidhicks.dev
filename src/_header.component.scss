@@ -1,0 +1,93 @@
+@use './util/bem-mixin' as bem;
+.header {
+    @include bem.element(toolbar) {
+        position: sticky;
+        top: 0px;
+        width: 100%;
+        height: 15vh;
+        @include bem.element(svg) {
+            position: relative;
+            height: inherit;
+            width: inherit;
+        }
+    }
+    @include bem.element(grid) {
+        position: sticky;
+        top: calc(var(--upper-height) * -1);
+        width: 100%;
+        max-width: 1920px;
+    }
+    @include bem.element(navigation) {
+        border-radius: 5px;
+        color: white;
+        pointer-events: all;
+        touch-action: all;
+        @include bem.element(link) {
+            margin: 5px;
+            color: white;
+            @include bem.nativeState(hover) {
+                background-color: lightcoral;
+                padding: 5px;
+                pointer-events: all;
+                touch-action: all;
+            }
+        }
+    }
+    @include bem.element(upper) {
+        height: var(--upper-height);
+        background-color: var(--background-color);
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
+        // gap: 7vw;
+        padding: 1rem;
+        box-sizing: border-box;
+        max-height: var(--upper-height);
+        @include bem.mobileWidth {
+            flex-direction: column;
+            // gap: 1vw;
+            justify-items: center;
+            justify-content: center;
+        }
+    }
+    @include bem.element(title-wrapper) {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        max-height: 10vh;
+        align-items: center;
+        gap: 1rem;
+        flex: 0 1 50%;
+        z-index: 1;
+    }
+    @include bem.element(title) {
+        @include bem.element(icon) {
+            min-width: 1rem;
+            max-width: 5.5rem;
+            width: 10vw;
+            fill: #a7aef0;
+            width: clamp(1rem, 10vw, 5.5rem);
+        }
+    }
+}
+
+.gradientstop-1 {
+    stop-color: var(--background-color);
+}
+
+.gradientstop-2 {
+    stop-color: var(--background-color);
+}
+
+.gradientstop-3 {
+    stop-color: var(--background-color);
+}
+
+.gradientstop-4 {
+    stop-color: var(--background-color);
+}
+
+.gradientstop-5 {
+    stop-color: var(--background-color);
+}

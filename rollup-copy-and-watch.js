@@ -1,17 +1,17 @@
-import fs from "fs";
+const fs = require('fs');
 
-export default function copyAndWatch(fileIn, fileOut) {
-  return {
-    name: "copy-and-watch",
-    async buildStart() {
-      this.addWatchFile(fileIn);
-    },
-    async generateBundle() {
-      this.emitFile({
-        type: "asset",
-        fileName: "src/index.html",
-        source: fs.readFileSync(fileIn),
-      });
-    },
-  };
+export default function litScssToCss(fileIn, fileOut) {
+    return {
+        name: 'litScssToCss',
+        async buildStart() {
+            this.addWatchFile(fileIn);
+        },
+        async generateBundle() {
+            this.emitFile({
+                type: 'asset',
+                fileName: 'src/index.html',
+                source: fs.readFileSync(fileIn),
+            });
+        },
+    };
 }
