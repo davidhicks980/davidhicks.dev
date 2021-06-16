@@ -1,74 +1,143 @@
 @use './util/bem-mixin' as bem;
+@use './header-trees' as *;
+$trees: header('1b1464', '2e3192');
 .header {
-    @include bem.element(toolbar) {
+    @include bem.element('toolbar') {
         position: sticky;
-        top: 0px;
         width: 100%;
-        height: 15vh;
-        @include bem.element(svg) {
+        height: var(--toolbar-height);
+        border-bottom: 1px solid;
+        border-color: transparent;
+        top: -1px;
+        @include bem.element('svg') {
             position: relative;
             height: inherit;
             width: inherit;
         }
+        @include bem.element('content') {
+            position: absolute;
+            height: 90%;
+            top: 0px;
+            right: 3%;
+            left: 3%;
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+            justify-content: space-between;
+            z-index: 1;
+            align-content: center;
+            align-items: center;
+        }
     }
-    @include bem.element(grid) {
+    @include bem.element('grid') {
         position: sticky;
-        top: calc(var(--upper-height) * -1);
+        top: calc(var(--upper-height) * -1 - 1px);
         width: 100%;
-        max-width: 1920px;
+        z-index: 10000;
+        @include bem.pseudoElement('before') {
+            display: absolute;
+            z-index: 1;
+            background-image: linear-gradient(black, white);
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            bottom: 10%;
+            height: 90%;
+            width: 100%;
+            content: '';
+        }
     }
-    @include bem.element(navigation) {
+    @include bem.element('navigation') {
         border-radius: 5px;
         color: white;
         pointer-events: all;
         touch-action: all;
-        @include bem.element(link) {
-            margin: 5px;
+        @include bem.element('link') {
+            margin: 0.3vw;
             color: white;
-            @include bem.nativeState(hover) {
-                background-color: lightcoral;
-                padding: 5px;
+            font-weight: 400;
+            padding: 0.3vw 1vw;
+            text-decoration: none;
+            text-transform: uppercase;
+            border-radius: 5px;
+            @include bem.state('selected') {
+                color: var(--background-color);
+            }
+            @include bem.nativeState('hover') {
                 pointer-events: all;
                 touch-action: all;
+                background: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+                @include bem.nativeState('active') {
+                    box-shadow: 0 0 0 2px white;
+                }
+            }
+            @include bem.nativeState('active') {
+                box-shadow: 0 0 0 2px white;
+            }
+            @include bem.nativeState('focus') {
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8);
+                background: rgba(255, 255, 255, 0.1);
+                @include bem.nativeState('active') {
+                    box-shadow: 0 0 0 2px white;
+                }
             }
         }
     }
-    @include bem.element(upper) {
+    @include bem.element('upper') {
         height: var(--upper-height);
-        background-color: var(--background-color);
-        display: flex;
-        flex-direction: row;
+        display: grid;
+        grid-template-areas: '. . .' 'title . nav' 'trees trees trees';
         align-items: center;
-        justify-content: space-around;
-        // gap: 7vw;
-        padding: 1rem;
         box-sizing: border-box;
         max-height: var(--upper-height);
-        @include bem.mobileWidth {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='.5' x2='.5' y2='1' gradientUnits='objectBoundingBox'%3E%3Cstop offset='0' stop-color='%235e94cf'/%3E%3Cstop offset='.3' stop-color='%2393bee6'/%3E%3Cstop offset='.7' stop-color='%23cadded'/%3E%3Cstop offset='.9' stop-color='%23fff'/%3E%3Cstop offset='1' stop-color='%23fff'/%3E%3C/linearGradient%3E%3Cfilter filterUnits='objectBoundingBox' id='b'%3E%3CfeTurbulence baseFrequency='.5' numOctaves='10' result='c2' type='fractalNoise'/%3E%3CfeComposite in='c2' in2='SourceAlpha' operator='in'/%3E%3C/filter%3E%3C/defs%3E%3Cg data-name='Rectangle 80'%3E%3Crect fill='url(%23a)' width='100%25' height='100%25'/%3E%3Crect filter='url(%23b)' width='100%25' height='100%25' opacity='.1'/%3E%3C/g%3E%3C/svg%3E");
+        @media screen and (max-width: 800px) {
             flex-direction: column;
             // gap: 1vw;
             justify-items: center;
             justify-content: center;
         }
-    }
-    @include bem.element(title-wrapper) {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        max-height: 10vh;
-        align-items: center;
-        gap: 1rem;
-        flex: 0 1 50%;
-        z-index: 1;
-    }
-    @include bem.element(title) {
-        @include bem.element(icon) {
-            min-width: 1rem;
-            max-width: 5.5rem;
-            width: 10vw;
-            fill: #a7aef0;
-            width: clamp(1rem, 10vw, 5.5rem);
+        @include bem.element('background') {
+            position: absolute;
+            >svg {
+                height: 100%;
+                width: 100%;
+            }
         }
+        @include bem.element('trees') {
+            grid-area: trees;
+            background-image: url($trees);
+            width: 100%;
+            height: 300px;
+            background-repeat: no-repeat;
+        }
+        @include bem.element('nav') {
+            grid-area: nav;
+        }
+        @include bem.element('title') {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            max-height: 10vh;
+            align-items: center;
+            gap: 1rem;
+            flex: 0 1 100%;
+            z-index: 1;
+            grid-area: title;
+        }
+    }
+}
+
+.icon {
+    min-width: 1rem;
+    max-width: 5rem;
+    width: 10vw;
+    fill: #a7aef0;
+    width: clamp(1rem, 10vw, 5rem);
+    @include bem.state('collapsed') {
+        max-width: 4rem;
+        width: 4rem;
     }
 }
 
@@ -85,9 +154,44 @@
 }
 
 .gradientstop-4 {
-    stop-color: var(--background-color);
+    stop-color: white;
 }
 
 .gradientstop-5 {
-    stop-color: var(--background-color);
+    stop-color: white;
+}
+
+.fadeIn {
+    animation: fadein 250ms ease-in;
+}
+
+.fadeOut {
+    animation: fadeout 250ms ease-in;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes backgroundin {
+    from {
+        background-color: var(--background-color);
+    }
+    to {
+        background-color: white;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }

@@ -1,35 +1,47 @@
 import { css } from 'lit';
 
- export const style = css`h1 {
+ export const style = css`:root {
+  --header-font: "PT Sans", sans-serif;
+  --body-font: "Arimo", sans-serif;
+}
+
+h1 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 99;
 }
 
 h2 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 62;
 }
 
 h3 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 49;
 }
 
 h4 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 35;
 }
 
 h5 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 25;
 }
 
 h6 {
+  font-family: "PT Sans", sans-serif;
   font-family: var(--header-font);
   font-size: 21;
 }
 
+/**Took breakpoints from web.dev site for convenience...nothing super radical tho*/
 /** Block Element
 * @access public
 * @param {String} $element - Element's name

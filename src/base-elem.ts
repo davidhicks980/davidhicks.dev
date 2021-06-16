@@ -1,4 +1,4 @@
-import { LitElement, PropertyValues } from "lit";
+import { LitElement, PropertyValues } from 'lit';
 
 /* eslint-disable require-jsdoc */
 export class BaseElement extends LitElement {
@@ -6,7 +6,7 @@ export class BaseElement extends LitElement {
    * @param {PropertyValues} changedProperties
    */
   firstUpdated(changedProperties: PropertyValues) {
-    this.classList.remove("unresolved");
+    this.classList.remove('unresolved');
     super.firstUpdated(changedProperties);
   }
 

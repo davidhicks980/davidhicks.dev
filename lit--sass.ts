@@ -6,26 +6,8 @@ import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
 import postcssPresetEnv from 'postcss-preset-env';
 import { glob } from 'glob';
-
-const defaultOpts = {
-  srcDir: './src',
-  outDir: './dist',
-};
-
-const getOptions = () => {
-  const options = Object.assign({}, defaultOpts);
-  if (process.env.argv) {
-    const srcIndex = process.env.argv.indexOf('-s');
-    const distIndex = process.env.argv.indexOf('-o');
-    if (srcIndex > -1) {
-      options.srcDir = process.env.argv[srcIndex + 1];
-    }
-    if (distIndex > -1) {
-      options.outDir = process.env.argv[distIndex + 1];
-    }
-  }
-  return options;
-};
+import postcssCQFill from 'cqfill/postcss';
+import postcssNesting from 'postcss-nesting';
 /////////////////////////////////////////////
 
 function getFiles(): Promise<string[]> {
@@ -77,14 +59,14 @@ const writeFile = (outFile, data) => {
 const sassRender = async () => {
   const template =
     "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
-  const options = getOptions();
   const sassFiles = await getFiles();
   for (const file of sassFiles) {
-    console.log(file);
-    const cssString = await sassToCss(file);
+    const cssString = (await sassToCss(file)) as string;
     const processedCss = await postcss([
       autoprefixer({ grid: 'autoplace' }),
       postcssPresetEnv,
+      postcssCQFill,
+      postcssNesting(),
     ]).process(cssString);
     const newFileName = file.replace(
       /_([\w\d\s]+).component.scss/,

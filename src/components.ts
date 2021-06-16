@@ -7,8 +7,11 @@ import './typing-effect-element';
 import { NavComponent, NavItemComponent } from './nav.component';
 import { BackgroundAnimation } from './header.component';
 import './onload';
-import { state } from './store';
 import { AddressComponent } from './test';
+import { HicksCardContainer } from './components/card/card-container.component';
+import { HicksCard } from './components/card/card.component';
+import { PlotEngine } from './plot/plot.component';
+import { BrandComponent } from './components/card/brand.component';
 ContentComponent;
 TableOfContents;
 NavItemComponent;
@@ -16,6 +19,10 @@ NavComponent;
 TableOfContents;
 BackgroundAnimation;
 AddressComponent;
+HicksCardContainer;
+HicksCard;
+PlotEngine;
+BrandComponent;
 /*
 c
 let plot = document.querySelector("plot-engine");

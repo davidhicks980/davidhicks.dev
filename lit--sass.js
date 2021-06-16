@@ -46,24 +46,8 @@ var postcss_1 = __importDefault(require("postcss"));
 var autoprefixer_1 = __importDefault(require("autoprefixer"));
 var postcss_preset_env_1 = __importDefault(require("postcss-preset-env"));
 var glob_1 = require("glob");
-var defaultOpts = {
-    srcDir: './src',
-    outDir: './dist'
-};
-var getOptions = function () {
-    var options = Object.assign({}, defaultOpts);
-    if (process.env.argv) {
-        var srcIndex = process.env.argv.indexOf('-s');
-        var distIndex = process.env.argv.indexOf('-o');
-        if (srcIndex > -1) {
-            options.srcDir = process.env.argv[srcIndex + 1];
-        }
-        if (distIndex > -1) {
-            options.outDir = process.env.argv[distIndex + 1];
-        }
-    }
-    return options;
-};
+var postcss_2 = __importDefault(require("cqfill/postcss"));
+var postcss_nesting_1 = __importDefault(require("postcss-nesting"));
 /////////////////////////////////////////////
 function getFiles() {
     var filterScss = function (f) { return f.endsWith('.component.scss'); };
@@ -112,12 +96,11 @@ var writeFile = function (outFile, data) {
     });
 };
 var sassRender = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var template, options, sassFiles, _i, sassFiles_1, file, cssString, processedCss, newFileName, cssTemplate;
+    var template, sassFiles, _i, sassFiles_1, file, cssString, processedCss, newFileName, cssTemplate;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 template = "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
-                options = getOptions();
                 return [4 /*yield*/, getFiles()];
             case 1:
                 sassFiles = _a.sent();
@@ -126,13 +109,14 @@ var sassRender = function () { return __awaiter(void 0, void 0, void 0, function
             case 2:
                 if (!(_i < sassFiles_1.length)) return [3 /*break*/, 7];
                 file = sassFiles_1[_i];
-                console.log(file);
                 return [4 /*yield*/, sassToCss(file)];
             case 3:
-                cssString = _a.sent();
+                cssString = (_a.sent());
                 return [4 /*yield*/, postcss_1["default"]([
                         autoprefixer_1["default"]({ grid: 'autoplace' }),
                         postcss_preset_env_1["default"],
+                        postcss_2["default"],
+                        postcss_nesting_1["default"](),
                     ]).process(cssString)];
             case 4:
                 processedCss = _a.sent();

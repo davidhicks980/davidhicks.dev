@@ -24,7 +24,8 @@ export default {
         module: true,
     },
     watch: {
-        include: 'src/**/*',
+        include: 'src/**',
+        chokidar: true,
     },
     onwarn(warning) {
         if (warning.code !== 'THIS_IS_UNDEFINED') {
@@ -33,7 +34,7 @@ export default {
     },
     preserveEntrySignatures: true,
     plugins: [
-        babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
+        // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
         copy(copyConfig),
         typescript(),
         commonjs(),

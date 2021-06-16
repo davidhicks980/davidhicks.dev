@@ -1,55 +1,25 @@
+/**Took breakpoints from web.dev site for convenience...nothing super radical tho*/
+
 // =============================================================================
 // BREAKPOINTS OVERVIEW
 //
 // Media query breakpoints used across the site.
 //
 // =============================================================================
-
 // sass-lint:disable variable-name-format
-
-// Feature phones
-$BREAKPOINT_VALUE_XXSMALL: 241px;
-
-// Smart phones
-$BREAKPOINT_VALUE_XSMALL: 321px;
-// Update src/lib/Assessment/index.js and src/lib/AssessmentFeedbackContainer/index.js
-// if $BREAKPOINT_VALUE_SMALL changes.
-$BREAKPOINT_VALUE_SMALL: 481px;
-
+$BREAKPOINT_VALUE_SMALL: 600px;
 // Tablets
-$BREAKPOINT_VALUE_MEDIUM: 865px;
-
-// Desktops
-$BREAKPOINT_VALUE_LARGE: 1264px;
-
-// Large desktops
-$BREAKPOINT_VALUE_XLARGE: 1441px;
-
+$BREAKPOINT_VALUE_MEDIUM: 850px;
 // Media breakpoint helper
 // Credit: http://css-tricks.com/conditional-media-query-mixins/
 @mixin bp($point) {
-    @if $point == xxsm {
-        @media (min-width: #{$BREAKPOINT_VALUE_XXSMALL}) {
+    @if $point==sm {
+        @media (max-width: #{$BREAKPOINT_VALUE_SMALL}) {
             @content;
         }
-    } @else if $point == xsm {
-        @media (min-width: #{$BREAKPOINT_VALUE_XSMALL}) {
-            @content;
-        }
-    } @else if $point == sm {
-        @media (min-width: #{$BREAKPOINT_VALUE_SMALL}) {
-            @content;
-        }
-    } @else if $point == md {
-        @media (min-width: #{$BREAKPOINT_VALUE_MEDIUM}) {
-            @content;
-        }
-    } @else if $point == lg {
-        @media (min-width: #{$BREAKPOINT_VALUE_LARGE}) {
-            @content;
-        }
-    } @else if $point == xl {
-        @media (min-width: #{$BREAKPOINT_VALUE_XLARGE}) {
+    }
+    @else if $point==md {
+        @media (max-width: #{$BREAKPOINT_VALUE_MEDIUM}) {
             @content;
         }
     }
@@ -61,9 +31,7 @@ $BREAKPOINT_VALUE_XLARGE: 1441px;
 // Helper functions used throughout the site.
 //
 // =============================================================================
-
 // sass-lint:disable variable-name-format
-
 // Sets unitless line-height based on line-height and font-size
 // Improves accessibility and prevents text from overlapping if users change
 // their default font size in chrome://settings/fonts.
@@ -122,4 +90,32 @@ $BREAKPOINT_VALUE_XLARGE: 1441px;
     list-style-type: none;
     margin-block: 0px;
     padding-inline: 0px;
+}
+
+@mixin media-size($size) {
+    @if $size==xsmall {
+        @media (max-width: 599.99px) {
+            @content;
+        }
+    }
+    @else if $size==small {
+        @media (min-width: 600px) and (max-width: 899.99px) {
+            @content;
+        }
+    }
+    @else if $size==medium {
+        @media (min-width: 900px) and (max-width: 1199.99px) {
+            @content;
+        }
+    }
+    @else if $size==large {
+        @media (min-width: 1200px) and (max-width: 1799.99px) {
+            @content;
+        }
+    }
+    @else if $size==extraLarge {
+        @media (min-width: 1800px) {
+            @content;
+        }
+    }
 }
