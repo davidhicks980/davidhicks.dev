@@ -7,7 +7,7 @@ export class StateController implements ReactiveController {
   constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);
   }
-  updateState(newState: { [key: string]: string }) {
+  updateState(newState: { [key: string]: any }) {
     if (typeof newState != null) {
       state.updateState(newState);
     } else

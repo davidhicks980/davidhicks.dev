@@ -6,32 +6,40 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital;IBM+Plex+Serif:ital&display=swap" rel="stylesheet" />
-    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+    <!-- <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>-->
     <link rel="stylesheet" href="./styles/main.prod.css" />
     <script type="module" defer src="./components.js"></script>
-    <script type="module" src="https://unpkg.com/@fluentui/web-components"></script>
 
     <title>The Developer Site for David Hicks</title>
 </head>
 
 <body id="app">
     <a tabindex="1" class="hidden" href="#">Skip to content</a>
+
     <background-animation>
-        <div slot="header-logo">
-            <style>
-                brand-component {
-                    --hicks--subtitle--font-family: var(--subtitle-font);
-                }
-            </style>
+        <div slot="header-brand">
             <brand-component></brand-component>
         </div>
+        <div class="header__logo-wrapper" slot="header-logo">
+            <logo-component></logo-component>
+        </div>
+        <div slot="header-navigation">
+            <hicks-nav>
+                <hicks-nav-item>about</hicks-nav-item>
+                <hicks-nav-item>portfolio</hicks-nav-item>
+                <hicks-nav-item>resume</hicks-nav-item>
+                <hicks-nav-item>contact</hicks-nav-item>
+            </hicks-nav>
+        </div>
     </background-animation>
-    <div class="layout">
+    <main class="layout">
         <div class="left"></div>
         <content-component class="center"></content-component>
-        <div class="right"></div>
-    </div>
+        <div class="right">
+            <hicks-toc></hicks-toc>
+        </div>
+    </main>
 </body>
 
 </html>

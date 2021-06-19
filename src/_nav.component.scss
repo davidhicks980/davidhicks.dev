@@ -1,0 +1,20 @@
+/* hicks-nav */
+
+:host {
+    --nav--gap: 1vw;
+    --nav--direction: 'row';
+    --nav--base-color: white;
+}
+
+.navigation {
+    display: flex;
+    flex-direction: var(--nav--direction);
+    gap: var(--nav--gap);
+    &__slot {
+        display: contents;
+    }
+}
+
+::slotted(hicks-nav-item) {
+    --nav-item--font-color: var(--nav--base-color, 'white');
+}

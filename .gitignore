@@ -1,8 +1,6 @@
-node_modules
-node_modules
-dist
+node_modules/
+dist/
 
-.rollup.cache
-.vscode
+.rollup.cache/
+.vscode/
 yarn.lock
-.env

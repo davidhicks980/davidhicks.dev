@@ -46,7 +46,6 @@ var postcss_1 = __importDefault(require("postcss"));
 var autoprefixer_1 = __importDefault(require("autoprefixer"));
 var postcss_preset_env_1 = __importDefault(require("postcss-preset-env"));
 var glob_1 = require("glob");
-var postcss_2 = __importDefault(require("cqfill/postcss"));
 var postcss_nesting_1 = __importDefault(require("postcss-nesting"));
 /////////////////////////////////////////////
 function getFiles() {
@@ -115,7 +114,6 @@ var sassRender = function () { return __awaiter(void 0, void 0, void 0, function
                 return [4 /*yield*/, postcss_1["default"]([
                         autoprefixer_1["default"]({ grid: 'autoplace' }),
                         postcss_preset_env_1["default"],
-                        postcss_2["default"],
                         postcss_nesting_1["default"](),
                     ]).process(cssString)];
             case 4:

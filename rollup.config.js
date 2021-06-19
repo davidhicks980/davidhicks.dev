@@ -7,6 +7,7 @@ import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
 import watchAssets from 'rollup-plugin-watch-assets';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import serve from 'rollup-plugin-serve';
 const copyConfig = {
     targets: [
         { src: 'node_modules/@webcomponents', dest: 'dist/node_modules' },
@@ -44,5 +45,6 @@ export default {
             NODE_ENV: 'development',
         }),
         replace({ 'Reflect.decorate': 'undefined' }),
+        serve({ openPage: './dist/index.html' }),
     ],
 };

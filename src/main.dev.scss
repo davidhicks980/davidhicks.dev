@@ -1,6 +1,4 @@
 ///////////////////////////
-@use "home";
-@use "header";
 @use "content";
 @use "./util/mixins" as mix;
 @use 'util/fonts' as font;
@@ -78,7 +76,7 @@ ol {
     max-width: 35ch;
 }
 
-div.layout {
+.layout {
     display: grid;
     grid-template-columns: 2fr 8fr 2fr;
     & .center {
@@ -106,4 +104,10 @@ div.layout {
     @include mix.bp(sm) {
         grid-template-columns: 1fr;
     }
+}
+
+.header__logo-wrapper {
+    height: 60px;
+    width: 90px;
+    fill: var(--primary-7);
 }

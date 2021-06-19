@@ -51,11 +51,12 @@ h6 {
   top: 20vh;
   top: var(calc(--toolbar-height + 5vh), 20vh);
   display: grid;
-  grid-template-columns: 3rem 9rem;
-  grid-template-rows: auto 100%;
+  grid-template-columns: 2rem auto;
+  grid-template-rows: 2rem 100%;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  margin: 1rem;
 }
 
 .toc__toggle {
@@ -117,7 +118,7 @@ h6 {
   list-style-type: none;
 }
 .list__item__link {
-  font-size: 0.8rem;
+  font-size: 1rem;
   margin-left: var(--list-item-padding);
   color: var(--gray-9);
   text-decoration: none;
@@ -125,15 +126,27 @@ h6 {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.list__item__link[data-toc-level="1"] {
+  margin-left: 1em;
+}
+.list__item__link[data-toc-level="2"] {
+  margin-left: 2em;
+}
+.list__item__link[data-toc-level="3"] {
+  margin-left: 3em;
+}
+.list__item__link[data-toc-level="4"] {
+  margin-left: 4em;
+}
+.list__item__link[data-toc-level="5"] {
+  margin-left: 5em;
+}
 .list__item__link:hover {
   color: var(--secondary-2);
 }
 .list__item__link.is-active {
   color: var(--primary-8);
   font-weight: 500;
-}
-.list.is-bordered {
-  border: 2px dotted blue;
 }
 
 /*

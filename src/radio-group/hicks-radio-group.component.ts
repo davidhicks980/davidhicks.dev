@@ -1,21 +1,20 @@
-import "element-internals-polyfill";
-import { css, html } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
-import { LitControl } from "./element-base.mixin";
-import { ARROW_KEYS } from "./keys.constants";
-import { querySelectorAll } from "@github/query-selector";
+import 'element-internals-polyfill';
+import { css, html } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
+import { LitControl } from './element-base.mixin';
+import { ARROW_KEYS } from './keys.constants';
 
-@customElement("hicks-radio-group")
+@customElement('hicks-radio-group')
 export class HicksRadioGroup extends LitControl {
-  @query("slot[name=radio]")
+  @query('slot[name=radio]')
   radioSlot: HTMLInputElement;
-  @query("fieldset")
+  @query('fieldset')
   fieldset: HTMLFieldSetElement;
   /**Whether to allow the user to use keyboard navigation mixin. Set to false in case the user is using a built-in form control */
   @property({ type: Boolean })
   keyboardNavigation: boolean = false;
   @property({ type: String, reflect: true })
-  label = "Select the best answer(s)";
+  label = 'Select the best answer(s)';
   selectNodes: HTMLInputElement[];
   currentNode: number = 0;
 
@@ -25,7 +24,7 @@ export class HicksRadioGroup extends LitControl {
   }
   constructor() {
     super();
-    this.type = "multiselect";
+    this.type = 'multiselect';
   }
 
   handleMultiSelect(e) {
@@ -55,16 +54,16 @@ export class HicksRadioGroup extends LitControl {
   handleKeydown(e: KeyboardEvent) {
     if (ARROW_KEYS.includes(e.key))
       switch (e.key) {
-        case "Down":
-        case "ArrowDown":
-        case "Right":
-        case "ArrowRight":
+        case 'Down':
+        case 'ArrowDown':
+        case 'Right':
+        case 'ArrowRight':
           this.arrowKeyHandler(true);
           break;
-        case "Up":
-        case "ArrowUp":
-        case "Left":
-        case "ArrowLeft":
+        case 'Up':
+        case 'ArrowUp':
+        case 'Left':
+        case 'ArrowLeft':
           this.arrowKeyHandler(false);
           break;
       }
@@ -108,7 +107,7 @@ export class HicksRadioGroup extends LitControl {
       }
 
       legend {
-        font-family: "IBM Plex Sans";
+        font-family: 'IBM Plex Sans';
         text-transform: uppercase;
       }
     `;

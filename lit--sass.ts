@@ -6,7 +6,6 @@ import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
 import postcssPresetEnv from 'postcss-preset-env';
 import { glob } from 'glob';
-import postcssCQFill from 'cqfill/postcss';
 import postcssNesting from 'postcss-nesting';
 /////////////////////////////////////////////
 
@@ -65,7 +64,6 @@ const sassRender = async () => {
     const processedCss = await postcss([
       autoprefixer({ grid: 'autoplace' }),
       postcssPresetEnv,
-      postcssCQFill,
       postcssNesting(),
     ]).process(cssString);
     const newFileName = file.replace(

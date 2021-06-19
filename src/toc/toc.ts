@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { querySelectorAll } from '@github/query-selector';
 import { css, html, LitElement } from 'lit';
 import { property, customElement, query, queryAll } from 'lit/decorators.js';
-import '@material/mwc-icon-button';
+import { classMap } from 'lit/directives/class-map.js';
+import { StateController } from '../component-state';
 import { IconController } from '../icons/icon.controller';
 import { style } from './toc.css';
+import { styleMap } from 'lit/directives/style-map.js';
 /**
  * Element that renders table of contents.
  * @extends {BaseStateElement}
@@ -32,10 +33,9 @@ export class TableOfContents extends LitElement {
   @queryAll('.is-active')
   links: NodeListOf<HTMLAnchorElement>;
   @queryAll('.list__item__link')
-  links2;
+  links2: NodeListOf<HTMLAnchorElement>;
   activeLinkId: string;
   activeClass: string;
-  borderClass: string;
   tocVisibleClass: string;
   tocHTML!: any;
   @property({ type: Object }) articleContent!: HTMLElement | null;
@@ -45,12 +45,13 @@ export class TableOfContents extends LitElement {
   previousOffset: number = 0;
 
   icons: IconController;
+  stateObserver: StateController;
   constructor() {
     super();
     this.scrollSpy = this.scrollSpy.bind(this);
     this.activeClass = 'is-active';
-    this.borderClass = 'is-bordered';
     this.icons = new IconController(this, 'openBook');
+    this.stateObserver = new StateController(this);
   }
 
   toggle() {
@@ -83,6 +84,7 @@ export class TableOfContents extends LitElement {
     this.headings = this.getHeadings();
     this.previousOffset = this.articleContent.getBoundingClientRect().top;
     this.observer = new IntersectionObserver(this.scrollSpy, {
+      root: this.articleContent,
       rootMargin: '-40% 0px -40% 0px',
       threshold: [0.1, 0.5, 1],
     });
@@ -100,24 +102,38 @@ export class TableOfContents extends LitElement {
       { passive: true }
     );
   }
-  makeLinks = (headings: HTMLHeadingElement[]) => {
-    return headings?.map(
-      (heading: HTMLHeadingElement) =>
-        html`<li class="list__item">
-          <a
-            data-toc-index="${heading.dataset.tocIndex}"
-            data-toc-id="${heading.id}"
-            class="list__item__link ${this.activeLinkId === heading.id
-              ? 'is-active'
-              : ''}"
-            style="--list-item-padding: ${`${
-              Number(heading.tagName[1]) - 1
-            }em`}"
-            href="#${heading.id}"
-            >${heading.innerText}</a
-          >
-        </li>`
-    );
+  _getLinkClasses(id: string) {
+    return classMap({
+      isActive: id === this.activeLinkId,
+      list__item__link: true,
+    });
+  }
+  _refreshLinks = (headings: HTMLHeadingElement[]) => {
+    let lastLvl = 0;
+    return headings?.reduce((tree, heading, index) => {
+      const { id, innerText, tagName } = heading;
+      const currLvl = Number(tagName[1]) - 1;
+      let node = html`<li class="list__item">
+        <a
+          data-toc-index="${heading.dataset.tocIndex}"
+          data-toc-id="${id}"
+          data-toc-level="${currLvl}"
+          class="list__item__link"
+          href="#${id}"
+          >${innerText}</a
+        >
+      </li>`;
+      if (currLvl > lastLvl) {
+        //prettier-ignore
+        tree.push(html`<ul>`);
+      }
+      if (currLvl < lastLvl) {
+        tree.push(html`</ul>`);
+      }
+      tree.push(node);
+      lastLvl = currLvl;
+      return tree;
+    }, []);
   };
 
   scrollDirFrom = (previousOffset: number) => {
@@ -128,7 +144,7 @@ export class TableOfContents extends LitElement {
   };
 
   getHeadings(): HTMLHeadingElement[] {
-    return querySelectorAll(this.articleContent, 'h2[id], h3[id]');
+    return Array.from(this.articleContent?.querySelectorAll('h2[id], h3[id]'));
   }
   scrollSpy(headings: IntersectionObserverEntry[]) {
     let midPoint =
@@ -164,7 +180,7 @@ export class TableOfContents extends LitElement {
     midpoint: number
   ) {
     let nextIndex = scrollingDown ? currentIndex + 1 : currentIndex - 1;
-    console.log(this.headings[2].getBoundingClientRect().top);
+
     let nextLink = this.links2.item(nextIndex) || false;
     if (nextLink != false) {
       let { top } = nextLink.getBoundingClientRect();
@@ -201,7 +217,6 @@ export class TableOfContents extends LitElement {
     this.requestUpdate('activeLinkId');
   }
   render() {
-    const headerLink = []; //= this.contentTitle?.innerText.toLowerCase().trim();
     return html`
       <div class="toc__toggle">
         <mwc-icon-button @click="${this.toggle}"
@@ -217,13 +232,9 @@ export class TableOfContents extends LitElement {
 
       <div class="toc__content">
         <h2 class="toc__header">
-          <a href="#${headerLink}" class="toc__header__link"></a>
+          <a class="toc__header__link"></a>
         </h2>
-        <div>
-          <ul class="list">
-            ${this.makeLinks(this.headings)}
-          </ul>
-        </div>
+        <div>${this._refreshLinks(this.headings)}</div>
       </div>
     `;
   }

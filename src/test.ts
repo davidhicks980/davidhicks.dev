@@ -1,31 +1,21 @@
-import { html, LitElement } from 'lit';
+import { LitElement, html, css, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-
-interface Address {
-  street: string;
-  suburb: string;
-}
-
-@customElement('address-component')
-export class AddressComponent extends LitElement {
-  @property({
-    type: Object,
-    hasChanged: (currentAddress?: Address, previousAddress?: Address) => {
-      return true;
-    },
-  })
-  address?;
-
-  firstUpdated(_changedProperties) {
-    this.address = { street: '111 11 street', suburb: 'somewhere in canada' };
+//import { styleMap } from 'lit/directives/style-map.js'
+//import { classMap } from 'lit/directives/class-map.js'
+@customElement('test')
+export class Test extends LitElement {
+  //@property({ type: Array }) propArray: any[]
+  //@property({ type: String }) propString: string
+  //@property({ type: Boolean }) propBoolean: boolean
+  //@property({ type: Object }) propObject: object
+  //@property({ type: Number }) propNumber: number
+  //@property() color: string = 'black'
+  render(): TemplateResult {
+    //const colorStyle = styleMap({ color: this.color })
+    //const colorClass = classMap({ color: this.color });
+    return html``;
   }
-  render() {
-    return html` <input
-        @input="${(e) => {
-          this.address.street = e.target.value;
-          this.requestUpdate('address');
-        }}"
-      />
-      <span>${JSON.stringify(this.address)}</span>`;
+  static get styles(): CSSResultGroup[] {
+    return [css``];
   }
 }
