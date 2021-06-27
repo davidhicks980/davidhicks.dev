@@ -116,11 +116,13 @@ const palx = (hex, options = {}) => {
   return obj;
 };
 
-let palette = palx('#3A4ADE');
+let palette = palx('#245181');
 let sasspalette = (primary: string, secondary: string) => {
   let eq = (value, level) =>
     value.map((element, i) => {
-      return `--${level}-${i}: ${element};`;
+      return `
+      $${level}-${i}: ${element};
+      --${level}-${i}: ${element};`;
     });
   return Object.entries(palette)
     .filter(([key, value]) => Array.isArray(value))
@@ -138,5 +140,5 @@ let sasspalette = (primary: string, secondary: string) => {
 };
 fs.writeFileSync(
   'src/util/_variables.scss',
-  ':root{' + sasspalette('indigo', 'orange') + '}'
+  ':root{' + sasspalette('blue', 'blue') + '}'
 );

@@ -11,6 +11,7 @@ import { style as navStyle } from './nav.css';
 @customElement('hicks-nav')
 export class NavComponent extends LitElement {
   private _color = '';
+
   @queryAssignedNodes('', true, 'hicks-nav-item')
   navItems: NodeListOf<NavItemComponent>;
   @query('ul')
@@ -20,10 +21,10 @@ export class NavComponent extends LitElement {
   @property({ type: Boolean, reflect: true })
   transitioning = false;
   @property({ type: String, reflect: true })
-  public get color() {
+  get color() {
     return this._color;
   }
-  public set color(value) {
+  set color(value) {
     if (typeof value === 'string') {
       const prev = this._color;
       this._color = value;
@@ -31,6 +32,10 @@ export class NavComponent extends LitElement {
       this.requestUpdate('color', prev);
     }
   }
+  private _direction = 'row';
+  @property({ reflect: true, attribute: true })
+  orientation = 'row';
+
   constructor() {
     super();
   }

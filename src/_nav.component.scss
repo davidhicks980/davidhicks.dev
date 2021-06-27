@@ -2,14 +2,19 @@
 
 :host {
     --nav--gap: 1vw;
-    --nav--direction: 'row';
+    --nav--direction: row;
+    --nav--direction-breakpoint: 600px;
     --nav--base-color: white;
+    --nav--text-transform: none;
+    --nav--font-size: 1.2rem;
 }
 
 .navigation {
     display: flex;
     flex-direction: var(--nav--direction);
     gap: var(--nav--gap);
+    text-transform: var(--nav--text-transform);
+    align-items: center;
     &__slot {
         display: contents;
     }
@@ -17,4 +22,5 @@
 
 ::slotted(hicks-nav-item) {
     --nav-item--font-color: var(--nav--base-color, 'white');
+    --nav-item--font-size: var(--nav--font-size);
 }

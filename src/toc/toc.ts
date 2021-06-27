@@ -14,13 +14,31 @@
  * limitations under the License.
  */
 
-import { css, html, LitElement } from 'lit';
-import { property, customElement, query, queryAll } from 'lit/decorators.js';
-import { classMap } from 'lit/directives/class-map.js';
+import { css, html, LitElement, TemplateResult } from 'lit';
+import {
+  property,
+  customElement,
+  query,
+  queryAll,
+  state,
+} from 'lit/decorators.js';
 import { StateController } from '../component-state';
 import { IconController } from '../icons/icon.controller';
 import { style } from './toc.css';
-import { styleMap } from 'lit/directives/style-map.js';
+import { repeat } from 'lit/directives/repeat.js';
+
+import { ListChild } from './ListChild';
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
+
+import { flip } from '@lit-labs/motion';
+type SectionParameters = {
+  coords: string;
+  href: string;
+  title: string;
+  comparator: number;
+  root: string;
+};
+
 /**
  * Element that renders table of contents.
  * @extends {BaseStateElement}
@@ -32,26 +50,43 @@ export class TableOfContents extends LitElement {
   activeLink: HTMLAnchorElement;
   @queryAll('.is-active')
   links: NodeListOf<HTMLAnchorElement>;
-  @queryAll('.list__item__link')
+  @queryAll('.list__sublist')
+  sublists: NodeListOf<HTMLAnchorElement>;
+
   links2: NodeListOf<HTMLAnchorElement>;
-  activeLinkId: string;
+  @state()
+  activeLinkId: string = '';
   activeClass: string;
   tocVisibleClass: string;
   tocHTML!: any;
   @property({ type: Object }) articleContent!: HTMLElement | null;
   @property({ type: Boolean, reflect: true }) opened = true;
   headings!: HTMLHeadingElement[];
-  observer!: IntersectionObserver;
+  observers!: {
+    intersection?: IntersectionObserver;
+    mutation?: MutationObserver;
+  };
   previousOffset: number = 0;
 
   icons: IconController;
   stateObserver: StateController;
+  listDiff: Map<number, string[]> = new Map();
+  expandedClass: string;
+  expandedHrefs = [];
+  expandedPaths = ['1.1', '2.1.1'];
+  sections: HTMLElement[];
+  expandedLists = new Set();
+  items = new Map() as Map<string, Ref<Element>>;
+  needsUpdate: boolean = true;
+  list: any[];
   constructor() {
     super();
     this.scrollSpy = this.scrollSpy.bind(this);
     this.activeClass = 'is-active';
+    this.expandedClass = 'is-expanded';
     this.icons = new IconController(this, 'openBook');
     this.stateObserver = new StateController(this);
+    this.observers = {};
   }
 
   toggle() {
@@ -76,145 +111,207 @@ export class TableOfContents extends LitElement {
   }
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
-    this.articleContent = this.closest('main');
-
+    this.articleContent = document.querySelector('content-tree');
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
     }
-    this.headings = this.getHeadings();
-    this.previousOffset = this.articleContent.getBoundingClientRect().top;
-    this.observer = new IntersectionObserver(this.scrollSpy, {
-      root: this.articleContent,
+    this.sections = this.getSections();
+    this.previousOffset = this.articleContent.scrollTop;
+
+    const mutationCallback = (mutationList: MutationRecord[]) => {
+      mutationList
+        .filter((mutation) => mutation.type === 'childList')
+        .map((mutation) => [
+          ...Object.values(mutation.addedNodes),
+          ...Object.values(mutation.removedNodes),
+        ])
+        .some((node) => {
+          return 'tagName' in node
+            ? node['tagName'].toLowerCase() === 'section'
+            : false;
+        })
+        ? (this.sections = this.getSections())
+        : null;
+    };
+
+    this.observers.mutation = new MutationObserver(mutationCallback);
+    this.observers.mutation.observe(this.articleContent, { childList: true });
+    this.observers.intersection = new IntersectionObserver(this.scrollSpy, {
+      root: null,
       rootMargin: '-40% 0px -40% 0px',
-      threshold: [0.1, 0.5, 1],
+      threshold: [0, 0.1, 0.9],
     });
 
     this.classList.add('toc');
-    this.headings.forEach((heading: HTMLHeadingElement, i) => {
-      heading.dataset.tocIndex = i.toString();
-      this.observer.observe(heading);
+
+    this.sections.forEach((section: HTMLElement, i) => {
+      this.observers.intersection.observe(section);
     });
-    window.addEventListener(
-      'hashchange',
-      (e) => {
-        this._activateLink(window.location.hash.slice(1));
-      },
-      { passive: true }
-    );
+    this.updateList();
   }
-  _getLinkClasses(id: string) {
-    return classMap({
-      isActive: id === this.activeLinkId,
-      list__item__link: true,
-    });
-  }
-  _refreshLinks = (headings: HTMLHeadingElement[]) => {
-    let lastLvl = 0;
-    return headings?.reduce((tree, heading, index) => {
-      const { id, innerText, tagName } = heading;
-      const currLvl = Number(tagName[1]) - 1;
-      let node = html`<li class="list__item">
-        <a
-          data-toc-index="${heading.dataset.tocIndex}"
-          data-toc-id="${id}"
-          data-toc-level="${currLvl}"
-          class="list__item__link"
-          href="#${id}"
-          >${innerText}</a
-        >
-      </li>`;
-      if (currLvl > lastLvl) {
-        //prettier-ignore
-        tree.push(html`<ul>`);
-      }
-      if (currLvl < lastLvl) {
-        tree.push(html`</ul>`);
-      }
-      tree.push(node);
-      lastLvl = currLvl;
-      return tree;
-    }, []);
+
+  _refreshLinks = (sections: HTMLElement[]) => {
+    if (sections) {
+      var { nodes, subLists } = this.getSectionData(sections);
+      const nodelist = nodes?.reduce((tree, heading, i) => {
+        const { arr, string } = heading;
+        let path = string.href;
+        let childContent;
+        //If the node has children, diff and append the node's children to a ul group within the node's li.
+        if (subLists.has(string.coords)) {
+          const children = subLists.get(string.coords);
+          /*   const childPath = children.map((child) =>
+            child.active ? '[act]' : '' + child.path
+          );*/
+
+          childContent = this.getSubList(string, children);
+
+          path = path + children.join('--');
+        }
+
+        const active = this.activeLinkId === string.href;
+        // isExpanded = this.expandedPaths.some((path: string) =>
+        //  path.includes(string.coords)
+        // );
+        //Make the template, nesting childContent if applicable;
+
+        const ref = createRef();
+        let li = this.getListItem(arr, string, childContent, ref);
+        this.items.set(string.href, ref);
+        //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree;
+        if (arr.coords.length > 1) {
+          if (subLists.has(string.root)) {
+            subLists.get(string.root).push({ li, path, active });
+          } else {
+            subLists.set(string.root, [{ li, path, active }]);
+          }
+        } else {
+          tree.push(li);
+        }
+        return tree;
+      }, []);
+      this.needsUpdate = false;
+      return nodelist;
+    }
   };
 
-  scrollDirFrom = (previousOffset: number) => {
-    const currentOffset = this.articleContent.getBoundingClientRect().top;
-    const sign = Math.sign(currentOffset - previousOffset);
+  getScrollDirection = () => {
+    const currentOffset = window.scrollY;
+    const sign = Math.sign(this.previousOffset - currentOffset);
     this.previousOffset = currentOffset;
     return sign;
   };
 
-  getHeadings(): HTMLHeadingElement[] {
-    return Array.from(this.articleContent?.querySelectorAll('h2[id], h3[id]'));
-  }
-  scrollSpy(headings: IntersectionObserverEntry[]) {
-    let midPoint =
-      window.innerHeight || document.documentElement.clientHeight / 2;
-    const lastIndexStr = this.activeLink?.dataset?.tocIndex;
-    if (lastIndexStr === undefined) {
-      this._selectActiveHeader(headings, midPoint);
-      return;
-    }
-    let { isIntersecting, target } = headings[0];
-    let tar = target as HTMLElement;
-    const lastIndexNum = Number(lastIndexStr);
-    const targetIndex = Number(tar.dataset.tocIndex);
-    const isScrollingDown = this.scrollDirFrom(this.previousOffset) < 0;
-    /*If the element is not intersecting, check if the closest visible header is within the viewport*/
-    if (isIntersecting === false) {
-      this._selectClosestVisible(targetIndex, isScrollingDown, midPoint);
-      return;
-    }
-    const isSectionLarger = targetIndex > lastIndexNum;
-    if (isScrollingDown) {
-      if (isSectionLarger) {
-        this._activateLink(tar.id);
-      }
-    } else if (!isSectionLarger) {
-      this._activateLink(tar.id);
-    }
+  private getSectionData(sections: HTMLElement[]) {
+    const nodes = sections.map((section) => {
+      const href = section.id;
+      const [hrefCoords, hrefTitle] = href.split('__', 2);
+      const coords = hrefCoords.split('.');
+      const localIndex = coords.slice(-1);
+      const root = coords.slice(0, -1).join('.');
+      const len = coords.length;
+      //Sort descending by length and ascending by value (ex. 5.1.1.2 > 5.1.1.3 < 1.1.1.1 > 1.2)
+      const comparator = len * 1000 + (100 - Number(localIndex));
+      return {
+        arr: { coords },
+        string: {
+          coords: hrefCoords,
+          href,
+          title: hrefTitle,
+          comparator,
+          root,
+        },
+      };
+    });
+    nodes.sort((a, b) => b.string.comparator - a.string.comparator);
+    let subLists = new Map() as Map<string, ListChild[]>;
+    return { nodes, subLists };
   }
 
-  private _selectClosestVisible(
-    currentIndex: number,
-    scrollingDown: boolean,
-    midpoint: number
+  private getSubList(string: SectionParameters, children: ListChild[]) {
+    const keyDiff = (item: ListChild) =>
+      item.active ? '[act]' : '' + item.path;
+    const templateFn = (item: ListChild) => item.li;
+    return html`<ul
+      ${flip()}
+      data-toc-position="${string.coords}"
+      class="list__sublist"
+    >
+      ${repeat(children, keyDiff, templateFn)}
+    </ul>`;
+  }
+
+  private getListItem(
+    arr: { coords: string[] },
+    string: SectionParameters,
+    childContent: TemplateResult<2 | 1>,
+    reference: Ref
   ) {
-    let nextIndex = scrollingDown ? currentIndex + 1 : currentIndex - 1;
+    return html`<li
+      data-toc-position="${arr.coords.join('.')}"
+      class="list__item"
+    >
+      <a
+        data-toc-position="${arr.coords.join('.')}"
+        class="list__item__link"
+        href="#${string.href}"
+        ${flip()}
+        ${ref(reference)}
+        >${string.title}</a
+      >
+      ${childContent}
+    </li>`;
+  }
+  updateList() {
+    this.list = this._refreshLinks(this.sections);
+  }
+  getSections(): HTMLElement[] {
+    return Array.from(this.articleContent?.querySelectorAll('section'));
+  }
+  scrollSpy(sections: IntersectionObserverEntry[]) {
+    const lastActive = this.activeLinkId;
+    const isScrollingDown = this.getScrollDirection() < 0;
+    const down = isScrollingDown;
+    const sort = down ? 1 : -1;
 
-    let nextLink = this.links2.item(nextIndex) || false;
-    if (nextLink != false) {
-      let { top } = nextLink.getBoundingClientRect();
-      let bp = scrollingDown ? top < midpoint && top > 0 : top > 0;
-      if (bp === true) {
-        this._activateLink(nextLink.dataset.tocId);
-      } else return;
+    sections.forEach((section) => {
+      if (section.isIntersecting) {
+        section.target.classList.add('in-viewport');
+      } else {
+        section.target.classList.remove('in-viewport');
+      }
+    });
+    const active = this.sections
+      .filter((item) => item.classList.contains('in-viewport'))
+      //Want a larger top when scrolling down => means element is further down the page
+      .sort((a, b) =>
+        Math.sign(
+          sort * (b.getBoundingClientRect().top - a.getBoundingClientRect().top)
+        )
+      );
+    if (active.length) {
+      this.activeLinkId = active[0].id;
+    }
+    this.activeLinkId = active[0].id;
+    if (lastActive !== this.activeLinkId) {
+      const refer = this.getRef(this.activeLinkId);
+      const lastRef = this.getRef(lastActive);
+      lastRef?.classList?.remove(this.activeClass);
+      refer?.classList?.add(this.activeClass);
+      if (this.sublists.length > 0) {
+        this.sublists.forEach((list) => list.classList.remove('is-expanded'));
+      }
+      let parent = refer?.parentElement;
+      while (parent?.hasAttribute('data-toc-position')) {
+        if (parent.tagName.toLowerCase() === 'ul') {
+          parent.classList.add('is-expanded');
+        }
+        parent = parent.parentElement;
+      }
     }
   }
-
-  private _selectActiveHeader(
-    headings: IntersectionObserverEntry[],
-    midPoint: number
-  ) {
-    let min = Number.MAX_SAFE_INTEGER;
-    let max = Number.MIN_VALUE;
-    let larger = false;
-    let bounds = headings.reduce((acc, curr) => {
-      let { boundingClientRect: bounds, isIntersecting, target } = curr;
-      if (isIntersecting) {
-        let y = Math.floor(bounds.y);
-        larger = y > midPoint;
-        min = y < min ? y : min;
-        max = y > max ? y : max;
-        acc.set(y, target.id);
-      }
-      return acc;
-    }, new Map());
-    const selector = larger ? bounds.get(min) : bounds.get(max);
-    this._activateLink(selector);
-  }
-  private _activateLink(selector: string) {
-    this.activeLinkId = selector ?? this.activeLinkId;
-    this.requestUpdate('activeLinkId');
+  getRef(reference) {
+    return this.items.get(reference)?.value;
   }
   render() {
     return html`
@@ -234,14 +331,17 @@ export class TableOfContents extends LitElement {
         <h2 class="toc__header">
           <a class="toc__header__link"></a>
         </h2>
-        <div>${this._refreshLinks(this.headings)}</div>
+        <div>
+          <ul class="list">
+            ${this.list}
+          </ul>
+        </div>
       </div>
     `;
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.observer.disconnect();
   }
 
   static get styles() {

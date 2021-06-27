@@ -3,7 +3,7 @@
 @use "./util/mixins" as mix;
 @use 'util/fonts' as font;
 @import 'util/normalize';
-@import 'util/palette-vars';
+@import 'util/variables';
 @import 'util/component-vars';
 .hidden {
     padding: 8px;
@@ -52,33 +52,9 @@ background-animation {
     --background-color: var(--primary-9);
 }
 
-:target::before {
-    display: block;
-    content: ' ';
-    margin-top: -110px;
-    height: 110px;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-li::marker {
-    content: counter(list-item) '› ';
-    color: var(--secondary-5);
-    font-size: 24pt;
-}
-
-li {
-    padding-inline-start: 1ch;
-}
-
-ul,
-ol {
-    max-width: 35ch;
-}
-
 .layout {
     display: grid;
-    grid-template-columns: 2fr 8fr 2fr;
+    grid-template-columns: 8fr 4fr;
     & .center {
         grid-column: 2 / 3;
         height: 100%;
@@ -99,7 +75,7 @@ ol {
         grid-template-columns: 1fr;
     }
     @include mix.bp(md) {
-        grid-template-columns: 1fr 10fr 1fr;
+        grid-template-columns: 8fr 4fr;
     }
     @include mix.bp(sm) {
         grid-template-columns: 1fr;

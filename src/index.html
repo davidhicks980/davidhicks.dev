@@ -9,7 +9,6 @@
     <!-- <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>-->
     <link rel="stylesheet" href="./styles/main.prod.css" />
-    <script type="module" defer src="./components.js"></script>
 
     <title>The Developer Site for David Hicks</title>
 </head>
@@ -17,7 +16,7 @@
 <body id="app">
     <a tabindex="1" class="hidden" href="#">Skip to content</a>
 
-    <background-animation>
+    <foliage-header>
         <div slot="header-brand">
             <brand-component></brand-component>
         </div>
@@ -32,14 +31,15 @@
                 <hicks-nav-item>contact</hicks-nav-item>
             </hicks-nav>
         </div>
-    </background-animation>
+    </foliage-header>
     <main class="layout">
         <div class="left"></div>
-        <content-component class="center"></content-component>
+        <content-tree class="center"></content-tree>
         <div class="right">
             <hicks-toc></hicks-toc>
         </div>
     </main>
 </body>
+<script type="module" defer src="./components.js"></script>
 
 </html>

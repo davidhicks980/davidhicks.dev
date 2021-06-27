@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
- export const style = css`:root {
+ export const style = css`@charset "UTF-8";
+:root {
   --header-font: "PT Sans", sans-serif;
   --body-font: "Arimo", sans-serif;
 }
@@ -49,14 +50,13 @@ h6 {
 :host(.toc) {
   position: sticky;
   top: 20vh;
-  top: var(calc(--toolbar-height + 5vh), 20vh);
+  top: var(--toolbar-height, 20vh);
   display: grid;
   grid-template-columns: 2rem auto;
   grid-template-rows: 2rem 100%;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  margin: 1rem;
 }
 
 .toc__toggle {
@@ -100,22 +100,87 @@ h6 {
   vertical-align: middle;
 }
 
+:host {
+  --x-coord: 0px;
+  --y-coord: 0px;
+}
+
+@-webkit-keyframes OpenList {
+  0% {
+    -webkit-transform: translateY(-100%);
+            transform: translateY(-100%);
+  }
+  100% {
+    -webkit-transform: translateY(0%);
+            transform: translateY(0%);
+  }
+}
+
+@keyframes OpenList {
+  0% {
+    -webkit-transform: translateY(-100%);
+            transform: translateY(-100%);
+  }
+  100% {
+    -webkit-transform: translateY(0%);
+            transform: translateY(0%);
+  }
+}
 .list {
   --list-item-padding: 0%;
   margin: 0;
-  padding: 0;
-  list-style-type: none;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding-left: 0px;
-  padding-right: 0px;
+  padding-left: 0.5rem;
+  position: relative;
+  overflow: visible;
 }
-.list a, .list a:hover, .list a:focus, .list a:active {
-  text-decoration: none;
-  color: inherit;
+.list::before {
+  content: "";
+  border-left: 2px solid var(--primary-7);
 }
-.list__item {
+[dir="ltr"] .list__sublist{
+  padding-left: 0.75rem;
+}
+[dir="rtl"] .list__sublist{
+  padding-right: 0.75rem;
+}
+.list__sublist {
+  padding-left: 0.75rem;
+  margin: 0px;
   list-style-type: none;
+  overflow: visible;
+  opacity: 0.1;
+  display: block;
+  top: auto;
+}
+.list__sublist li {
+  height: 1px;
+  display: block;
+  -webkit-transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+.list__sublist.is-expanded {
+  top: auto;
+  opacity: 1;
+  -webkit-transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+.list__sublist.is-expanded > li {
+  height: 1rem;
+}
+.list__sublist.is-expanded + li {
+  top: auto;
+}
+.list__item.is-cv {
+  list-style-type: "📜";
+}
+.list__item.is-portfolio {
+  list-style-type: "🎨";
+}
+.list__item.is-about {
+  list-style-type: "🐈";
+}
+.list__item.is-contact {
+  list-style-type: "💌";
 }
 .list__item__link {
   font-size: 1rem;
@@ -125,6 +190,12 @@ h6 {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding: 0.25em;
+}
+.list__item__link:hover::after, .list__item__link:focus::after {
+  -webkit-transform: translate3d(0, 0, 0);
+          transform: translate3d(0, 0, 0);
+  opacity: 1;
 }
 .list__item__link[data-toc-level="1"] {
   margin-left: 1em;
@@ -142,11 +213,20 @@ h6 {
   margin-left: 5em;
 }
 .list__item__link:hover {
-  color: var(--secondary-2);
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--secondary-6);
+          text-decoration-color: var(--secondary-6);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 1px;
+  text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px, currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+  -webkit-transition: text-shadow 1s;
+  transition: text-shadow 1s;
 }
 .list__item__link.is-active {
   color: var(--primary-8);
-  font-weight: 500;
+  text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px, currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+  -webkit-transition: text-shadow 1s;
+  transition: text-shadow 1s;
 }
 
 /*

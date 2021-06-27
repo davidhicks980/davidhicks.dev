@@ -1,3 +1,7 @@
+@use "sass:map";
+@use "sass:string";
+$bp: ( 'zero': 0px, 'xsmall': 400px, 'small': 600px, 'medium': 900px, 'large': 1200px, 'xlarge': 1800px, );
+
 /**Took breakpoints from web.dev site for convenience...nothing super radical tho*/
 
 // =============================================================================
@@ -92,30 +96,22 @@ $BREAKPOINT_VALUE_MEDIUM: 850px;
     padding-inline: 0px;
 }
 
-@mixin media-size($size) {
-    @if $size==xsmall {
-        @media (max-width: 599.99px) {
-            @content;
-        }
+@mixin media-size($min: null, $max: null) {
+    $minString: null;
+    $maxString: null;
+    $join: '';
+    @if $min {
+        $minString: '( min-width: #{map.get($bp, $min)})';
     }
-    @else if $size==small {
-        @media (min-width: 600px) and (max-width: 899.99px) {
-            @content;
-        }
+    @if $max {
+        $maxString: '( max-width: #{map.get($bp, $max) - 0.01px})';
     }
-    @else if $size==medium {
-        @media (min-width: 900px) and (max-width: 1199.99px) {
-            @content;
-        }
+    @if $maxString and $minString {
+        $join: 'and';
     }
-    @else if $size==large {
-        @media (min-width: 1200px) and (max-width: 1799.99px) {
-            @content;
-        }
-    }
-    @else if $size==extraLarge {
-        @media (min-width: 1800px) {
-            @content;
-        }
+    $full: '#{$minString} #{$join} #{$maxString}';
+    $query: string.unquote($full);
+    @media #{$query} {
+        @content;
     }
 }

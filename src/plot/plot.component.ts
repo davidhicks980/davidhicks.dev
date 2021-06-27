@@ -163,7 +163,7 @@ export class PlotEngine extends LitElement {
   @property({ type: String })
   mainColor: string = getComputedStyle(
     document.documentElement
-  ).getPropertyValue('--primary-8');
+  ).getPropertyValue('--primary-7');
   @property({ type: String })
   highlightColor: string = getComputedStyle(
     document.documentElement

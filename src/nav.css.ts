@@ -3,8 +3,11 @@ import { css } from 'lit';
  export const style = css`/* hicks-nav */
 :host {
   --nav--gap: 1vw;
-  --nav--direction: "row";
+  --nav--direction: row;
+  --nav--direction-breakpoint: 600px;
   --nav--base-color: white;
+  --nav--text-transform: none;
+  --nav--font-size: 1.2rem;
 }
 
 .navigation {
@@ -17,6 +20,10 @@ import { css } from 'lit';
           flex-direction: var(--nav--direction);
   grid-gap: var(--nav--gap);
   gap: var(--nav--gap);
+  text-transform: var(--nav--text-transform);
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 .navigation__slot {
   display: contents;
@@ -24,4 +31,5 @@ import { css } from 'lit';
 
 ::slotted(hicks-nav-item) {
   --nav-item--font-color: var(--nav--base-color, "white");
+  --nav-item--font-size: var(--nav--font-size);
 }`;

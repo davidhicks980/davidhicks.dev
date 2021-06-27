@@ -1,19 +1,16 @@
 import { LitElement, html, css, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { styleMap } from 'lit/directives/style-map.js';
 
 @customElement('title-component')
 export class TitleComponent extends LitElement {
   @property({ type: Boolean })
   hidden: boolean = true;
-  @property()
-  color: string = 'black';
   render(): TemplateResult {
-    //  const colorStyle = styleMap({ color: this.color });
     return html`<svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 558.4 78.4"
+      class="title__svg"
     >
       <defs>
         <symbol id="i" data-name="i" viewBox="0 0 15.3 77">
@@ -59,6 +56,12 @@ export class TitleComponent extends LitElement {
   static get styles(): CSSResultGroup[] {
     return [
       css`
+        :host {
+          --title--fill: black;
+        }
+        .title__svg {
+          fill: var(--title--fill);
+        }
         .logo-transparent {
           fill: none;
         }

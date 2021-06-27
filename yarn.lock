@@ -231,6 +231,13 @@
   resolved "https://registry.npmjs.org/@github/query-selector/-/query-selector-1.0.4.tgz"
   integrity sha512-qtV+sWcp3DPO69LUKZJD+VLdfo3FYII1qmJfQhMd0x17pDBZn6FwYQB3fH9okYTz1J8hT1UOfOm8o4siBcQJ5Q==
 
+"@lit-labs/motion@^1.0.0-rc.2":
+  version "1.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@lit-labs/motion/-/motion-1.0.0-rc.2.tgz#54c34ccf290a58fb72f6ad66f090f6f95f3c227d"
+  integrity sha512-fLTVg6ByMhYsgIS7nFtGibLP08GMrfENg+mFW9KdzNlZyK3Ndk8E3Ig3L0NlHpDQnyZ8D8Y6IR/O87PDSDmITA==
+  dependencies:
+    lit "2.0.0-rc.2"
+
 "@lit/reactive-element@^1.0.0-rc.2":
   version "1.0.0-rc.2"
   resolved "https://registry.npmjs.org/@lit/reactive-element/-/reactive-element-1.0.0-rc.2.tgz"
@@ -1520,7 +1527,7 @@ lit-html@^2.0.0-rc.3:
   dependencies:
     "@types/trusted-types" "^1.0.1"
 
-lit@^2.0.0-rc.2:
+lit@2.0.0-rc.2, lit@^2.0.0-rc.2:
   version "2.0.0-rc.2"
   resolved "https://registry.npmjs.org/lit/-/lit-2.0.0-rc.2.tgz"
   integrity sha512-BOCuoJR04WaTV8UqTKk09cNcQA10Aq2LCcBOiHuF7TzWH5RNDsbCBP5QM9sLBSotGTXbDug/gFO08jq6TbyEtw==

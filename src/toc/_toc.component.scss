@@ -1,12 +1,11 @@
 @use "../styles" as st;
 :host(.toc) {
     position: sticky;
-    top: var(calc(--toolbar-height + 5vh), 20vh);
+    top: var(--toolbar-height, 20vh);
     display: grid;
     grid-template-columns: 2rem auto;
     grid-template-rows: 2rem 100%;
     align-items: center;
-    margin: 1rem;
 }
 
 .toc {
@@ -45,14 +44,69 @@
     }
 }
 
+:host {
+    --x-coord: 0px;
+    --y-coord: 0px;
+}
+
+@keyframes OpenList {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0%);
+    }
+}
+
 .list {
     --list-item-padding: 0%;
     margin: 0;
-    padding: 0;
-    @include st.std-reset-link;
-    @include st.std-reset-list;
-    &__item {
+    padding-left: 0.5rem;
+    position: relative;
+    overflow: visible;
+    &::before {
+        content: '';
+        border-left: 2px solid var(--primary-7);
+    }
+    &__sublist {
+        padding-inline-start: 0.75rem;
+        padding-left: 0.75rem;
+        margin: 0px;
         list-style-type: none;
+        overflow: visible;
+        opacity: 0.1;
+        display: block;
+        top: auto;
+        & li {
+            height: 1px;
+            display: block;
+            transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+        &.is-expanded {
+            top: auto;
+            opacity: 1;
+            transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
+            &>li {
+                height: 1rem;
+            }
+            &+li {
+                top: auto;
+            }
+        }
+    }
+    &__item {
+        &.is-cv {
+            list-style-type: '📜';
+        }
+        &.is-portfolio {
+            list-style-type: '🎨';
+        }
+        &.is-about {
+            list-style-type: '🐈';
+        }
+        &.is-contact {
+            list-style-type: '💌';
+        }
         &__link {
             font-size: 1rem;
             margin-left: var(--list-item-padding);
@@ -61,17 +115,29 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            padding: 0.25em;
+            &:hover::after,
+            &:focus::after {
+                transform: translate3d(0, 0, 0);
+                opacity: 1;
+            }
             @for $var from 1 to 6 {
                 &[data-toc-level='#{$var}'] {
                     margin-left: #{$var}em;
                 }
             }
             &:hover {
-                color: var(--secondary-2);
+                text-decoration: underline;
+                text-decoration-color: var(--secondary-6);
+                text-decoration-thickness: 2px;
+                text-underline-offset: 1px;
+                text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px, currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+                transition: text-shadow 1s;
             }
             &.is-active {
                 color: var(--primary-8);
-                font-weight: 500;
+                text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px, currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+                transition: text-shadow 1s;
             }
         }
     }

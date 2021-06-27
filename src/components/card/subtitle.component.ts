@@ -1,36 +1,23 @@
 import { LitElement, html, css, CSSResultGroup, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { styleMap } from 'lit/directives/style-map.js';
-import { classMap } from 'lit/directives/class-map.js';
+import { customElement } from 'lit/decorators.js';
+
 @customElement('subtitle-component')
 export class SubtitleComponent extends LitElement {
-  @property({ type: Array })
-  propArray: any[];
-  @property({ type: String })
-  propString: string;
-  @property({ type: Boolean })
-  propBoolean: boolean;
-  @property({ type: Object })
-  propObject: object;
-  @property({ type: Number })
-  propNumber: number;
-  @property()
-  color: string = 'black';
   render(): TemplateResult {
-    const colorStyle = styleMap({ color: this.color });
-    const colorClass = classMap({ color: this.color });
-    return html`<p>pharmacist + developer</p>`;
+    return html`<p class="subtitle__paragraph">pharmacist + developer</p>`;
   }
   static get styles(): CSSResultGroup[] {
     return [
       css`
         :host {
-          --hicks--subtitle--font-family: 'DM Mono', monospace;
-          --hicks--subtitle--font-size: calc(var(--grid-width) * 0.16 * 0.25);
+          --subtitle--font-family: 'DM Mono', monospace;
+          --subtitle--font-size: calc(var(--grid-width) * 0.16 * 0.25);
+          --subtitle--font-color: #232b33;
         }
-        p {
-          font-family: var(--hicks--subtitle--font-family);
-          font-size: var(--hicks--subtitle--font-size);
+        .subtitle__paragraph {
+          font-family: var(--subtitle---font-family);
+          font-size: var(--subtitle--font-size);
+          color: var(--subtitle--font-color);
           margin: 0px;
         }
       `,
