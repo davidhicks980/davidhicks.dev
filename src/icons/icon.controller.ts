@@ -1,13 +1,17 @@
-import { ReactiveController, ReactiveControllerHost } from "lit";
-import { iconFactory } from "./icons";
+import {
+  ReactiveController,
+  ReactiveControllerHost,
+  TemplateResult,
+} from 'lit';
+import { iconFactory } from './icons';
+import { render } from 'lit';
 
+const icons = new Map() as Map<string, TemplateResult>;
 export class IconController implements ReactiveController {
   host: ReactiveControllerHost;
 
-  private _iconName = "cottage";
-  constructor(host: ReactiveControllerHost, name: string) {
+  constructor(host: ReactiveControllerHost) {
     (this.host = host).addController(this);
-    this._iconName = name;
   }
 
   hostConnected() {
@@ -16,14 +20,14 @@ export class IconController implements ReactiveController {
   hostDisconnected() {
     // Clear the timer when the host is disconnected
   }
-  set name(value: string) {
-    this._iconName = value;
-    this.host.requestUpdate();
-  }
-  get name() {
-    return this._iconName;
-  }
-  icon(primary: string, secondary: string) {
-    return iconFactory(this._iconName, primary, secondary);
+
+  makeIcon(name, viewbox) {
+    const icon = iconFactory(name, viewbox);
+    return {
+      renderTo: (parent: HTMLElement) => {
+        render(icon, parent);
+      },
+      getIcon: () => icon,
+    };
   }
 }

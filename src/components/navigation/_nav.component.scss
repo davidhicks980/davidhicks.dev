@@ -1,0 +1,37 @@
+/* hicks-nav */
+
+:host {
+    --nav--gap: 2vw;
+    --nav--direction: row;
+    --nav--direction-breakpoint: 600px;
+    --nav--height: 2.25rem;
+    //////////////////
+    --nav--item--background-color: transparent;
+    --nav--item--font-color: black;
+    --nav--item--font-size: 1em;
+    --nav--item--border: none;
+    --nav--item--font-weight: 500;
+    --nav--item--hover--opacity: 0.6;
+    --nav--item--selected--font-color: black;
+    --nav--item--hover--text-transform: underline;
+}
+
+.navigation {
+    display: flex;
+    flex-direction: var(--nav--direction);
+    gap: var(--nav--gap);
+    align-items: center;
+    justify-content: center;
+    height: var(--nav--height);
+    &__slot {
+        display: contents;
+    }
+}
+
+:host(:hover) ::slotted(hicks-nav-item) {
+    opacity: var(--nav--item--hover--opacity);
+}
+
+:host(:hover) ::slotted(hicks-nav-item:hover) {
+    opacity: 1;
+}

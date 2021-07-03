@@ -90,57 +90,71 @@ h6 {
 * @access public
 * @param {String} $element - Element's name
 */
-:host {
-  border-radius: 4px;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-  -webkit-transition: -webkit-box-shadow 0.5s;
-  transition: -webkit-box-shadow 0.5s;
-  transition: box-shadow 0.5s;
-  transition: box-shadow 0.5s, -webkit-box-shadow 0.5s;
+.icon__button {
+  padding: 0px;
   position: relative;
-  width: 100%;
-  height: 100%;
-  border: 1px solid hsl(212, 13.2%, 93.39%);
-  border: 1px solid var(--gray-3);
-  height: 150px;
-  max-height: 200px;
-  min-width: 150px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  padding: 1rem;
+  opacity: 1;
+  -webkit-transform: scale(1);
+          transform: scale(1);
+  display: block;
 }
-:host:hover::after {
-  opacity: 0.8;
-}
-:host::after {
+.icon__button::before {
+  --icon-button--background: rgba(255, 255, 255, 0.3);
+  --icon-button--outline: rgba(255, 255, 255, 0.5);
+  --icon-button--active-outline: rgba(255, 255, 255, 1);
   content: "";
   position: absolute;
-  z-index: 0;
+  display: block;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  background-color: var(--icon-button--background);
+  border-radius: 50%;
+  -webkit-transform: scale(1.35);
+          transform: scale(1.35);
   opacity: 0;
-  border-radius: inherit;
-  -webkit-transition: opacity 0.3s ease-in-out;
-  transition: opacity 0.3s ease-in-out;
-  pointer-events: none;
-  margin: 0px;
-  -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
-          box-shadow: 0 3px 6px rgb(87 107 138/36%);
+  -webkit-transform-origin: center;
+          transform-origin: center;
+  -webkit-transition-property: opacity transform;
+  transition-property: opacity transform;
+  -webkit-transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
+  transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
+  height: 100%;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  width: 100%;
+}
+.icon__button:hover::before {
+  opacity: 0.3;
+  -webkit-transform: scale(1.35);
+          transform: scale(1.35);
+}
+.icon__button:hover:active::before {
+  opacity: 0.6;
+  border: 1px solid white;
+  -webkit-transform: scale(1.65);
+          transform: scale(1.65);
+}
+.icon__button:active::before {
+  opacity: 0.3;
+  -webkit-transform: scale(1.65);
+          transform: scale(1.65);
+}
+.icon__button:focus::before {
+  opacity: 0.3;
 }
 
-p ::slotted(*) {
-  font-size: 10pt;
-  font-weight: 400;
+.icon__button {
+  background: none;
+  border: none;
+  display: block;
 }
 
-h1 ::slotted(*) {
-  font-size: 24pt;
-  font-weight: 400;
-  margin: 0px;
-  margin-top: 0px;
-  margin-bottom: 0px;
+img {
+  height: 2rem;
+  width: 2rem;
+}
+
+:host * {
+  height: 2rem;
+  width: 2rem;
 }`;

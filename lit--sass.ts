@@ -31,6 +31,7 @@ const sassToCss = (sassFile) => {
   const renderOptions = {
     file: sassFile,
     outputStyle: 'expanded',
+    includePaths: ['src'],
   };
   let stringifiedCss = function (resolve, reject) {
     // @ts-ignore

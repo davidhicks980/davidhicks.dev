@@ -70,7 +70,8 @@ function getFiles() {
 var sassToCss = function (sassFile) {
     var renderOptions = {
         file: sassFile,
-        outputStyle: 'expanded'
+        outputStyle: 'expanded',
+        includePaths: ['src']
     };
     var stringifiedCss = function (resolve, reject) {
         // @ts-ignore

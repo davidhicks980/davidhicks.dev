@@ -90,31 +90,49 @@ h6 {
 * @access public
 * @param {String} $element - Element's name
 */
-:host {
-  border-radius: 4px;
+/**
+      Layout 
+      */
+.container {
+  display: grid;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  -webkit-transition: -webkit-box-shadow 0.5s;
-  transition: -webkit-box-shadow 0.5s;
-  transition: box-shadow 0.5s;
-  transition: box-shadow 0.5s, -webkit-box-shadow 0.5s;
+  grid-gap: 10px;
+  gap: 10px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-areas: "chart chart chart latex latex" "chart chart chart inputs inputs" "chart chart chart inputs inputs";
   position: relative;
-  width: 100%;
-  height: 100%;
-  border: 1px solid hsl(212, 13.2%, 93.39%);
-  border: 1px solid var(--gray-3);
-  height: 150px;
-  max-height: 200px;
-  min-width: 150px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  padding: 1rem;
+  /* width */
+  /* Track */
+  /* Handle */
 }
-:host:hover::after {
+.container ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.container ::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 0 1px lightgray;
+          box-shadow: inset 0 0 0 1px lightgray;
+  border-radius: 10px;
+}
+.container ::-webkit-scrollbar-thumb {
+  background: #b0b0b0;
+  border-radius: 10px;
+}
+.container.is-small {
+  grid-template-areas: "latex" "chart" "chart" "inputs";
+  grid-template-rows: auto minmax(5vh, 150px) minmax(5vh, 150px) auto;
+  grid-template-columns: 100%;
+}
+.container > * {
+  border-radius: 5px;
+  border: 1px solid #bbbbbb;
+  background: white;
+}
+.container > *:hover::after {
   opacity: 0.8;
 }
-:host::after {
+.container > *::after {
   content: "";
   position: absolute;
   z-index: 0;
@@ -131,16 +149,80 @@ h6 {
   -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
           box-shadow: 0 3px 6px rgb(87 107 138/36%);
 }
-
-p ::slotted(*) {
-  font-size: 10pt;
-  font-weight: 400;
+.container * {
+  font-family: "systemui", "IBM Plex Sans", "Roboto", Arial, Helvetica, sans-serif;
+}
+.container__chart {
+  grid-area: chart;
+  max-height: 100%;
+  padding: 30px 30px 10px 10px;
+  max-width: 100%;
+  min-width: 200px;
+  position: relative;
+}
+.container__inputs {
+  grid-area: inputs;
+  padding: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  position: relative;
+  grid-gap: 1em;
+  gap: 1em;
+}
+.container__latex {
+  grid-area: latex;
+  border: 1px solid #bbbbbb;
+  position: relative;
 }
 
-h1 ::slotted(*) {
-  font-size: 24pt;
-  font-weight: 400;
-  margin: 0px;
-  margin-top: 0px;
-  margin-bottom: 0px;
+.inputs__range {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  -ms-flex-line-pack: distribute;
+      align-content: space-around;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  place-content: space-around;
+  width: 100%;
+  grid-row-gap: 1em;
+  row-gap: 1em;
+  padding: 0.5em;
+  grid-column-gap: 0.75em;
+  -webkit-column-gap: 0.75em;
+     -moz-column-gap: 0.75em;
+          column-gap: 0.75em;
+}
+
+.inputs__toggle {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border: 1px dotted #bbbbbb;
+  border-radius: 5px;
+  height: 3.5em;
+  -ms-flex-line-pack: space-evenly;
+      align-content: space-evenly;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  place-content: space-evenly;
+  -webkit-box-shadow: var(--pk-shadow--step-0);
+          box-shadow: var(--pk-shadow--step-0);
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  max-width: 14em;
+  width: 11em;
+}
+
+pk-latex {
+  --input: normal 0.7em var(--body-font), serif;
 }`;

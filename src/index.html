@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital;IBM+Plex+Serif:ital&display=swap" rel="stylesheet" />
+    <meta charset="utf-8" name="viewport" content="width=device-width" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
     <!-- <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>-->
     <link rel="stylesheet" href="./styles/main.prod.css" />
@@ -14,23 +14,37 @@
 </head>
 
 <body id="app">
-    <a tabindex="1" class="hidden" href="#">Skip to content</a>
+    <a tabindex="0" class="hidden" href="#">Skip to content</a>
 
     <foliage-header>
         <div slot="header-brand">
             <brand-component></brand-component>
         </div>
-        <div class="header__logo-wrapper" slot="header-logo">
+        <div style="height: 3rem; width: 4.5rem" class="header__logo-wrapper" slot="header-logo">
             <logo-component></logo-component>
         </div>
-        <div slot="header-navigation">
-            <hicks-nav>
-                <hicks-nav-item>about</hicks-nav-item>
-                <hicks-nav-item>portfolio</hicks-nav-item>
-                <hicks-nav-item>resume</hicks-nav-item>
-                <hicks-nav-item>contact</hicks-nav-item>
+        <div slot="header-social">
+            <hicks-nav style="--nav--gap: 1rem; --nav--height: 2.25rem">
+                <hicks-nav-item>
+                    <img class="icon--social" src="./icons/logo-google.svg" />
+                </hicks-nav-item>
+                <hicks-nav-item>
+                    <img class="icon--social" src="./icons/logo-github.svg" />
+                </hicks-nav-item>
+                <hicks-nav-item>
+                    <img class="icon--social" src="./icons/logo-linkedin.svg" />
+                </hicks-nav-item>
             </hicks-nav>
         </div>
+        <div slot="header-toolbar-toggle">
+            <hicks-icon-button src="./icons/menu.svg"></hicks-icon-button>
+        </div>
+        <hicks-nav slot="header-navigation">
+            <hicks-nav-item>About</hicks-nav-item>
+            <hicks-nav-item>Portfolio</hicks-nav-item>
+            <hicks-nav-item>Resume</hicks-nav-item>
+            <hicks-nav-item>Contact</hicks-nav-item>
+        </hicks-nav>
     </foliage-header>
     <main class="layout">
         <div class="left"></div>
@@ -39,6 +53,10 @@
             <hicks-toc></hicks-toc>
         </div>
     </main>
+    <icon-component>google_logo</icon-component>
+    <hicks-drawer>
+        <hicks-toc mobile></hicks-toc>
+    </hicks-drawer>
 </body>
 <script type="module" defer src="./components.js"></script>
 

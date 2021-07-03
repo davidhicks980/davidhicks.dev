@@ -1,10 +1,7 @@
-///////////////////////////
-@use "content";
-@use "./util/mixins" as mix;
-@use 'util/fonts' as font;
-@import 'util/normalize';
-@import 'util/variables';
-@import 'util/component-vars';
+@use 'mixins' as *;
+@import 'util/styles/normalize';
+@import 'util/styles/variables';
+@import 'util/styles/component-vars';
 .hidden {
     padding: 8px;
     position: absolute;
@@ -38,7 +35,7 @@ body {
 html {
     height: 100%;
     width: 100%;
-    @include font.body1;
+    @include font-body1;
 }
 
 body {
@@ -55,6 +52,7 @@ background-animation {
 .layout {
     display: grid;
     grid-template-columns: 8fr 4fr;
+    padding-bottom: 200px;
     & .center {
         grid-column: 2 / 3;
         height: 100%;
@@ -63,7 +61,7 @@ background-animation {
         padding: 3rem;
         margin-top: 5rem;
         position: relative;
-        @include mix.hoverable-shadow(3);
+        @include mix-hoverable-shadow(3);
     }
     & .left {
         grid-column: 1 / 2;
@@ -74,16 +72,21 @@ background-animation {
     &.is-mobile {
         grid-template-columns: 1fr;
     }
-    @include mix.bp(md) {
+    @include mix-media-size('medium', 'large') {
         grid-template-columns: 8fr 4fr;
     }
-    @include mix.bp(sm) {
+    @include mix-media-size('small', 'medium') {
         grid-template-columns: 1fr;
     }
 }
 
 .header__logo-wrapper {
-    height: 60px;
-    width: 90px;
     fill: var(--primary-7);
+    height: 3rem;
+    width: 4.5rem;
+}
+
+.icon--social {
+    height: 1.5em;
+    width: 1.5em;
 }

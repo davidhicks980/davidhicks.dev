@@ -1,0 +1,102 @@
+@use 'mixins' as *;
+p ::slotted(*) {
+    font-size: 10pt;
+    font-weight: 400;
+}
+
+h1 ::slotted(*) {
+    font-size: 24pt;
+    font-weight: 400;
+    margin: 0px;
+    margin-block: 0px;
+}
+
+.expansion {
+    display: grid;
+    grid-template-columns: 120px calc(70% - 1em);
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    background-color: white;
+    color: var(--gray-7);
+    font-family: sans-serif;
+    font-size: 1rem;
+    text-align: left;
+    border-radius: 7px;
+    gap: 1em;
+    position: relative;
+    border: 1px solid var(--gray-3);
+    cursor: pointer;
+    @include mix-hoverable-shadow(3);
+     :host([open]) & {
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+    }
+    &:active {
+        filter: brightness(0.9);
+    }
+}
+
+.expansion__img {
+    grid-column: 1 / 2;
+    height: 100%;
+    width: 100%;
+    background: var(--primary-9);
+    transition: background-size 500ms ease, filter 500ms ease-in-out;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    min-height: 200px;
+    border-radius: 7px 0px 0px 7px;
+    &:hover {
+        filter: hue-rotate(45deg);
+        background-size: 105%;
+    }
+}
+
+.expansion__summary {
+    grid-column: 2 / 3;
+    background: white;
+    color: var(--gray-8);
+    &__title {
+        line-height: 0px;
+    }
+    &__ruler {
+        border: solid var(--primary-8);
+        width: 3em;
+        margin: 0px;
+        border-width: 2px 0 0 0;
+    }
+}
+
+.expansion__content {
+    padding: 10px;
+    border-radius: 7px;
+    background-color: var(--primary-8);
+    overflow: hidden;
+    opacity: 0;
+}
+
+:host([open]) .expansion__content {
+    padding: 10px;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 500ms ease;
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+}
+
+.expansion__content__anime {
+    transform: translateY(-100%);
+    transition: transform 250ms ease;
+    height: 0px;
+}
+
+.is-shown .expansion__content__anime {
+    transform: translateY(0%);
+    transition: transform 250ms ease;
+    height: auto;
+    background: rgb(242 242 242);
+    padding: 10px;
+    border-radius: 7px;
+}

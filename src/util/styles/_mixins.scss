@@ -1,0 +1,117 @@
+@use "sass:map";
+@use "sass:string";
+@use "sass:selector";
+@use "sass:meta";
+$bp: ( 'zero': 0px, 'xsmall': 400px, 'small': 600px, 'medium': 900px, 'large': 1200px, 'xlarge': 1800px, );
+@mixin shadow($depth) {
+    box-shadow: 0 1px * $depth 2px * $depth rgb(87 107 138 / #{12% * $depth});
+}
+
+@mixin hoverable-shadow($depth) {
+    &:hover::after {
+        opacity: 0.8;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 0;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        border-radius: inherit;
+        transition: opacity 0.3s ease-in-out;
+        pointer-events: none;
+        margin: 0px;
+        @include shadow($depth);
+    }
+}
+
+@mixin reset-link {
+    & a,
+    & a:hover,
+    & a:focus,
+    & a:active {
+        text-decoration: none;
+        color: inherit;
+    }
+}
+
+@mixin reset-list {
+    list-style-type: none;
+    margin-block: 0px;
+    padding-inline: 0px;
+}
+
+@mixin media-size($min: null, $max: null) {
+    $minString: null;
+    $maxString: null;
+    $join: '';
+    @if $min {
+        $minString: '( min-width: #{map.get($bp, $min)})';
+    }
+    @if $max {
+        $maxString: '( max-width: #{map.get($bp, $max) - 0.01px})';
+    }
+    @if $maxString and $minString {
+        $join: 'and';
+    }
+    $full: '#{$minString} #{$join} #{$maxString}';
+    $query: string.unquote($full);
+    @media #{$query} {
+        @content;
+    }
+}
+
+@mixin full-pseudo-element {
+    content: '';
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    position: absolute;
+}
+
+///Unifies the parent selector {&} with a provided child
+///
+///:host &::before {
+///   @include joinParentWith(':hover'){
+///     @content
+///   }
+///}
+@mixin unify-parent($child) {
+    @at-root #{selector.unify(&,$child)} {
+        @content;
+    }
+}
+
+@mixin unify-host($child: 0) {
+    $parent: meta.inspect(&);
+    @at-root #{selector.unify(&,$child)} {
+        @content;
+    }
+}
+
+@mixin append-host-state($selectors...) {
+    $parent: selector-parse( $selector: &, );
+    $joined-parent: '';
+    @each $child in $parent {
+        $joined-parent: $joined-parent + ' ' + $child;
+    }
+    $close-paren: str-index($joined-parent, ')');
+    $open-paren: str-index($joined-parent, '(');
+    $host-paren: str-index($joined-parent, ':host(');
+    $host: str-index($joined-parent, ':host');
+    $insertion-point: if($host-paren, $close-paren, $host);
+    $inserted-selectors: '';
+    @each $child in $selectors {
+        $inserted-selectors: str-insert( $inserted-selectors, $insert: $child, $index: 999);
+    }
+    $final-selector: str-insert( $string: $joined-parent, $insert: $inserted-selectors, $index: $insertion-point, );
+    @at-root #{$final-selector} {
+        @content;
+    }
+}
