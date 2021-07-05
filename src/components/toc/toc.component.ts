@@ -25,6 +25,7 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 
 import { styleMap } from 'lit/directives/style-map.js';
 import { elementAt } from 'rxjs/operators';
+import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 type SectionParameters = {
   coords: string;
   href: string;
@@ -161,6 +162,8 @@ export class TableOfContents extends LitElement {
   items = new Map() as Map<string, Ref<Element>>;
   list: any[];
   offsets = new Map() as Map<string, number>;
+  breakpointControl: any;
+  tablet: any;
 
   constructor() {
     super();
@@ -180,6 +183,12 @@ export class TableOfContents extends LitElement {
   }
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
+    this.breakpointControl = new BreakpointController(this);
+    this.breakpointControl.observeBreakpoint(
+      'screen and (max-width: 599.99px)',
+      (ev) => (this.mobile = ev.matches)
+    );
+
     this.classList.add('toc');
 
     this.articleContent = document.querySelector('content-tree');
@@ -190,10 +199,11 @@ export class TableOfContents extends LitElement {
     this.observeSectionChanges();
     this.observers.intersection = this.getScrollObserver();
     this.previousOffset = this.articleContent.scrollTop;
+
+    this.updateList();
     this.sections.forEach((section: HTMLElement, i) => {
       this.observers.intersection.observe(section);
     });
-    this.updateList();
   }
   /**
    * Used to build the list template whenever sections are changed
@@ -333,9 +343,11 @@ export class TableOfContents extends LitElement {
     marker,
   }: ListItemParameters) {
     const itemRef = createRef();
+    const depth = path.split('.').length;
     const styles = styleMap({
       '--item--index': index.toString(),
       '--item--marker': `"${marker}"`,
+      '--sublist--depth': depth.toString(),
     });
     const template = html`<li
       data-toc-position="${path}"
@@ -427,7 +439,8 @@ export class TableOfContents extends LitElement {
     }
   }
   private expandParentLists(currLI: Element) {
-    let parent = currLI?.parentElement;
+    let parent = currLI?.parentElement.parentElement;
+    console.log(parent);
     while (parent?.hasAttribute('data-toc-position')) {
       if (parent.tagName.toLowerCase() === 'ul') {
         addClass(parent, 'is-expanded');

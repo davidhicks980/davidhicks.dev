@@ -12,17 +12,68 @@ import { state } from './store';
 import { HookPropertiesMixin } from './util/mixins/state.mixin';
 import { mix } from './util/mixins/mix.with';
 import { NavItemComponent } from './components/navigation/nav-item.component';
-import { html, render } from 'lit';
 import { IconComponent } from './icons/icon.component';
 import { HicksIconButton } from './components/icon-button/icon-button';
 import { DrawerComponent } from './components/drawer/drawer.component';
+import { ObserveStateMixin } from './util/mixins/observe-state.mixin';
+import { Observable } from 'rxjs';
+import { ObservedStateAction } from './util/mixins/observe-state.mixin';
+import { ObservePropertiesMixin } from './util/mixins/observe-bp.mixin';
 //Table of contents
-const handler = {
-  propertyChangeHandler: state.getStateFn(),
+const tocStateAdapter = {
+  propertyChangeHandler: state.getStateEmitted(),
   observedProperties: ['activeLinkId'],
 };
-const toc = mix(TableOfContents).with(HookPropertiesMixin(handler));
+const tocBreakpointAdapter = [
+  {
+    query: '(max-width: 599.99px)',
+    action: function (matches) {
+      (this as TableOfContents).mobile = matches;
+    },
+  },
+];
+const toc = mix(TableOfContents).with(
+  HookPropertiesMixin(tocStateAdapter),
+  ObservePropertiesMixin(tocBreakpointAdapter)
+);
 customElements.define('hicks-toc', toc);
+
+//Table of contents
+const iconButtonHandler = {
+  propertyChangeHandler: state.getStateEmitted(),
+  observedProperties: ['toggled'],
+};
+const iconButton = mix(HicksIconButton).with(
+  HookPropertiesMixin(iconButtonHandler)
+);
+customElements.define('hicks-icon-button', iconButton);
+
+const drawerStateAdapter = {
+  stream: state.filteredStream(['toggled']) as Observable<
+    Record<string, unknown>
+  >,
+  actions: [
+    {
+      prop: 'toggled',
+      componentHandler(propValue) {
+        (this as DrawerComponent).opened = propValue;
+      },
+    },
+  ] as ObservedStateAction[],
+};
+const drawerBreakpointAdapter = [
+  {
+    query: '(max-width: 599.99px)',
+    action: function (matches) {
+      (this as DrawerComponent).mobile = matches;
+    },
+  },
+];
+const drawer = mix(DrawerComponent).with(
+  ObserveStateMixin(drawerStateAdapter),
+  ObservePropertiesMixin(drawerBreakpointAdapter)
+);
+customElements.define('hicks-drawer', drawer);
 
 ContentTree;
 TableOfContents;

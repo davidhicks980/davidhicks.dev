@@ -94,6 +94,8 @@ h6 {
   --list--item-count: 0;
   --list--header-font: bold 1.5rem var(--body-font), sans-serif;
   --item--font-size: 1rem;
+  --item--font-color: white;
+  --item--hover--font-color: white;
   --item--margin: 1em;
   --item--height: calc(var(--item--font-size) + var(--item--margin));
   --item--transition--timing: 1s;
@@ -101,9 +103,9 @@ h6 {
   --host--width: 80vw;
   --host--top: 90px;
   --item--displacement: 1rem;
-  --list--column-gap: 1rem;
   --host--display: grid;
   --item--z-index: 1000;
+  --sublist--item--padding-left: 0.75rem;
 }
 
 :host(.toc) {
@@ -122,13 +124,12 @@ h6 {
 :host(.toc[mobile]) {
   --host--flex-direction: column;
   --host--display: flex;
-  --host--width: 100vw;
+  --host--width: 80vw;
   --host--top: 90px;
   --item--font-size: 1.5rem;
 }
 
 .toc__content {
-  width: 100%;
   grid-row: 2/3;
   grid-column: 2/3;
   height: calc(var(--host--height) - 1rem);
@@ -137,18 +138,21 @@ h6 {
 .toc__content__link-icon {
   vertical-align: middle;
 }
+:host([mobile]) .toc__content {
+  grid-row: none;
+  grid-column: none;
+  width: inherit;
+}
 .toc__track .toc-track {
   grid-column: 1/2;
   grid-row: 2/2;
   height: calc( var(--item--height) + var(--item--height) / var(--list--item-count));
   -webkit-transform: scaleY(var(--list--item-count));
           transform: scaleY(var(--list--item-count));
-  display: inline;
   position: absolute;
   border: 2px solid hsl(211, 56.4%, 69.98%);
   border: 2px solid var(--primary-7);
   border-width: 0 0 0 2px;
-  width: 2px;
   -webkit-transform-origin: top left;
           transform-origin: top left;
   will-change: transform;
@@ -156,6 +160,9 @@ h6 {
   transition: -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
   transition: transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
   transition: transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1), -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+:host([mobile]) .toc__track .toc-track {
+  display: none;
 }
 .toc__head {
   grid-row: 1/2;
@@ -171,23 +178,32 @@ h6 {
 
 .list {
   margin: 0;
-  padding-left: 0.5rem;
+  padding-left: 0rem;
   overflow: visible;
   height: calc(var(--list--item-count) * var(--item--height));
 }
-[dir="ltr"] .list__sublist {
-  padding-left: 0.75rem;
-}
-[dir="rtl"] .list__sublist {
-  padding-right: 0.75rem;
-}
 .list__sublist {
-  padding-left: 0.75rem;
+  padding-left: var(--sublist--item--padding-left);
   list-style-type: none;
   display: block;
   overflow: visible;
   position: absolute;
   opacity: 0;
+  margin: 0px;
+  padding-left: 0rem;
+  overflow: visible;
+  height: calc(var(--list--item-count) * var(--item--height));
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  width: calc(var(--host--width) - var(--sublist--item--padding-left));
 }
 .list__sublist.is-expanded {
   opacity: 1;
@@ -200,17 +216,20 @@ h6 {
   -webkit-transform: translateY(0px);
           transform: translateY(0px);
   will-change: transform;
-  -webkit-transition: -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
-  transition: -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
-  transition: transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
-  transition: transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1), -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+  -webkit-transition: -webkit-transform opacity var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: -webkit-transform opacity var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform opacity var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform opacity var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1), -webkit-transform opacity var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
   list-style-type: var(--item--marker);
   position: absolute;
-  width: calc(var(--host--width) - 4rem);
-  padding-left: 0.5em;
+  padding-left: 0px;
   font-size: var(--item--font-size);
+  opacity: 0;
+  color: white;
+  width: calc( var(--host--width) - var(--sublist--depth) * var(--sublist--item--padding-left));
 }
 .is-expanded > .list-item {
+  opacity: 1;
   -webkit-transform: translateY(calc( (var(--item--index) + var(--item--neighbor-index)) * var(--item--height)));
           transform: translateY(calc( (var(--item--index) + var(--item--neighbor-index)) * var(--item--height)));
   -webkit-transition: -webkit-transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -220,16 +239,25 @@ h6 {
 }
 :host([mobile]) .list-item {
   list-style-type: none;
-  border-bottom: 1px dotted gray;
 }
 .list-item__content {
   height: 100%;
   position: absolute;
   z-index: 2;
+  width: 100%;
+  border-bottom: 1px solid white;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
 }
 .list-item__content__link {
-  color: hsl(212, 13.2%, 49.83%);
-  color: var(--gray-9);
+  color: var(--item--font-color);
   text-decoration: none;
   overflow: hidden;
   white-space: nowrap;
@@ -258,5 +286,10 @@ h6 {
   width: var(--item--height)1em;
   right: 0px;
   position: relative;
-  content: "+";
+  font-family: monospace;
+  font-size: 1.5rem;
+  margin: 0px;
+  padding: 0px;
+  background: none;
+  border: none;
 }`;

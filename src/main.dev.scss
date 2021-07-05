@@ -54,7 +54,7 @@ background-animation {
     grid-template-columns: 8fr 4fr;
     padding-bottom: 200px;
     & .center {
-        grid-column: 2 / 3;
+        grid-column: 1 / 2;
         height: 100%;
         width: 100%;
         background-color: white;
@@ -63,11 +63,14 @@ background-animation {
         position: relative;
         @include mix-hoverable-shadow(3);
     }
-    & .left {
-        grid-column: 1 / 2;
-    }
     & .right {
-        grid-column: 3 / 4;
+        grid-column: 2 / 3;
+        width: 100%;
+        position: relative;
+        @include mix-media-size('zero', 'small') {
+            grid-column: none;
+            position: absolute;
+        }
     }
     &.is-mobile {
         grid-template-columns: 1fr;
