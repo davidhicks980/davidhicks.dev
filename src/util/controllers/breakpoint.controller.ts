@@ -39,20 +39,15 @@ export class BreakpointController implements ReactiveController {
    * @memberof BreakpointController
    */
   observeBreakpoint(query: string, action: MediaQueryCallback) {
-    window.matchMedia(query).addEventListener('change', action);
-    this.breakpointQueries.push([window.matchMedia(query), action]);
+    const q = window.matchMedia(query).addEventListener('change', action);
+    action(window.matchMedia(query));
     return this;
   }
-  hostConnected() {
-    this.host.requestUpdate();
-  }
+
   hostDisconnected() {
     this.observedResizeElements.forEach((el) => {
       resizeObserver.unobserve(el);
       observerFunctions.delete(el);
     });
-    this.breakpointQueries.forEach(([query, action]) =>
-      query.removeEventListener('change', action)
-    );
   }
 }

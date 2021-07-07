@@ -66,7 +66,8 @@
     /* Advanced Options */
     "skipLibCheck": false /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
-    "tsBuildInfoFile": "./dist/out"
+    "tsBuildInfoFile": "./dist/out",
+    "noImplicitThis": true
   },
   "include": ["./src/**/*"]
 }

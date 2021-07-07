@@ -53,6 +53,5 @@ export const styleResponsively = <T extends Constructor<LitElement>>(
     }
     return ResponsiveStyleMixin as Constructor<ResponsiveStyleMixin> & T;
   };
-  console.log(mixin);
   return mixin;
 };

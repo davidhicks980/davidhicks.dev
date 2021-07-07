@@ -120,40 +120,10 @@ $bp: ( 'zero': 0px, 'xsmall': 400px, 'small': 600px, 'medium': 900px, 'large': 1
     }
 }
 
-@mixin flex-layout( $dir: 'row', $vertical-items: null, $horizontal-items: null, $flex: null, $vertical-content: null, $horizontal-content: null) {
-    $justify-items: null;
-    $align-items: null;
-    $justify-content: null;
-    $align-content: null;
-    @if $dir=='row' {
-        $justify-items: $horizontal-items;
-        $align-items: $vertical-items;
-        $justify-content: $horizontal-content;
-        $align-content: $vertical-content;
-    }
-    @else {
-        $align-items: $horizontal-items;
-        $justify-items: $vertical-items;
-        $align-content: $horizontal-content;
-        $justify-content: $vertical-content;
-    }
-    display: flex;
-    flex-direction: $dir;
-    @if ($justify-items) {
-        justify-items: $justify-items;
-    }
-    @if ($align-items) {
-        align-items: $align-items;
-    }
-    @if ($justify-content) {
-        justify-content: $justify-content;
-    }
-    @if ($align-content) {
-        align-content: $align-content;
-    }
-    @if ($flex) {
-        flex: $flex;
-    }
+@mixin data-uri-svg-icon($path, $fill, $height: 24px, $width: 24px) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='#{$height}' viewBox='0 0 24 24' width='#{$height}' fill='%23#{$fill}'%3E%3Cpath d='M24 24H0V0h24v24z' fill='none' opacity='.87'/%3E%3Cpath d='#{$path}'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 @mixin text-ellipsis {

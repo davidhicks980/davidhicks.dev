@@ -1,6 +1,6 @@
 import produce from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map, pluck } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 const validateObj = (o: Object) => {
   if (typeof o === 'object' && o !== null) {
     return true;
@@ -32,6 +32,8 @@ class StateStore {
         return Object.entries(state)
           .filter(([key, val]) => filter.includes(key))
           .reduce((obj, [key, value]) => {
+            console.log(key, value);
+
             obj[key] = value;
             return obj;
           }, {});
@@ -51,4 +53,3 @@ class StateStore {
 }
 
 export const state = new StateStore();
-state.stream.subscribe(console.log);

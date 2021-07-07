@@ -8,12 +8,11 @@ type StateHandler = {
 
 type LitProto = Constructor<LitElement>;
 
-export function HookPropertiesMixin(state: StateHandler) {
+export function stateEmitterMixin(state: StateHandler) {
   return <T extends LitProto>(superClass: T) =>
     class extends superClass {
-      private _propertyHandler: (prop: Record<string, unknown>) => void =
-        () => {};
-      private _properties: string[] = [];
+      private _propertyHandler;
+      private _properties: string[];
 
       constructor(...args: any[]) {
         super();
@@ -23,14 +22,15 @@ export function HookPropertiesMixin(state: StateHandler) {
 
       updated(_changedProperties: Map<string, unknown>) {
         super.updated(_changedProperties);
-        const { _properties: props } = this;
+        const { _properties: props, _propertyHandler } = this;
         //If observed properties are not listed, include all properties. Otherwise, emit properties that are observed.
+        //_changedProperties lists property values before they are changed, not after. This is why the property handler
         Array.from(_changedProperties)
           .filter(
             ([key, value]) =>
               value !== undefined && (props.length === 0 || props.includes(key))
           )
-          .forEach(([key, val]) => this._propertyHandler({ [key]: val }));
+          .forEach(([key, _]) => _propertyHandler({ [key]: this[key] }));
       }
     };
 }

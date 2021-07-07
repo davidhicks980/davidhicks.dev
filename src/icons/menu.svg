@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="white"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+<svg style="transform: scale(1.1)" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="white">
+
+<path d="M0 0h24v24H0V0z" fill="none"/>
+<rect style="transform-origin: center center; transform: rotate(-45deg) translateY(20.8%)"   fill="blue" x="12.5%" y="25%" width="75%" height="8.25%">
+</rect>
+
+<rect style=" transform: rotate(-45deg); transform-origin: center center"   fill="red" x="12.5%" y="45.875%" width="37.5%" height="8.25%">
+</rect>
+<rect style=" transform-origin: center center; transform:  rotate(45deg)"   fill="red" x="50%" y="45.875%" width="37.5%" height="8.25%">
+</rect>
+
+<rect style="transform-origin: center center; transform: rotate(45deg) translateY(-20.8%)"  fill="blue" x="12.5%" y="66.666%" width="75%" height="8.25%">
+</rect>
+
+</svg>

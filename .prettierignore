@@ -1,4 +1,6 @@
+src/sections/**
 node_modules/
 dist/
 .vscode/
 .rollup.cache/
+

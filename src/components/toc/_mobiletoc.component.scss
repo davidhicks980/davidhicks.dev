@@ -15,10 +15,9 @@
     --item--displacement: 1rem;
     --list--column-gap: 1rem;
     --host--display: grid;
-    --item--z-index: 1000;
 }
 
-:host(.toc) {
+:host {
     position: fixed;
     top: var(--host--top);
     display: var(--host--display);
@@ -79,7 +78,6 @@
     overflow: visible;
     height: calc(var(--list--item-count) * var(--item--height));
     &__sublist {
-        padding-inline-start: 0.75rem;
         padding-left: 0.75rem;
         list-style-type: none;
         display: block;

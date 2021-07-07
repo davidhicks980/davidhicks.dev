@@ -1,13 +1,11 @@
-import { LitElement, html, TemplateResult, nothing } from 'lit';
-import { customElement, query, state } from 'lit/decorators.js';
+import { LitElement, html, nothing } from 'lit';
+import { query, state, property } from 'lit/decorators.js';
 import anime from 'animejs';
 import { style } from './header.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
-import { styleMap } from 'lit/directives/style-map.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-@customElement('foliage-header')
-export class FoliageHeader extends LitElement {
+export class HicksHeader extends LitElement {
   @query('.header__grid')
   container: HTMLElement;
   @query('.header__upper')
@@ -28,9 +26,9 @@ export class FoliageHeader extends LitElement {
   breakpointControl: BreakpointController;
   @state()
   isCurved = true;
-  @state()
-  mobile: boolean;
-  @state()
+  @property({ type: Boolean, reflect: true })
+  mobile: boolean = false;
+  @property({ type: Boolean, reflect: true })
   tablet: boolean;
   lowerNavNode: Node;
 
@@ -39,16 +37,6 @@ export class FoliageHeader extends LitElement {
   }
   connectedCallback() {
     super.connectedCallback();
-    this.breakpointControl = new BreakpointController(this);
-    this.breakpointControl
-      .observeBreakpoint(
-        'screen and (max-width: 599.99px)',
-        (ev) => (this.mobile = ev.matches)
-      )
-      .observeBreakpoint(
-        'screen and (min-width: 600px) and (max-width: 899.99px)',
-        (ev) => (this.tablet = ev.matches)
-      );
   }
 
   firstUpdated(_changedProperties): void {
@@ -126,10 +114,14 @@ export class FoliageHeader extends LitElement {
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = html`<slot
-    name="header-toolbar-toggle"
-    class="header__toolbar__toggle"
-  ></slot>`;
+  navToggle = (isMobile) =>
+    isMobile
+      ? html`<span class="divider"></span
+          ><slot
+            name="header-toolbar-toggle"
+            class="header__toolbar__toggle"
+          ></slot>`
+      : nothing;
   toolbarPath = html`<svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -166,7 +158,7 @@ export class FoliageHeader extends LitElement {
           <div class="header__toolbar__content ${toolbarVisibility}">
             ${this.logo}
             <div class="header__toolbar__content__links">
-              ${this.social} <span class="divider"></span>${this.navToggle}
+              ${this.social} ${this.navToggle(this.mobile)}
             </div>
           </div>
           ${this.toolbarPath}

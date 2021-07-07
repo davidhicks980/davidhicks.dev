@@ -16,7 +16,7 @@
 <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
 
-    <foliage-header>
+    <hicks-header>
         <div slot="header-brand">
             <brand-component></brand-component>
         </div>
@@ -37,7 +37,37 @@
             </hicks-nav>
         </div>
         <div slot="header-toolbar-toggle">
-            <hicks-icon-button src="./icons/menu.svg"></hicks-icon-button>
+            <hicks-icon-toggle-button defaulticon="./icons/menu.svg" toggleicon="./icons/close.svg">
+                <svg slot="icon" class="menu-icon" style="transform: scale(1.1)" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="white">
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <rect
+              class="top-bun"
+              fill="white"
+              x="12.5%"
+              y="25%"
+              width="75%"
+              height="8.25%"
+            ></rect>
+
+            <rect
+              class="middle-bun"
+              fill="white"
+              x="12.5%"
+              y="45.875%"
+              width="75%"
+              height="8.25%"
+            ></rect>
+
+            <rect
+              class="bottom-bun"
+              fill="white"
+              x="12.5%"
+              y="66.666%"
+              width="75%"
+              height="8.25%"
+            ></rect>
+          </svg>
+            </hicks-icon-toggle-button>
         </div>
         <hicks-nav slot="header-navigation">
             <hicks-nav-item>About</hicks-nav-item>
@@ -45,13 +75,13 @@
             <hicks-nav-item>Resume</hicks-nav-item>
             <hicks-nav-item>Contact</hicks-nav-item>
         </hicks-nav>
-    </foliage-header>
+    </hicks-header>
     <main class="layout">
         <div class="left"></div>
         <content-tree class="center"></content-tree>
-        <hicks-drawer class="right">
-            <hicks-toc mobile></hicks-toc>
-        </hicks-drawer>
+        <div class="right">
+            <hicks-toc expandIconSrc="./icons/minus"></hicks-toc>
+        </div>
     </main>
 </body>
 <script type="module" defer src="./components.js"></script>

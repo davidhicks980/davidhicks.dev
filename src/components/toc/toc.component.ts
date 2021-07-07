@@ -14,40 +14,16 @@
  * limitations under the License.
  */
 
-import { css, html, LitElement, TemplateResult } from 'lit';
+import { html, LitElement, TemplateResult, svg } from 'lit';
 import { property, queryAll, state } from 'lit/decorators.js';
-import { IconController } from '../../icons/icon.controller';
-import { style } from './tocdrawer.css';
-import { repeat } from 'lit/directives/repeat.js';
-
+import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import { Ref } from 'lit/directives/ref.js';
+import { HicksIconToggleButton } from '../icon-button/icon-button';
+import { tocTemplates as templates } from './toc.templates';
+import { ListItemParameters } from '../../types/ListItemParameters';
 
-import { styleMap } from 'lit/directives/style-map.js';
-import { elementAt } from 'rxjs/operators';
-import { BreakpointController } from '../../util/controllers/breakpoint.controller';
-type SectionParameters = {
-  coords: string;
-  href: string;
-  title: string;
-  comparator: number;
-  root: string;
-};
-
-export interface RepeatedLIParameters {
-  count: number;
-  template?: TemplateResult;
-  params?: ListChild[];
-}
-
-export type ListItemParameters = {
-  path: string;
-  index: number;
-  href: string;
-  title: string;
-  children: RepeatedLIParameters;
-  marker: string;
-};
+customElements.define('hicks-icon-expand-button', HicksIconToggleButton);
 
 const mutationCallback =
   (updateSections: () => void) =>
@@ -103,15 +79,7 @@ const removeClassIf = (
     removeClass(element, classes);
   }
 };
-const addClassIf = (
-  condition: boolean,
-  element: HTMLElement,
-  classes: string[] | string
-) => {
-  if (condition) {
-    addClass(element, classes);
-  }
-};
+
 function hasClasses(el: HTMLElement, classes: string[] | string) {
   if (el && el.classList) {
     if (Array.isArray(classes)) {
@@ -140,27 +108,31 @@ export class TableOfContents extends LitElement {
 
   @state()
   currentSectionId: string = '';
+  @property({ type: Boolean, reflect: true })
+  open: boolean;
   @state()
   toggledLists: Set<string> = new Set();
   @property({ type: Object }) articleContent!: HTMLElement | null;
-  @property({ type: Boolean, reflect: true }) opened = true;
-  headings!: HTMLHeadingElement[];
   @property({ type: Boolean, reflect: true }) mobile = true;
-  observers!: {
-    intersection?: IntersectionObserver;
-    sectionChange?: MutationObserver;
-  };
+  @property({ type: String }) expandIcon!: string | null;
+
+  headings!: HTMLHeadingElement[];
+
   previousOffset: number = 0;
 
   classes: {
     expanded: string;
     selected: string;
   } = { selected: 'is-active', expanded: 'is-expanded' };
-  icons: IconController;
+  observers!: {
+    intersection?: IntersectionObserver;
+    sectionChange?: MutationObserver;
+  };
   sections: HTMLElement[];
   expandedLists = new Set();
   items = new Map() as Map<string, Ref<Element>>;
-  list: any[];
+
+  list: TemplateResult[];
   offsets = new Map() as Map<string, number>;
   breakpointControl: any;
   tablet: any;
@@ -173,38 +145,31 @@ export class TableOfContents extends LitElement {
   }
 
   connectedCallback() {
-    // This sets initial global state before subscribing to the store.
-    // If we didn't do this then `this.opened` would always be set to false
-    // because onStateChanged runs synchronously after we call
-    // super.connectedCallback();
-
     super.connectedCallback();
-    this.opened = true;
   }
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
-    this.breakpointControl = new BreakpointController(this);
-    this.breakpointControl.observeBreakpoint(
-      'screen and (max-width: 599.99px)',
-      (ev) => (this.mobile = ev.matches)
-    );
-
     this.classList.add('toc');
-
     this.articleContent = document.querySelector('content-tree');
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
     }
+    //Get sections
     this.updateSections();
-    this.observeSectionChanges();
-    this.observers.intersection = this.getScrollObserver();
-    this.previousOffset = this.articleContent.scrollTop;
+    //Build the toc
+    this.list = this._refreshLinks(this.sections);
 
-    this.updateList();
+    this.observeSectionMutations();
+    this.previousOffset = this.articleContent.scrollTop;
+    this.mobile = window.matchMedia('(max-width: 599.99px)').matches;
+    this.observers.intersection = this.getScrollObserver();
     this.sections.forEach((section: HTMLElement, i) => {
       this.observers.intersection.observe(section);
     });
+
+    this.scrollSpy(this.observers.intersection.takeRecords());
   }
+
   /**
    * Used to build the list template whenever sections are changed
    *
@@ -213,33 +178,30 @@ export class TableOfContents extends LitElement {
    */
   _refreshLinks = (sections: HTMLElement[]) => {
     const toArr = (position: string) => position.split('.');
-    let sublists = new Map() as Map<string, ListChild[]>;
-    const sectionData = this.getSectionData(sections);
-    return sectionData.reduce((tree, heading) => {
+    let childLists = new Map() as Map<string, ListChild[]>;
+    const sectionInfo = this.getSectionAttributes(sections);
+    sectionInfo.sort((a, b) => b.sortOrder - a.sortOrder);
+
+    return sectionInfo.reduce((tree, heading) => {
       //prettier-ignore
-      const { title, position: {root, index, path}, href, marker } = heading;
-      const isActive = this.currentSectionId === href;
-      //Get template for the list item's children;
-      let childItems = { treePath: '', children: { count: 0 } };
-      if (sublists.has(path)) {
-        childItems = this.getListItemChildren(sublists, path);
-      }
-      const { treePath, children } = childItems;
-      const itemParameters = {
-        path,
-        index,
-        href,
-        title,
-        children,
-        marker,
-      } as ListItemParameters;
-      let { template, itemRef } = this.getListItemTemplate(itemParameters);
-      //A map of list items that can be referenced once the list is instantiated
-      this.items.set(href, itemRef);
+      const { title, position: {root, index, path}, href, marker } = heading,
+      //prettier-ignore
+       isActive = this.currentSectionId === href,
+      //Get template for the list item's children
+       {  fullPath,  childList } = templates.buildChildlist(childLists, path),
+       { template, reference } = templates.listItem(
+        childList,
+        this.handleToggleEvent,
+        { path, href, title, marker, index }
+      );
+
+      //A map of list items references that can be referenced once the list is instantiated. Used when manipulating list items
+      this.items.set(href, reference);
+
       //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree;
       if (toArr(path).length > 1) {
-        const subListItem = { template, treePath, isActive };
-        this.addItemToSubList(subListItem, sublists, root);
+        const subListItem = { template, treePath: fullPath, isActive };
+        this.addItemToSubList(subListItem, childLists, root);
       } else {
         tree.push(template);
       }
@@ -262,7 +224,7 @@ export class TableOfContents extends LitElement {
     });
   }
 
-  private observeSectionChanges() {
+  private observeSectionMutations() {
     this.observers.sectionChange = new MutationObserver(
       mutationCallback(this.updateSections)
     );
@@ -280,121 +242,42 @@ export class TableOfContents extends LitElement {
       ? sublists.get(root).push(item)
       : sublists.set(root, [item]);
   }
-
-  private getListItemChildren(
-    sublists: Map<string, ListChild[]>,
-    path: string
-  ) {
-    let child: Partial<RepeatedLIParameters> = {};
-    child.params = sublists.get(path);
-    child.count = child.params.length;
-    child.template = this.getSublistTemplate(path, child.params);
-    let treePath = path + child.params.join('||');
-    return { children: child, treePath };
-  }
-
-  private getSectionData(sections: HTMLElement[]) {
-    const sectionData = sections.map((section, i) => {
-      const [path, title] = section.id.split('--', 2);
-      const pathArray = path.split('.');
-      /////////
-      //
-      //[2,5,3,4]
-      // Root: Ancestors of the current node = [2, 5, 3]
-      // Index: The current node = [4]
-      const root = pathArray.slice(0, -1).join('.');
-      const index = Number(pathArray.slice(-1));
-
-      //Sort descending by length and ascending by value (ex. 5.1.1.2 > 5.1.1.3 < 1.1.1.1 > 1.2)
-      const recurseOrder = pathArray.length * 1000 + (100 - index);
-      const marker = section.dataset.tocMarker;
+  /*[2,5,3,4]
+       Root: Ancestors of the current node = [2, 5, 3]
+       Index: The current node = [4]*/
+  private getSectionAttributes(sections: HTMLElement[]) {
+    return sections.map((section, i) => {
+      let [path, title] = section.id.split('--', 2),
+        position = { root: '', index: 0, path },
+        pathArray = path.split('.'),
+        depth = pathArray.length * 1000;
+      position.root = pathArray.slice(0, -1).join('.');
+      position.index = Number(pathArray.slice(-1));
       return {
         title,
         href: section.id,
-        position: {
-          root,
-          index,
-          path,
-        },
-        marker,
-        recurseOrder,
+        position,
+
+        marker: section.dataset.tocMarker,
+        sortOrder: depth * 1000 + (100 - position.index),
       };
     });
-    sectionData.sort((a, b) => b.recurseOrder - a.recurseOrder);
-    return sectionData;
   }
 
-  private getSublistTemplate(path: string, children: ListChild[]) {
-    const keyDiff = (item: ListChild) => {
-      return item.isActive ? '[act]' : '' + item.treePath;
-    };
-    const templateFn = (item: ListChild) => item.template;
-    return html`<ul data-toc-position="${path}" class="list__sublist">
-      ${repeat(children, keyDiff, templateFn)}
-    </ul>`;
-  }
-
-  private getListItemTemplate({
-    path,
-    index,
-    href,
-    title,
-    children,
-    marker,
-  }: ListItemParameters) {
-    const itemRef = createRef();
-    const depth = path.split('.').length;
-    const styles = styleMap({
-      '--item--index': index.toString(),
-      '--item--marker': `"${marker}"`,
-      '--sublist--depth': depth.toString(),
-    });
-    const template = html`<li
-      data-toc-position="${path}"
-      data-toc-children="${children.count}"
-      class="list list-item"
-      style="${styles}"
-    >
-      <div class="list-item__content">
-        <a class="list-item__content__link" href="#${href}" ${ref(itemRef)}
-          >${title}</a
-        >
-        ${children.count > 0
-          ? html`<button
-              class="list-item__content__expand-btn"
-              @click="${this.handleExpandEvent}"
-            >
-              +
-            </button>`
-          : ''}
-      </div>
-
-      ${children.template}
-    </li>`;
-
-    return {
-      template,
-      itemRef,
-    };
-  }
-  updateList() {
-    this.list = this._refreshLinks(this.sections);
-  }
   updateSections() {
     this.sections = Array.from(
       this.articleContent?.querySelectorAll('section')
     );
   }
-  handleExpandEvent(e: MouseEvent) {
+  handleToggleEvent(e: MouseEvent) {
+    console.log(e);
     const button = e.target as HTMLButtonElement;
     let tar = button.parentElement.parentElement.querySelector('ul');
 
     if (tar && hasClasses(tar, 'is-locked')) {
       removeClass(tar, ['is-expanded', 'is-locked']);
-      button.textContent = '+';
     } else {
       addClass(tar, ['is-expanded', 'is-locked']);
-      button.textContent = '-';
     }
     this.expandParentLists(tar);
     this.updateItemOffsets();
@@ -402,6 +285,12 @@ export class TableOfContents extends LitElement {
   updateItemCount() {
     const expandedChildren = String(this.expandedListChildren.length);
     this.style.setProperty('--list--item-count', expandedChildren);
+  }
+  update(_changedProperties) {
+    super.update(_changedProperties);
+    if (_changedProperties.has('open') || _changedProperties.has('mobile')) {
+      this.updateItemOffsets();
+    }
   }
   scrollSpy(sections: IntersectionObserverEntry[]): void {
     if (!this.sections.length || !sections) return;
@@ -416,6 +305,7 @@ export class TableOfContents extends LitElement {
       let tar = section.target as HTMLElement;
       toggleClassIf(tar, section.isIntersecting, 'in-viewport');
     });
+
     const sortedSections = this.sections
       .filter((item) => hasClasses(item, 'in-viewport'))
       //Want a larger top when scrolling down => means element is further down the page
@@ -440,8 +330,7 @@ export class TableOfContents extends LitElement {
   }
   private expandParentLists(currLI: Element) {
     let parent = currLI?.parentElement.parentElement;
-    console.log(parent);
-    while (parent?.hasAttribute('data-toc-position')) {
+    while (parent?.hasAttribute('data-position')) {
       if (parent.tagName.toLowerCase() === 'ul') {
         addClass(parent, 'is-expanded');
       }
@@ -453,20 +342,20 @@ export class TableOfContents extends LitElement {
     this.updateItemCount();
     const childLayers = new Map() as Map<number, number>; // keep track of layers and item count. If a prior sibling has more children than the current item, shift the current element by the number of siblings;
     Array.from(this.expandedListChildren).map((el: HTMLElement, i) => {
-      const { tocChildren, tocPosition } = el.dataset;
+      const { children, position } = el.dataset;
       //Get element's layer within the toc
-      const itemLayer = tocPosition.split('.').length;
+      const itemLayer = position.split('.').length;
       const hasExpandedChild = (child: HTMLElement) => {
         return hasClasses(child, this.classes.expanded);
       };
       //If there were any layers of children before this element, add their respective indices to the element's position
-      let layer = itemLayer;
-      let previousChildren = 0;
+      let layer = itemLayer,
+        previousChildren = 0;
       while (childLayers.has(layer)) {
         previousChildren += childLayers.get(layer);
         layer++;
       }
-      const offset = String(previousChildren);
+      const offset = previousChildren.toString();
 
       el.style.setProperty('--item--neighbor-index', offset);
       //Find if the element has an expanded child to determine whether to add it's children's layers to our element map
@@ -475,7 +364,7 @@ export class TableOfContents extends LitElement {
           ? childLayers.get(itemLayer)
           : 0;
         //Add element's child count to current layer
-        childLayers.set(itemLayer, Number(tocChildren) + childrenOnLayer);
+        childLayers.set(itemLayer, Number(children) + childrenOnLayer);
       }
     });
   }
@@ -489,16 +378,12 @@ export class TableOfContents extends LitElement {
       ${this.mobile
         ? ''
         : html`<div class="toc__head">
-            <div class="toc__label">
-              <span>Content</span>
+              <div class="toc__label">
+                <span>Content</span>
+              </div>
             </div>
-          </div>`}
-      <div class="toc__track"><span class="toc-track"></span></div>
-      <div class="toc__content">
-        <ul class="list is-expanded">
-          ${this.list}
-        </ul>
-      </div>
+            <!--<div class="toc__track"><span class="track"></span></div>--> `}
+      ${templates.list(this.list)}
     `;
   }
 
