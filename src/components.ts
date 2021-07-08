@@ -19,6 +19,9 @@ import { ObserveStateMixin } from './util/mixins/state-observer.mixin';
 import { Observable } from 'rxjs';
 import { ObservedStateAction } from './util/mixins/state-observer.mixin';
 import { ObservePropertiesMixin } from './util/mixins/observe-bp.mixin';
+import { HicksItemComponent } from './components/toc/toc-item.component';
+
+customElements.define('hicks-list-item', HicksItemComponent);
 //Table of contents
 const tocStateEmitter = {
   propertyChangeHandler: state.getStateEmitted(),

@@ -1,0 +1,84 @@
+@use 'mixins' as *;
+@mixin host($state) {
+     :host([mobile]) & {
+        @content;
+    }
+}
+
+@mixin button-reset {
+    border: none;
+    background: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+:host {
+    --item--index: 0;
+    height: var(--item--height);
+    //Layout
+    display: list-item;
+    position: absolute;
+    padding-left: calc(0.25 * var(--font-size));
+    //Transforms
+    transform: translateY(0px);
+    will-change: transform;
+    transition: transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
+    //Misc
+    font: var(--item--font);
+    min-width: 15ch;
+    list-style-type: none;
+    @include mix-append-host-state('[shown]') {
+        transform: translateY( calc( (var(--item--index, 0) + var(--item--neighbor-index, 0)) * var(--item--height, 1rem)));
+    }
+}
+
+.item {
+    &__content {
+        width: calc(var(--host--width) - 10%);
+        position: absolute;
+        z-index: 2;
+        display: grid;
+        grid-template-areas: 'icon link button';
+        grid-template-columns: 1fr 9fr 2fr;
+        align-items: center;
+        &__prefix {
+            grid-area: icon;
+            padding: 0.5rem;
+        }
+        @include host(mobile) {
+            width: inherit;
+            height: 100%;
+        }
+        &__link {
+            color: var(--item--font-color);
+            text-decoration: none;
+            z-index: 1;
+            position: relative;
+            grid-area: link;
+            padding: 0.25rem;
+            @include mix-text-ellipsis;
+            @include host(mobile) {
+                width: inherit;
+            }
+            &:hover,
+             :host([active]) & ::slotted(*) {
+                color: var(--primary-8);
+                text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px, currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+                transition: text-shadow var(--item--transition--timing);
+            }
+            &:hover {
+                text-decoration: underline var(--secondary-9) 2px;
+                text-underline-offset: 1px;
+            }
+        }
+        &__suffix {
+            @include button-reset;
+            width: var(--item--height);
+            height: var(--font-size);
+            padding: 0px var(--font-size);
+            position: relative;
+            padding: 0.4rem;
+            grid-area: button;
+        }
+    }
+}

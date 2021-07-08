@@ -97,6 +97,7 @@ h6 {
   -webkit-transform: scale(1);
           transform: scale(1);
   display: block;
+  line-height: 0px;
 }
 .icon__button::before {
   --icon-button--background: rgba(255, 255, 255, 0.3);
@@ -149,12 +150,9 @@ h6 {
   display: block;
 }
 
-img {
-  height: 2rem;
-  width: 2rem;
-}
-
-:host * {
-  height: 2rem;
-  width: 2rem;
+:host {
+  --icon-toggle--height: 2rem;
+  --icon-toggle--width: 2rem;
+  height: var(--icon-toggle--height);
+  width: var(--icon-toggle--width);
 }`;
