@@ -92,6 +92,7 @@ h6 {
 */
 :host {
   --item--index: 0;
+  --item--neighbor-index: 0;
   height: var(--item--height);
   display: list-item;
   position: absolute;
@@ -110,8 +111,15 @@ h6 {
 :host([shown]) {
   -webkit-transform: translateY(calc( (0 + 0) * 1rem));
           transform: translateY(calc( (0 + 0) * 1rem));
-  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--neighbor-index, 0)) * var(--item--height, 1rem)));
-          transform: translateY(calc( (var(--item--index, 0) + var(--item--neighbor-index, 0)) * var(--item--height, 1rem)));
+  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+          transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+}
+
+:host([locked]) {
+  -webkit-transform: translateY(calc( (0 + 0) * 1rem));
+          transform: translateY(calc( (0 + 0) * 1rem));
+  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+          transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
 }
 
 .item__content {

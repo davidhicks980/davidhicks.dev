@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement, TemplateResult, svg } from 'lit';
+import { html, LitElement, TemplateResult } from 'lit';
 import { property, queryAll, queryAsync, state } from 'lit/decorators.js';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
@@ -23,6 +23,7 @@ import { Ref } from 'lit/directives/ref.js';
 import { HicksIconToggleButton } from '../icon-button/icon-button';
 import { tocTemplates as templates } from './toc.templates';
 import { HicksItemComponent } from './toc-item.component';
+import { ListItemController } from '../../util/controllers/table-of-contents.controller';
 
 customElements.define('hicks-icon-expand-button', HicksIconToggleButton);
 
@@ -44,53 +45,6 @@ const mutationCallback =
       : null;
   };
 
-const addClass = (toElement: HTMLElement, classes: string[] | string) => {
-  toElement?.classList?.add(...(Array.isArray(classes) ? classes : [classes]));
-};
-const removeClass = (fromElement: HTMLElement, classes: string[] | string) => {
-  fromElement?.classList?.remove(
-    ...(Array.isArray(classes) ? classes : [classes])
-  );
-};
-const swapClasses = (
-  fromElement: HTMLElement,
-  toElement: HTMLElement,
-  classes: string[] | string
-) => {
-  if (toElement) addClass(toElement, classes);
-  if (fromElement) removeClass(fromElement, classes);
-};
-const toggleClassIf = (
-  element: HTMLElement,
-  condition: boolean,
-  classes: string[] | string
-) => {
-  if (condition) {
-    addClass(element, classes);
-  } else {
-    removeClass(element, classes);
-  }
-};
-const removeClassIf = (
-  element: HTMLElement,
-  classes: string[] | string,
-  condition: boolean
-) => {
-  if (condition) {
-    removeClass(element, classes);
-  }
-};
-
-function hasClasses(el: HTMLElement, classes: string[] | string) {
-  if (el && el.classList) {
-    if (Array.isArray(classes)) {
-      return (classes as string[]).every((cl) => el.classList.contains(cl));
-    } else {
-      return el.classList.contains(classes as string);
-    }
-  }
-}
-
 /**
  * Element that renders table of contents.
  * @extends {BaseStateElement}
@@ -105,7 +59,7 @@ export class TableOfContents extends LitElement {
   @queryAll('.list__sublist')
   sublists: NodeListOf<HTMLUListElement>;
   @queryAll('ul[data-expanded-list]>hicks-list-item')
-  expandedListChildren: NodeListOf<HicksItemComponent>;
+  expandedULists: NodeListOf<HicksItemComponent>;
   @queryAll('hicks-list-item')
   listItems: NodeListOf<HicksItemComponent>;
   @queryAsync('hicks-list-item')
@@ -141,6 +95,8 @@ export class TableOfContents extends LitElement {
   offsets = new Map() as Map<string, number>;
   breakpointControl: any;
   attached: boolean = false;
+  itemController: ListItemController;
+  observer!: MutationObserver;
 
   constructor() {
     super();
@@ -155,6 +111,40 @@ export class TableOfContents extends LitElement {
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
     this.classList.add('toc');
+    this.itemController = new ListItemController(this);
+
+    /* const childNodeMap = new Map() as Map<string, number>;
+
+    const listMutCB = function (
+      this: TableOfContents,
+      mutationList: MutationRecord[]
+    ) {
+      mutationList.map((mutation: MutationRecord) => {
+        const tar = mutation.target as HTMLUListElement;
+        if (tar && tar.hasAttribute('data-expanded-list')) {
+          childNodeMap.set(tar.dataset.position, tar.childElementCount);
+        } else {
+          childNodeMap.set(tar.dataset.position, 0);
+        }
+      });
+
+      const nodeArray = Array.from(childNodeMap);
+      this.updateItemCount(
+        nodeArray.reduce((a, [path, value]) => {
+          return a + value;
+        }, 0)
+      );
+      this.itemController.updateItems(nodeArray);
+    };
+
+    let mut = listMutCB.bind(this);
+    this.observer = new MutationObserver(mut);
+    this.observer.observe(this.shadowRoot, {
+      childList: true,
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['data-expanded-list'],
+    });*/
     this.articleContent = document.querySelector('content-tree');
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
@@ -165,6 +155,7 @@ export class TableOfContents extends LitElement {
     this.list = this._refreshLinks(this.sections);
 
     this.observeSectionMutations();
+
     this.previousOffset = this.articleContent.scrollTop;
     this.mobile = window.matchMedia('(max-width: 599.99px)').matches;
     this.observers.intersection = this.getScrollObserver();
@@ -173,7 +164,6 @@ export class TableOfContents extends LitElement {
     });
 
     this.scrollSpy(this.observers.intersection.takeRecords());
-    this.itemsAttached.then(() => this.initializeExpansion(this.items));
   }
 
   /**
@@ -275,16 +265,10 @@ export class TableOfContents extends LitElement {
     );
   }
 
-  updateItemCount() {
-    const expandedChildren = String(this.expandedListChildren.length);
-    this.style.setProperty('--list--item-count', expandedChildren);
+  updateItemCount(count: number) {
+    this.style.setProperty('--list--item-count', String(count));
   }
-  update(_changedProperties) {
-    super.update(_changedProperties);
-    if (_changedProperties.has('open') || _changedProperties.has('mobile')) {
-      this.updateItemOffsets();
-    }
-  }
+
   scrollSpy(sections: IntersectionObserverEntry[]): void {
     if (!this.sections.length || !sections) return;
     const lastVisitedSection = this.currentSectionId;
@@ -296,66 +280,66 @@ export class TableOfContents extends LitElement {
     //If a section is intersecting, mark it as such with in-viewport class
     sections.forEach((section) => {
       let tar = section.target as HTMLElement;
-      toggleClassIf(tar, section.isIntersecting, 'in-viewport');
+      if (section.isIntersecting) {
+        tar.classList.add('in-viewport');
+      }
     });
 
     const sortedSections = this.sections
-      .filter((item) => hasClasses(item, 'in-viewport'))
+      .filter((item) => item.classList.contains('in-viewport'))
       //Want a larger top when scrolling down => means element is further down the page
       .sort(sortPredicate);
     if (!sortedSections.length) return;
 
     this.currentSectionId = sortedSections[0].id;
 
-    if (lastVisitedSection !== this.currentSectionId) {
+    if (
+      lastVisitedSection !== this.currentSectionId ||
+      this.currentSectionId === ''
+    ) {
       const currLI = this.getListItemInstance(this.currentSectionId);
       const prevLI = this.getListItemInstance(lastVisitedSection);
-
-      prevLI?.toggleAttribute('active');
-      currLI?.toggleAttribute('active');
+      if (currLI && prevLI) {
+        prevLI.active = false;
+        currLI.active = true;
+      }
+      this.sublists.forEach((el) =>
+        el.toggleAttribute('dataset-expanded-list', false)
+      );
+      this.expandParentLists(currLI);
+      this.updateItemOffsets();
     }
-    this.updateItemOffsets();
   }
-  /* private expandParentLists(currLI: Element) {
-    let parent = currLI?.parentElement;
+  private expandParentLists(currLI: HicksItemComponent) {
+    let parent = currLI?.closest('ul');
     while (!parent.classList.contains('toc__list')) {
-      addClass(parent, 'is-expanded');
-      parent = parent.parentElement;
+      parent.toggleAttribute('dataset-expanded-list', true);
+      parent = parent.closest('ul');
     }
-  }*/
+  }
   updated(_changedProperties: Map<string, unknown>) {
     super.updated(_changedProperties);
   }
-  private initializeExpansion(items) {
-    items.forEach((ref: Ref<HicksItemComponent>) => {
-      const li = ref.value,
-        parent = li?.parentElement;
-      if (parent && parent.hasAttribute('data-expanded-list')) {
-        li.toggleAttribute('shown', true);
-      }
-    });
-  }
 
   private updateItemOffsets() {
-    this.updateItemCount();
     const childLayers = new Map() as Map<number, number>; // keep track of layers and item count. If a prior sibling has more children than the current item, shift the current element by the number of siblings;
-    Array.from(this.expandedListChildren).map((el: HicksItemComponent, i) => {
+    Array.from(this.expandedULists).map((el: HicksItemComponent, i) => {
       const path = el.getAttribute('path');
       const childCount = el.getAttribute('childCount');
       //Get element's layer within the toc
-
+      console.log(path, childCount);
       const itemLayer = path.split('.').length;
       //If there were any layers of children before this element, add their respective indices to the element's position
       let layer = itemLayer,
-        previousChildren = 0;
+        previousElementChildren = 0;
       while (childLayers.has(layer)) {
-        previousChildren += childLayers.get(layer);
+        previousElementChildren += childLayers.get(layer);
         layer++;
       }
-      const offset = previousChildren.toString();
-      el.style.setProperty('--item--neighbor-index', offset);
+      const offset = previousElementChildren.toString();
+      el.style.setProperty('--item--offset', offset);
       //Find if the element has an expanded child to determine whether to add it's children's layers to our element map
-      if (el.hasAttribute('expanded')) {
+      if (el.hasAttribute('shown')) {
         let childrenOnLayer = childLayers.has(itemLayer)
           ? childLayers.get(itemLayer)
           : 0;
@@ -365,8 +349,8 @@ export class TableOfContents extends LitElement {
     });
   }
 
-  getListItemInstance(linkHref: string): HTMLElement {
-    return this.items.get(linkHref)?.value as HTMLElement;
+  getListItemInstance(linkHref: string): HicksItemComponent {
+    return this.items.get(linkHref)?.value as HicksItemComponent;
   }
 
   render() {

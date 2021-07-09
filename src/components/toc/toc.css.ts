@@ -93,19 +93,25 @@ h6 {
 :host {
   --font-size: 1rem;
   --item--font-weight: 400;
-  --item--font: var(--item--font-weight) var(--font-size) var(--body-font), sans-serif;
-  --item--margin: calc(var(--font-size) * 0.825);
+  --item--font: var(--item--font-weight) var(--font-size) var(--body-font),
+    sans-serif;
+  --item--margin: calc(var(--font-size) * 0.5);
   --item--height: calc(var(--font-size) + var(--item--margin));
   --item--transition--timing: 2s;
   --item--font-color: var(--gray-9);
   --head--margin: calc(var(--font-size) * 1.75);
   --list--item-count: 0;
-  --list--header-font: bold calc(var(--font-size) * 1.25) var(--body-font), sans-serif;
+  --list--header-font: bold calc(var(--font-size) * 1.25) var(--body-font),
+    sans-serif;
   --list--top: 90px;
-  --track--height: calc( var(--item--height) + var(--head--margin) / var(--list--item-count));
+  --track--height: calc(
+    var(--item--height) + var(--head--margin) / var(--list--item-count)
+  );
   --track--scale: scaleY(var(--list--item-count));
   --track--width: 2rem;
-  --host--height: calc( (var(--item--height) * var(--list--item-count)) + var(--head--margin) + 3rem);
+  --host--height: calc(
+    (var(--item--height) * var(--list--item-count)) + var(--head--margin) + 3rem
+  );
   --host--width: calc(var(--font-size) * 12);
   --host--position: sticky;
   --host--top: calc(var(--toolbar-height, 20vh) + 5vh);
@@ -181,19 +187,18 @@ h6 {
 
 .toc {
   /* &__track {
-      grid-area: track;
-      width: var(--track--width);
-       :host([mobile]) & {
-          grid-area: none;
-      }
-  }*/
+        grid-area: track;
+        width: var(--track--width);
+         :host([mobile]) & {
+            grid-area: none;
+        }
+    }*/
 }
 .toc__list {
   width: var(--list--width);
   grid-area: content;
   height: calc(var(--host--height) - var(--head--margin));
   display: block;
-  overflow: hidden;
 }
 .toc__list__link-icon {
   vertical-align: middle;
@@ -263,7 +268,6 @@ ul {
   padding-right: 0px;
   padding-left: calc(1.5 * var(--font-size));
   opacity: 0;
-  overflow: auto;
   padding-bottom: 2rem;
 }
 .list__sublist[data-expanded-list] {
