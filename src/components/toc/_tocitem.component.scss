@@ -12,38 +12,6 @@
   padding: 0px;
 }
 
-:host {
-  --item--index: 0;
-  --item--neighbor-index: 0;
-  height: var(--item--height);
-  //Layout
-  display: list-item;
-  position: absolute;
-  padding-left: calc(0.25 * var(--font-size));
-  //Transforms
-  transform: translateY(0px);
-  will-change: transform;
-  transition: transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
-  //Misc
-  font: var(--item--font);
-  min-width: 15ch;
-  list-style-type: none;
-  @mixin dynamicHeight {
-    transform: translateY(
-      calc(
-        (var(--item--index, 0) + var(--item--offset, 0)) *
-          var(--item--height, 1rem)
-      )
-    );
-  }
-  @include mix-append-host-state('[shown]') {
-    @include dynamicHeight;
-  }
-  @include mix-append-host-state('[locked]') {
-    @include dynamicHeight;
-  }
-}
-
 .item {
   &__content {
     width: calc(var(--host--width) - 10%);

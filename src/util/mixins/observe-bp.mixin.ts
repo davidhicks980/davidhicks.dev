@@ -1,4 +1,4 @@
-import { BreakpointController } from '../controllers/breakpoint.controller';
+import { BreakpointController } from '../controllers/_breakpoint.controller';
 import { MediaQueryCallback } from '../../MediaQueryCallback';
 import { LitProto } from '../../types/LitProto';
 import { PropertyChanges } from '../../types/PropertyChanges';

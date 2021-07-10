@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
-import { BreakpointController } from '../controllers/breakpoint.controller';
+import { BreakpointController } from '../controllers/_breakpoint.controller';
 import { styleMap } from 'lit/directives/style-map.js';
 import { MediaQueryCallback } from '../../MediaQueryCallback';
 import { StyleAdjustments } from '../../types/StyleAdjustments';

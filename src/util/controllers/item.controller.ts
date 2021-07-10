@@ -1,12 +1,8 @@
 import { ReactiveController } from 'lit';
-import { BehaviorSubject, from, Subject, Subscription } from 'rxjs';
-import { HicksItemComponent } from '../../components/toc/toc-item.component';
-import { TableOfContents } from '../../components/toc/toc.component';
-
-const expandedElements = new Subject() as BehaviorSubject<[string, number][]>;
+import { HicksListItem } from '../../components/toc/toc-item.component';
 
 export class ListItemController implements ReactiveController {
-  host: HicksItemComponent | TableOfContents;
+  host: HicksListItem;
   /**
    * Compares the supplied path to the
    *
@@ -48,39 +44,14 @@ export class ListItemController implements ReactiveController {
     }
   };
 
-  path: string;
-
-  getRelativePathLocation: (referencePath: string) => boolean;
-  subscriptions: Subscription[];
-
-  setPath(path: string) {
-    this.path = path;
-    this.observeOffset.bind(this);
-  }
-  constructor(host: HicksItemComponent | TableOfContents) {
+  constructor(host: HicksListItem) {
     (this.host = host).addController(this);
   }
 
-  updateItems(update: [string, number][]) {
-    expandedElements.next(update);
-  }
-  observeOffset(
-    this: ListItemController,
-    parentPath: string,
-    updateOffset: (offset: number) => unknown
-  ) {
-    expandedElements.asObservable().subscribe((paths) => {
-      const prev = paths
-        .filter(([path, count]) => this.testIfPathComesAfter(parentPath, path))
-        .reduce((a, [path, count]) => a + count, 0);
-      updateOffset(prev);
-    });
-  }
+  makeUpdate(item: string, update: string) {}
 
   hostConnected() {
     this.host.requestUpdate();
   }
-  hostDisconnected() {
-    this.subscriptions.forEach((obs) => obs.unsubscribe());
-  }
+  hostDisconnected() {}
 }

@@ -1,44 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="utf-8" name="viewport" content="width=device-width" />
 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+    <link
+      media="print"
+      onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
     <!-- <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>-->
     <link rel="stylesheet" href="./styles/main.prod.css" />
 
     <title>The Developer Site for David Hicks</title>
-</head>
+  </head>
 
-<body id="app">
+  <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
 
     <hicks-header>
-        <div slot="header-brand">
-            <brand-component></brand-component>
-        </div>
-        <div style="height: 3rem; width: 4.5rem" class="header__logo-wrapper" slot="header-logo">
-            <logo-component></logo-component>
-        </div>
-        <div slot="header-social">
-            <hicks-nav style="--nav--gap: 1rem; --nav--height: 2.25rem">
-                <hicks-nav-item>
-                    <img class="icon--social" src="./icons/logo-google.svg" />
-                </hicks-nav-item>
-                <hicks-nav-item>
-                    <img class="icon--social" src="./icons/logo-github.svg" />
-                </hicks-nav-item>
-                <hicks-nav-item>
-                    <img class="icon--social" src="./icons/logo-linkedin.svg" />
-                </hicks-nav-item>
-            </hicks-nav>
-        </div>
-        <div slot="header-toolbar-toggle">
-            <hicks-icon-toggle-button defaulticon="./icons/menu.svg" toggleicon="./icons/close.svg">
-                <svg slot="icon" class="menu-icon" style="transform: scale(1.1)" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="white">
+      <div slot="header-brand">
+        <brand-component></brand-component>
+      </div>
+      <div
+        style="height: 3rem; width: 4.5rem"
+        class="header__logo-wrapper"
+        slot="header-logo"
+      >
+        <logo-component></logo-component>
+      </div>
+      <div slot="header-social">
+        <hicks-nav style="--nav--gap: 1rem; --nav--height: 2.25rem">
+          <hicks-nav-item>
+            <img class="icon--social" src="./icons/logo-google.svg" />
+          </hicks-nav-item>
+          <hicks-nav-item>
+            <img class="icon--social" src="./icons/logo-github.svg" />
+          </hicks-nav-item>
+          <hicks-nav-item>
+            <img class="icon--social" src="./icons/logo-linkedin.svg" />
+          </hicks-nav-item>
+        </hicks-nav>
+      </div>
+      <div slot="header-toolbar-toggle">
+        <hicks-icon-toggle-button
+          defaulticon="./icons/menu.svg"
+          toggleicon="./icons/close.svg"
+        >
+          <svg
+            slot="icon"
+            class="menu-icon"
+            style="transform: scale(1.1)"
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 0 24 24"
+            width="24px"
+            fill="white"
+          >
             <path d="M0 0h24v24H0V0z" fill="none" />
             <rect
               class="top-bun"
@@ -67,23 +87,22 @@
               height="8.25%"
             ></rect>
           </svg>
-            </hicks-icon-toggle-button>
-        </div>
-        <hicks-nav slot="header-navigation">
-            <hicks-nav-item>About</hicks-nav-item>
-            <hicks-nav-item>Portfolio</hicks-nav-item>
-            <hicks-nav-item>Resume</hicks-nav-item>
-            <hicks-nav-item>Contact</hicks-nav-item>
-        </hicks-nav>
+        </hicks-icon-toggle-button>
+      </div>
+      <hicks-nav slot="header-navigation">
+        <hicks-nav-item>About</hicks-nav-item>
+        <hicks-nav-item>Portfolio</hicks-nav-item>
+        <hicks-nav-item>Resume</hicks-nav-item>
+        <hicks-nav-item>Contact</hicks-nav-item>
+      </hicks-nav>
     </hicks-header>
     <main class="layout">
-        <div class="left"></div>
-        <content-tree class="center"></content-tree>
-        <div class="right">
-            <hicks-toc expandIconSrc="./icons/minus"></hicks-toc>
-        </div>
+      <div class="left"></div>
+      <content-tree class="center"></content-tree>
+      <div class="right">
+        <hicks-toc expandIconSrc="./icons/minus"></hicks-toc>
+      </div>
     </main>
-</body>
-<script type="module" defer src="./components.js"></script>
-
+  </body>
+  <script type="module" defer src="./components.js"></script>
 </html>

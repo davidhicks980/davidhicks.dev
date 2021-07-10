@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-import { html, LitElement, TemplateResult } from 'lit';
+import { html, LitElement, TemplateResult, svg } from 'lit';
 import { property, queryAll, queryAsync, state } from 'lit/decorators.js';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
 import { Ref } from 'lit/directives/ref.js';
-
 import { HicksIconToggleButton } from '../icon-button/icon-button';
 import { tocTemplates as templates } from './toc.templates';
-import { HicksItemComponent } from './toc-item.component';
-import { ListItemController } from '../../util/controllers/table-of-contents.controller';
+import { HicksListItem } from './toc-item.component';
+import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 
 customElements.define('hicks-icon-expand-button', HicksIconToggleButton);
 
@@ -54,26 +53,24 @@ const mutationCallback =
 export class TableOfContents extends LitElement {
   static styles = [style];
 
-  @queryAll('active')
+  @queryAll('.is-active')
   links: NodeListOf<HTMLAnchorElement>;
   @queryAll('.list__sublist')
   sublists: NodeListOf<HTMLUListElement>;
-  @queryAll('ul[data-expanded-list]>hicks-list-item')
-  expandedULists: NodeListOf<HicksItemComponent>;
   @queryAll('hicks-list-item')
-  listItems: NodeListOf<HicksItemComponent>;
-  @queryAsync('hicks-list-item')
+  listItems: NodeListOf<HicksListItem>;
+  @queryAll('ul[data-expanded]>hicks-list-item')
+  visibleListItems: NodeListOf<HicksListItem>;
+  @queryAsync('list-item')
   itemsAttached;
   @state()
-  currentSectionId: string = '';
+  activeId: string = '';
   @property({ type: Boolean, reflect: true })
   open: boolean;
   @state()
   toggledLists: Set<string> = new Set();
   @property({ type: Object }) articleContent!: HTMLElement | null;
   @property({ type: Boolean, reflect: true }) mobile = true;
-  @property({ type: Boolean, reflect: true }) tablet = true;
-
   @property({ type: String }) expandIcon!: string | null;
 
   headings!: HTMLHeadingElement[];
@@ -90,18 +87,19 @@ export class TableOfContents extends LitElement {
   };
   sections: HTMLElement[];
   expandedLists = new Set();
-  items = new Map() as Map<string, Ref<HicksItemComponent>>;
+  items = new Map() as Map<string, Ref<Element>>;
+
   list: TemplateResult[];
   offsets = new Map() as Map<string, number>;
   breakpointControl: any;
-  attached: boolean = false;
-  itemController: ListItemController;
-  observer!: MutationObserver;
+  tablet: any;
+  sectionsInViewport: Map<string, { offset: number; el: HTMLElement }> =
+    new Map();
+  breakpointController: BreakpointController;
 
   constructor() {
     super();
     this.scrollSpy = this.scrollSpy.bind(this);
-
     this.observers = {};
   }
 
@@ -111,40 +109,6 @@ export class TableOfContents extends LitElement {
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
     this.classList.add('toc');
-    this.itemController = new ListItemController(this);
-
-    /* const childNodeMap = new Map() as Map<string, number>;
-
-    const listMutCB = function (
-      this: TableOfContents,
-      mutationList: MutationRecord[]
-    ) {
-      mutationList.map((mutation: MutationRecord) => {
-        const tar = mutation.target as HTMLUListElement;
-        if (tar && tar.hasAttribute('data-expanded-list')) {
-          childNodeMap.set(tar.dataset.position, tar.childElementCount);
-        } else {
-          childNodeMap.set(tar.dataset.position, 0);
-        }
-      });
-
-      const nodeArray = Array.from(childNodeMap);
-      this.updateItemCount(
-        nodeArray.reduce((a, [path, value]) => {
-          return a + value;
-        }, 0)
-      );
-      this.itemController.updateItems(nodeArray);
-    };
-
-    let mut = listMutCB.bind(this);
-    this.observer = new MutationObserver(mut);
-    this.observer.observe(this.shadowRoot, {
-      childList: true,
-      attributes: true,
-      subtree: true,
-      attributeFilter: ['data-expanded-list'],
-    });*/
     this.articleContent = document.querySelector('content-tree');
     if (!this.articleContent) {
       console.warn(`Article container not found.`);
@@ -155,17 +119,22 @@ export class TableOfContents extends LitElement {
     this.list = this._refreshLinks(this.sections);
 
     this.observeSectionMutations();
-
-    this.previousOffset = this.articleContent.scrollTop;
-    this.mobile = window.matchMedia('(max-width: 599.99px)').matches;
+    this.previousOffset = window.pageYOffset;
     this.observers.intersection = this.getScrollObserver();
     this.sections.forEach((section: HTMLElement, i) => {
       this.observers.intersection.observe(section);
     });
 
     this.scrollSpy(this.observers.intersection.takeRecords());
+    this.itemsAttached.then(() => this.initializeExpansion());
+    this.breakpointController = new BreakpointController(this);
+    this.breakpointController
+      .observe('mobile')
+      .subscribe(([id, matches]) => (this[id] = matches ?? false));
   }
-
+  private initializeExpansion() {
+    this.updateItemCount();
+  }
   /**
    * Used to build the list template whenever sections are changed
    *
@@ -182,16 +151,14 @@ export class TableOfContents extends LitElement {
       //prettier-ignore
       const { title, position: {root, index, path}, href, marker } = heading,
       //prettier-ignore
-       isActive = this.currentSectionId === href,
+       isActive = this.activeId === href,
       //Get template for the list item's children
        {  fullPath,  childList } = templates.buildChildlist(childLists, path),
-       { template, reference } = templates.listItem(
+        template = templates.listItem(
         childList,
+        this.handleToggleEvent,
         { path, href, title, marker, index }
       );
-
-      //A map of list item references that can be referenced once the list is instantiated. Used when manipulating list items
-      this.items.set(href, reference as Ref<HicksItemComponent>);
 
       //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree;
       if (toArr(path).length > 1) {
@@ -200,22 +167,27 @@ export class TableOfContents extends LitElement {
       } else {
         tree.push(template);
       }
+
       return tree;
     }, []);
   };
-
-  getScrollDirection = () => {
-    const currentOffset = window.scrollY;
-    const sign = Math.sign(this.previousOffset - currentOffset);
-    this.previousOffset = currentOffset;
-    return sign;
+  /**
+   *Returns the direction the user is currently scrolling based on an element's top offset at two seperate time points. -1 means scrolling downwards, +1 means scrolling upwards, 0 means not scrolling
+   *
+   * @param {number} prevOffset
+   * @param {number} currOffset
+   * @memberof TableOfContents
+   */
+  getScrollDirection = (prevOffset: number, currOffset: number) => {
+    //negative means scrolling down
+    return Math.sign(prevOffset - currOffset);
   };
 
   private getScrollObserver() {
     return new IntersectionObserver(this.scrollSpy, {
       root: null,
       rootMargin: '-40% 0px -40% 0px',
-      threshold: [0, 0.1, 0.9],
+      threshold: [0, 0.1, 0.9, 1],
     });
   }
 
@@ -233,6 +205,7 @@ export class TableOfContents extends LitElement {
     sublists: Map<string, ListChild[]>,
     root: string
   ) {
+    //If the root (aka the parent ul element) of the item already has an entry, push the item to it. Otherwise, create a new array for child elements of the parent ul (iow, list items).
     return sublists.has(root)
       ? sublists.get(root).push(item)
       : sublists.set(root, [item]);
@@ -252,7 +225,6 @@ export class TableOfContents extends LitElement {
         title,
         href: section.id,
         position,
-
         marker: section.dataset.tocMarker,
         sortOrder: depth * 1000 + (100 - position.index),
       };
@@ -264,93 +236,138 @@ export class TableOfContents extends LitElement {
       this.articleContent?.querySelectorAll('section')
     );
   }
+  handleToggleEvent(e: MouseEvent) {
+    const button = e.target as HTMLButtonElement;
+    let tar = button.parentElement.parentElement.querySelector('ul');
 
-  updateItemCount(count: number) {
-    this.style.setProperty('--list--item-count', String(count));
+    if (tar) {
+      tar.toggleAttribute('data-expanded');
+    }
+    this.expandAncestorLists(tar);
+    this.updateItemOffsets();
   }
-
-  scrollSpy(sections: IntersectionObserverEntry[]): void {
-    if (!this.sections.length || !sections) return;
-    const lastVisitedSection = this.currentSectionId;
-    //Returns 1 if scrolling up, -1 if scrolling down
-    const sort = this.getScrollDirection();
-    const getTop = (el: HTMLElement) => el.getBoundingClientRect().top,
-      sortPredicate = (a, b) => Math.sign(sort * (getTop(b) - getTop(a)));
-
-    //If a section is intersecting, mark it as such with in-viewport class
-    sections.forEach((section) => {
-      let tar = section.target as HTMLElement;
-      if (section.isIntersecting) {
-        tar.classList.add('in-viewport');
-      }
-    });
-
-    const sortedSections = this.sections
-      .filter((item) => item.classList.contains('in-viewport'))
-      //Want a larger top when scrolling down => means element is further down the page
-      .sort(sortPredicate);
-    if (!sortedSections.length) return;
-
-    this.currentSectionId = sortedSections[0].id;
-
-    if (
-      lastVisitedSection !== this.currentSectionId ||
-      this.currentSectionId === ''
-    ) {
-      const currLI = this.getListItemInstance(this.currentSectionId);
-      const prevLI = this.getListItemInstance(lastVisitedSection);
-      if (currLI && prevLI) {
-        prevLI.active = false;
-        currLI.active = true;
-      }
-      this.sublists.forEach((el) =>
-        el.toggleAttribute('dataset-expanded-list', false)
-      );
-      this.expandParentLists(currLI);
+  updateItemCount() {
+    const expandedChildren = String(this.visibleListItems.length);
+    this.style.setProperty('--list--item-count', expandedChildren);
+  }
+  update(_changedProperties) {
+    super.update(_changedProperties);
+    if (_changedProperties.has('open') || _changedProperties.has('mobile')) {
       this.updateItemOffsets();
     }
   }
-  private expandParentLists(currLI: HicksItemComponent) {
-    let parent = currLI?.closest('ul');
-    while (!parent.classList.contains('toc__list')) {
-      parent.toggleAttribute('dataset-expanded-list', true);
-      parent = parent.closest('ul');
+  scrollSpy(sections: IntersectionObserverEntry[]): void {
+    if (!this.sections.length || !sections) return;
+    const previousActiveId = this.activeId;
+    let prevOffset = 0,
+      offset = 0,
+      sort = 0;
+
+    //
+    sections.forEach((section: IntersectionObserverEntry) => {
+      let el = section.target as HTMLElement,
+        id = el.id;
+      offset = section.boundingClientRect.top;
+      if (this.sectionsInViewport.has(id)) {
+        prevOffset = this.sectionsInViewport.get(id).offset;
+        sort = this.getScrollDirection(prevOffset, offset);
+      }
+      if (section.isIntersecting) {
+        this.sectionsInViewport.set(id, { el, offset });
+      } else {
+        this.sectionsInViewport.delete(id);
+      }
+    });
+
+    //Returns 1 if scrolling up, -1 if scrolling down, 0 if static. It should never be zero
+    if (sections.length > 1) {
+      //get the offset of each of the viewport elements so we can sort them
+      const getOffset = ([id, entry]) => {
+          return entry.offset;
+        },
+        sortPredicate = (a, b) =>
+          Math.sign(sort * (getOffset(b) - getOffset(a)));
+      const sortedSections = Array.from(this.sectionsInViewport)
+        //Want a larger top when scrolling down => means element is further down the page
+        .sort(sortPredicate)
+        //Map to viewport entry key => href
+        .map((entry) => entry[0]);
+      if (!sortedSections.length) return;
+      //Get the first item, which is the item closest to the edge in the direction that we are scrolling
+      this.activeId = sortedSections[0];
     }
+    //Make sure we do not already have the correct element selected
+    if (previousActiveId !== this.activeId) {
+      let map = this.itemMap();
+      const currLI = map.get(this.activeId);
+      currLI.activate();
+      const prevLI = map.get(previousActiveId);
+      if (prevLI) {
+        prevLI.deactivate();
+      }
+
+      if (this.sublists.length > 0) {
+        this.sublists.forEach(this.collapseList);
+      }
+
+      this.expandAncestorLists(currLI);
+    }
+    this.updateItemOffsets();
   }
-  updated(_changedProperties: Map<string, unknown>) {
-    super.updated(_changedProperties);
+  private collapseList(list: HTMLUListElement) {
+    list.toggleAttribute('data-expanded', false);
+  }
+  private expandList(list: HTMLUListElement) {
+    list.toggleAttribute('data-expanded', true);
+    Array.from(list.children).forEach((element) => {
+      (element as HicksListItem).shown = true;
+    });
+  }
+
+  private expandAncestorLists(currLI: Element) {
+    let parent = currLI?.parentElement;
+    while (
+      parent?.hasAttribute('data-position') ||
+      parent.tagName === 'HICKS-LIST-ITEM'
+    ) {
+      if (parent.tagName === 'UL') {
+        this.expandList(parent as HTMLUListElement);
+      }
+      parent = parent.parentElement;
+    }
+    this.updateItemOffsets();
   }
 
   private updateItemOffsets() {
+    this.updateItemCount();
     const childLayers = new Map() as Map<number, number>; // keep track of layers and item count. If a prior sibling has more children than the current item, shift the current element by the number of siblings;
-    Array.from(this.expandedULists).map((el: HicksItemComponent, i) => {
-      const path = el.getAttribute('path');
-      const childCount = el.getAttribute('childCount');
+    Array.from(this.visibleListItems).map((el: HicksListItem, i) => {
+      const { childItems, path } = el;
       //Get element's layer within the toc
-      console.log(path, childCount);
       const itemLayer = path.split('.').length;
+
       //If there were any layers of children before this element, add their respective indices to the element's position
       let layer = itemLayer,
-        previousElementChildren = 0;
+        previousChildren = 0;
       while (childLayers.has(layer)) {
-        previousElementChildren += childLayers.get(layer);
+        previousChildren += childLayers.get(layer);
         layer++;
       }
-      const offset = previousElementChildren.toString();
-      el.style.setProperty('--item--offset', offset);
+      const offset = previousChildren;
+      el.offset = offset;
       //Find if the element has an expanded child to determine whether to add it's children's layers to our element map
-      if (el.hasAttribute('shown')) {
+      if (el.getSlottedList()?.hasAttribute('data-expanded')) {
         let childrenOnLayer = childLayers.has(itemLayer)
           ? childLayers.get(itemLayer)
           : 0;
         //Add element's child count to current layer
-        childLayers.set(itemLayer, Number(childCount) + childrenOnLayer);
+        childLayers.set(itemLayer, Number(childItems) + childrenOnLayer);
       }
     });
   }
 
-  getListItemInstance(linkHref: string): HicksItemComponent {
-    return this.items.get(linkHref)?.value as HicksItemComponent;
+  itemMap() {
+    return new Map(Array.from(this.listItems).map((el) => [el.href, el]));
   }
 
   render() {

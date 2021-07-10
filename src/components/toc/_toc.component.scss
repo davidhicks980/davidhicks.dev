@@ -11,9 +11,9 @@
   --item--font: var(--item--font-weight) var(--font-size) var(--body-font),
     sans-serif;
   //Item variables
-  --item--margin: calc(var(--font-size) * 0.5); // Padding around the item
+  --item--margin: calc(var(--font-size) * 0.825); // Padding around the item
   --item--height: calc(var(--font-size) + var(--item--margin));
-  --item--transition--timing: 2s;
+  --item--transition--timing: 1s;
   --item--font-color: var(--gray-9); //Dimensions
   //List variables
   --head--margin: calc(var(--font-size) * 1.75);
@@ -137,20 +137,22 @@ ul {
 }
 
 .list {
-  @include mix-reset-list;
   padding-left: 0.5rem;
   margin: 0;
-  position: relative;
+  position: absolute;
   list-style-type: none;
   transform: translateY(calc(-1 * var(--item--height) / 1.5));
   width: var(--list--width);
   height: var(--list--height);
+  padding-left: calc(var(--font-size) * 2);
   &__sublist {
-    @include mix-reset-list;
-    padding-left: calc(1.5 * var(--font-size));
+    padding-left: calc(0.75 * var(--font-size));
     opacity: 0;
     padding-bottom: 2rem;
-    &[data-expanded-list] {
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    &[data-expanded] {
       opacity: 1;
     }
   }
@@ -160,6 +162,84 @@ ul {
     --list--height: 100%;
     border-bottom: 1px dotted gray;
   }
+}
+
+@mixin button-reset {
+  border: none;
+  background: none;
+  margin: 0px;
+  padding: 0px;
+}
+
+hicks-list-item {
+  height: var(--item--height);
+  //Layout
+  display: list-item;
+  position: absolute;
+  padding-left: 0.5em;
+  //Transforms
+  transform: translateY(0px);
+  will-change: transform;
+  transition: transform var(--item--transition--timing)
+    cubic-bezier(0.075, 0.82, 0.165, 1);
+  //Misc
+  font: var(--item--font);
+  min-width: 15ch;
+
+  @include host(mobile) {
+    --item--font-weight: 300;
+  }
+
+  ul[data-expanded] > & {
+    transform: translateY(
+      calc(
+        (var(--item--index, 0) + var(--item--offset, 0)) *
+          var(--item--height, 1rem)
+      )
+    );
+  } /*
+  &__content {
+    width: calc(var(--host--width) - var(--font-size) * 2);
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    @include host(mobile) {
+      width: inherit;
+      height: 100%;
+    }
+    &__link {
+      color: var(--item--font-color);
+      text-decoration: none;
+      z-index: 1;
+      position: relative;
+      @include mix-text-ellipsis;
+      @include host(mobile) {
+        width: inherit;
+      }
+      &:hover,
+      &.is-active {
+        color: var(--primary-8);
+        text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px,
+          currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
+        transition: text-shadow var(--item--transition--timing);
+      }
+      &:hover {
+        text-decoration: underline var(--secondary-9) 2px;
+        text-underline-offset: 1px;
+      }
+    }
+    &__expand-btn {
+      @include button-reset;
+      width: calc(var(--item--height) + 1em);
+      height: var(--font-size);
+      padding: 0px var(--font-size);
+      position: relative;
+      padding: 0.4rem;
+    }
+  }*/
 }
 
 .expand-icon {

@@ -90,6 +90,38 @@ h6 {
 * @access public
 * @param {String} $element - Element's name
 */
+:host {
+  --item--index: 0;
+  --item--neighbor-index: 0;
+  height: var(--item--height);
+  display: list-item;
+  position: absolute;
+  padding-left: calc(0.25 * var(--font-size));
+  -webkit-transform: translateY(0px);
+          transform: translateY(0px);
+  will-change: transform;
+  -webkit-transition: -webkit-transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: -webkit-transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1), -webkit-transform 750ms cubic-bezier(0.075, 0.82, 0.165, 1);
+  font: var(--item--font);
+  min-width: 15ch;
+  list-style-type: none;
+}
+:host([expanded]) {
+  -webkit-transform: translateY(calc( (0 + 0) * 1rem));
+          transform: translateY(calc( (0 + 0) * 1rem));
+  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+          transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+}
+
+:host([locked]) {
+  -webkit-transform: translateY(calc( (0 + 0) * 1rem));
+          transform: translateY(calc( (0 + 0) * 1rem));
+  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+          transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+}
+
 .item__content {
   width: calc(var(--host--width) - 10%);
   position: absolute;

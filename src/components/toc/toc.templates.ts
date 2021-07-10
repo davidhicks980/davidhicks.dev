@@ -1,5 +1,5 @@
 import { html, nothing, svg, TemplateResult } from 'lit';
-import { createRef, ref } from 'lit/directives/ref.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ListChild } from '../../types/ListChild';
 import { ChildList } from '../../types/ChildList';
@@ -17,55 +17,40 @@ slot="icon"
     <path d="M24 24H0V0h24v24z" fill="none" opacity=".87" />
     <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z" />
   </svg>`,
-  expandButton() {
+  expandButton(clickHandler: Function) {
     return html`<hicks-icon-expand-button
       class="list-item__content__expand-btn"
-      height="24px"
-      width="24px"
-      slot="expand-button"
+      @toggle="${clickHandler}"
     >
       ${this.expandIcon}
     </hicks-icon-expand-button>`;
   },
   listItem(
     children: Partial<ChildList>,
+    clickHandler: Function,
     { path, href, title, marker, index }: ListItemParameters
   ) {
-    const { count: childCount, template: childList } = children,
-      reference = createRef(),
-      expandButton = childCount > 0 ? this.expandButton() : '',
-      template = html`<hicks-list-item
-        childCount="${childCount}"
-        index="${index}"
-        path="${path}"
-        href="${href}"
-        ${ref(reference)}
-      >
-        <span slot="prefix">${marker}</span>
-        <span slot="link">${title}</span>
-        <span slot="suffix">${expandButton}</span>
-        ${childList}
-      </hicks-list-item>`;
-    /*html`<li
-        data-children="${childCount}"
-        data-position="${path}"
-        class="list list-item"
-        style="${styleMap(styles)}"
-      >
-        <div data-marker="${marker}" class="list-item__content">
-          <a class="list-item__content__link" href="#${href}" ${ref(reference)}
-            >${title}</a
-          >
-          ${childCount ? expandButton : ''}
-        </div>
+    const { count: childCount, template: childTemplate } = children,
+      expandButton = childCount > 0 ? this.expandButton(clickHandler) : '',
+      styles = {
+        '--item--index': index.toString(),
+      };
+    return html`<hicks-list-item
+      childItems="${childCount}"
+      position="${path}"
+      marker="${marker}"
+      path="${path}"
+      href="${href}"
+      ?active="${false}"
+      class="list list-item"
+      style="${styleMap(styles)}"
+    >
+      <span slot="prefix">${marker}</span>
+      <span slot="link">${title}</span>
+      <span slot="suffix">${expandButton}</span>
 
-        ${childTemplate}
-      </li>`;*/
-
-    return {
-      template,
-      reference,
-    };
+      ${childTemplate}
+    </hicks-list-item>`;
   },
   childList(path: string, children: ListChild[]) {
     const keyDiff = (child: ListChild) => {
@@ -95,7 +80,7 @@ slot="icon"
   },
   list(list: TemplateResult | TemplateResult[]) {
     return html`<div class="toc__list">
-      <ul data-expanded-list class="list">
+      <ul data-expanded class="list is-expanded">
         ${list}
       </ul>
     </div>`;
