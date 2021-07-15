@@ -1,16 +1,15 @@
 import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
-import { property, query } from 'lit/decorators.js';
+import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
 import { style } from './iconbutton.css';
-import { styleMap } from 'lit/directives/style-map.js';
 
+@customElement('hicks-toggle-button')
 export class HicksIconToggleButton extends LitElement {
   @property({ type: Boolean, reflect: true }) toggled: boolean = false;
   @property({ type: String, reflect: true }) height: string = '2rem';
   @property({ type: String, reflect: true }) width: string = '2rem';
 
-  @query('slot')
-  slot;
-  slottedIcon: SVGElement;
+  @queryAssignedNodes('', true, '.expand-icon')
+  slottedIcon: NodeListOf<SVGElement>;
 
   private _toggleEvent: CustomEvent;
 
@@ -29,17 +28,9 @@ export class HicksIconToggleButton extends LitElement {
   };
   toggleIconClass() {
     this.toggled
-      ? this.slottedIcon.classList.add('toggled')
-      : this.slottedIcon.classList.remove('toggled');
+      ? this.slottedIcon[0].classList.add('toggled')
+      : this.slottedIcon[0].classList.remove('toggled');
   }
-  handleSlottedIcon() {
-    this.slottedIcon = (
-      this.slot as HTMLSlotElement
-    ).assignedNodes()[0] as SVGElement;
-  }
-
-  animatedIcon = () =>
-    html`<slot @slotchange="${this.handleSlottedIcon}" name="icon"></slot>`;
 
   updated(_changedProperties) {
     super.updated(_changedProperties);
@@ -51,7 +42,7 @@ export class HicksIconToggleButton extends LitElement {
   render(): TemplateResult {
     return html`
       <button @click="${this.handleClick}" class="icon__button">
-        ${this.animatedIcon()}
+        <slot></slot>
       </button>
     `;
   }

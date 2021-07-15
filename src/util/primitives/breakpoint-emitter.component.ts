@@ -4,7 +4,7 @@ import { breakpoints } from './breakpoints';
 export class BreakpointEmitter {
   private queries: QueryEntry[];
   private _queryEmitter: ReplaySubject<[string, boolean]> = new ReplaySubject(
-    1
+    2
   );
 
   addQueries(queries: QueryEntry[]) {

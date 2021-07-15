@@ -35,32 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 exports.__esModule = true;
-var fs_1 = __importDefault(require("fs"));
-var process = require("process");
+exports.sassRender = exports.writeFile = exports.sassToCss = void 0;
+var fs = require("fs");
 var sass = require("sass");
-var postcss_1 = __importDefault(require("postcss"));
-var autoprefixer_1 = __importDefault(require("autoprefixer"));
-var postcss_preset_env_1 = __importDefault(require("postcss-preset-env"));
-var glob_1 = require("glob");
-var postcss_nesting_1 = __importDefault(require("postcss-nesting"));
+var postcss = require("postcss");
+var autoprefixer = require("autoprefixer");
+var postcssPresetEnv = require("postcss-preset-env");
+var postcssNesting = require("postcss-nesting");
 /////////////////////////////////////////////
-function getFiles() {
-    var filterScss = function (f) { return f.endsWith('.component.scss'); };
-    return new Promise(function (resolve, reject) {
-        return glob_1.glob('src/**/*.scss', {}, function (err, matches) {
-            if (err) {
-                reject(err);
-            }
-            else {
-                resolve(matches.filter(filterScss));
-            }
-        });
-    });
-}
 //////////////////////////////////////////////////////////
 /**
  *
@@ -71,7 +54,7 @@ var sassToCss = function (sassFile) {
     var renderOptions = {
         file: sassFile,
         outputStyle: 'expanded',
-        includePaths: ['src']
+        includePaths: ['src', 'src/styles']
     };
     var stringifiedCss = function (resolve, reject) {
         // @ts-ignore
@@ -81,11 +64,12 @@ var sassToCss = function (sassFile) {
     };
     return new Promise(stringifiedCss);
 };
+exports.sassToCss = sassToCss;
 var writeFile = function (outFile, data) {
     // eslint-disable-next-line no-console
     console.log("Creating file " + outFile + "...");
     return new Promise(function (resolve, reject) {
-        fs_1["default"].writeFile(outFile, data, { encoding: 'utf-8' }, function (err) {
+        fs.writeFile(outFile, data, { encoding: 'utf-8' }, function (err) {
             if (err) {
                 reject(err);
             }
@@ -95,45 +79,36 @@ var writeFile = function (outFile, data) {
         });
     });
 };
-var sassRender = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var template, sassFiles, _i, sassFiles_1, file, cssString, processedCss, newFileName, cssTemplate;
+exports.writeFile = writeFile;
+var sassRender = function (file) { return __awaiter(void 0, void 0, void 0, function () {
+    var template, cssString, processedCss, newFileName, cssTemplate;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 template = "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
-                return [4 /*yield*/, getFiles()];
+                return [4 /*yield*/, exports.sassToCss(file)];
             case 1:
-                sassFiles = _a.sent();
-                _i = 0, sassFiles_1 = sassFiles;
-                _a.label = 2;
-            case 2:
-                if (!(_i < sassFiles_1.length)) return [3 /*break*/, 7];
-                file = sassFiles_1[_i];
-                return [4 /*yield*/, sassToCss(file)];
-            case 3:
                 cssString = (_a.sent());
-                return [4 /*yield*/, postcss_1["default"]([
-                        autoprefixer_1["default"]({ grid: 'autoplace' }),
-                        postcss_preset_env_1["default"],
-                        postcss_nesting_1["default"](),
+                return [4 /*yield*/, postcss([
+                        autoprefixer({ grid: 'autoplace' }),
+                        postcssPresetEnv,
+                        postcssNesting(),
                     ]).process(cssString)];
-            case 4:
+            case 2:
                 processedCss = _a.sent();
-                newFileName = file.replace(/_([\w\d\s]+).component.scss/, '$1.css.ts');
+                newFileName = file.replace(/_([\w\d\s-]+).component.scss/, '$1.css.ts');
                 cssTemplate = template.replace('{0}', processedCss.css.trim());
-                return [4 /*yield*/, writeFile(newFileName, cssTemplate)];
-            case 5:
+                return [4 /*yield*/, exports.writeFile(newFileName, cssTemplate)];
+            case 3:
                 _a.sent();
-                _a.label = 6;
-            case 6:
-                _i++;
-                return [3 /*break*/, 2];
-            case 7: return [2 /*return*/];
+                return [2 /*return*/];
         }
     });
 }); };
-sassRender()["catch"](function (err) {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    process.exit(-1);
-});
+exports.sassRender = sassRender;
+/*
+sassRender().catch((err) => {
+  // eslint-disable-next-line no-console
+  console.error(err);
+  process.exit(-1);
+});*/

@@ -13,7 +13,7 @@
   //Item variables
   --item--margin: calc(var(--font-size) * 0.825); // Padding around the item
   --item--height: calc(var(--font-size) + var(--item--margin));
-  --item--transition--timing: 1s;
+  --item--transition--timing: 0.5s;
   --item--font-color: var(--gray-9); //Dimensions
   //List variables
   --head--margin: calc(var(--font-size) * 1.75);
@@ -141,6 +141,7 @@ ul {
   margin: 0;
   position: absolute;
   list-style-type: none;
+  //Small offset to account for the first item being inline with the top of the scrollspy
   transform: translateY(calc(-1 * var(--item--height) / 1.5));
   width: var(--list--width);
   height: var(--list--height);
@@ -179,18 +180,21 @@ hicks-list-item {
   padding-left: 0.5em;
   //Transforms
   transform: translateY(0px);
-  will-change: transform;
-  transition: transform var(--item--transition--timing)
-    cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform opacity;
+  transition-property: transform opacity;
+  transition: var(--item--transition--timing) cubic-bezier(0.25, 1, 0.3, 1);
   //Misc
   font: var(--item--font);
   min-width: 15ch;
 
+  opacity: 0;
   @include host(mobile) {
     --item--font-weight: 300;
   }
 
   ul[data-expanded] > & {
+    transition-delay: calc(var(--item--index) * 200ms);
+    opacity: 1;
     transform: translateY(
       calc(
         (var(--item--index, 0) + var(--item--offset, 0)) *

@@ -1,0 +1,26 @@
+.textarea {
+  > * {
+    display: block;
+    width: 100%;
+  }
+
+  grid-column: 1 / 3;
+}
+textarea {
+  height: 200px;
+}
+
+input[type='text'],
+input[type='email'] {
+  padding: 0.5em 0.5em;
+  box-sizing: border-box;
+  border-radius: 3px;
+  border: 1px solid gray;
+  font-size: 12pt;
+  //caret-color: blue;
+}
+
+input[type='checkbox'] {
+  height: 1rem;
+  width: 1rem;
+}

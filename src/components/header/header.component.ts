@@ -35,13 +35,8 @@ export class HicksHeader extends LitElement {
   constructor() {
     super();
   }
-  connectedCallback() {
-    super.connectedCallback();
-  }
 
   firstUpdated(_changedProperties): void {
-    //slotted nav is duplicated because appending nav during scroll leads to scroll catching;
-    this.duplicateNav();
     let animation = anime
       .timeline({
         targets: this.curvedToolbar,
@@ -86,12 +81,9 @@ export class HicksHeader extends LitElement {
       rootMargin: '-20px 0px 0px 0px',
       threshold: getArrayOfLen(25),
     });
+
     intersection.observe(this.upper);
     intersection.observe(this.toolbar);
-  }
-
-  private duplicateNav() {
-    //  (this.navEl as HTMLElement).setAttribute('direction', 'column');
   }
 
   checkIfCurved() {

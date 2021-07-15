@@ -1,4 +1,4 @@
-import { BreakpointController } from '../controllers/_breakpoint.controller';
+import { _BreakpointController } from '../controllers/_breakpoint.controller';
 import { MediaQueryCallback } from '../../MediaQueryCallback';
 import { LitProto } from '../../types/LitProto';
 import { PropertyChanges } from '../../types/PropertyChanges';
@@ -8,7 +8,7 @@ export type Constructor<T = {}> = new (...args: any[]) => T;
 export function ObservePropertiesMixin(changeHandler: PropertyChanges[]) {
   return <T extends LitProto>(superClass: T) =>
     class extends superClass {
-      breakpointControl = new BreakpointController(this);
+      breakpointControl = new _BreakpointController(this);
 
       constructor(...args: any[]) {
         super();

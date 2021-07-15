@@ -1,12 +1,10 @@
-import { LitElement, html, css, CSSResultGroup, TemplateResult } from 'lit';
+import { LitElement, html, css, CSSResultGroup } from 'lit';
 import {
   customElement,
   property,
   query,
   queryAssignedNodes,
 } from 'lit/decorators.js';
-import { isFilledArray } from '../util/func';
-import { IconController } from './icon.controller';
 //import { styleMap } from 'lit/directives/style-map.js'
 //import { classMap } from 'lit/directives/class-map.js'
 @customElement('icon-component')
@@ -14,7 +12,7 @@ export class IconComponent extends LitElement {
   @query('div')
   anchor: HTMLAnchorElement;
   @queryAssignedNodes('', true)
-  slot;
+  slotButton;
   @property({ type: Boolean, reflect: true })
   selected = false;
   @property({ type: String, reflect: true })

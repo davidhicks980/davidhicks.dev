@@ -2,16 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" name="viewport" content="width=device-width" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link
       media="print"
       onload="this.media='all'"
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Arimo&family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
       rel="stylesheet"
     />
-    <!-- <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-    <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>-->
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
     <link rel="stylesheet" href="./styles/main.prod.css" />
 
     <title>The Developer Site for David Hicks</title>
@@ -45,7 +46,7 @@
         </hicks-nav>
       </div>
       <div slot="header-toolbar-toggle">
-        <hicks-icon-toggle-button
+        <hicks-toggle-button
           defaulticon="./icons/menu.svg"
           toggleicon="./icons/close.svg"
         >
@@ -87,7 +88,7 @@
               height="8.25%"
             ></rect>
           </svg>
-        </hicks-icon-toggle-button>
+        </hicks-toggle-button>
       </div>
       <hicks-nav slot="header-navigation">
         <hicks-nav-item>About</hicks-nav-item>
@@ -100,9 +101,9 @@
       <div class="left"></div>
       <content-tree class="center"></content-tree>
       <div class="right">
-        <hicks-toc expandIconSrc="./icons/minus"></hicks-toc>
+        <hicks-toc expandIconSrc="./icons/close.svg"></hicks-toc>
       </div>
     </main>
   </body>
-  <script type="module" defer src="./components.js"></script>
+  <script type="module" src="./components.js"></script>
 </html>

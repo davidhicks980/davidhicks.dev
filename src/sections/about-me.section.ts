@@ -9,7 +9,9 @@ export const aboutSection = {
     {
       title: 'Summary',
       content: html`My name is David Hicks. I’m a developer and a pharmacist
-      from Asheville NC.`,
+      from Asheville NC.
+      
+      `,
     },
     {
       title: 'Pharmacy and Programming...?',

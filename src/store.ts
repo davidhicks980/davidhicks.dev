@@ -1,6 +1,7 @@
 import produce from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import './types/Breakpoints.enum';
 const validateObj = (o: Object) => {
   if (typeof o === 'object' && o !== null) {
     return true;

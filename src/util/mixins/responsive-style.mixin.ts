@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
-import { BreakpointController } from '../controllers/_breakpoint.controller';
+import { _BreakpointController } from '../controllers/_breakpoint.controller';
 import { styleMap } from 'lit/directives/style-map.js';
 import { MediaQueryCallback } from '../../MediaQueryCallback';
 import { StyleAdjustments } from '../../types/StyleAdjustments';
@@ -12,7 +12,7 @@ export const styleResponsively = <T extends Constructor<LitElement>>(
 ) => {
   const mixin = (adjustments: StyleAdjustments[]) => {
     class ResponsiveStyleMixin extends superClass {
-      breakpointControl = new BreakpointController(this);
+      breakpointControl = new _BreakpointController(this);
       @property({ type: Number })
       styleIndex: number = 0;
 

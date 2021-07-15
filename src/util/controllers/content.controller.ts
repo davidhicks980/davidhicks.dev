@@ -1,58 +1,87 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
-import { MediaQueryCallback } from '../../MediaQueryCallback';
+import { DomController } from './dom.controller';
 
-const observerFunctions = new WeakMap() as WeakMap<Element, Function[]>;
-
-const resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-  for (let entry of entries) {
-    observerFunctions.get(entry.target).forEach((fn) => fn());
-  }
-});
-export class BreakpointController implements ReactiveController {
+const mutationCallback = function (updateSections: () => HTMLElement[]) {
+  return function (mutationList: MutationRecord[]) {
+    mutationList
+      .filter((mutation) => mutation.type === 'childList')
+      .map((mutation) => [
+        ...Object.values(mutation.addedNodes),
+        ...Object.values(mutation.removedNodes),
+      ])
+      .some((node) => {
+        return 'tagName' in node
+          ? node['tagName'].toLowerCase() === 'section'
+          : false;
+      })
+      ? updateSections()
+      : null;
+  };
+};
+export class ContentController implements ReactiveController {
   host: ReactiveControllerHost;
-  breakpointQueries: [MediaQueryList, MediaQueryCallback][] = [];
-  observedResizeElements = [];
-  constructor(host: ReactiveControllerHost) {
-    (this.host = host).addController(this);
+  private _contentSelector: string;
+  private _sectionSelector: string;
+  private _mutationObserver: MutationObserver;
+  get sectionSelector(): string {
+    return this._sectionSelector;
+  }
+  set sectionSelector(value: string) {
+    this._sectionSelector = value;
+    this._observeMutations();
+  }
+  private _dom: DomController;
+
+  _observeMutations() {
+    if (this._mutationObserver) {
+      this._mutationObserver.disconnect();
+    }
+    const resetSections = function (this: ContentController) {
+      this.queries.sections(this.sectionSelector);
+    }.bind(this);
+    let cb = mutationCallback(resetSections);
+    this._mutationObserver = new MutationObserver(cb);
+    this._mutationObserver.observe(this.content as Node, {
+      childList: true,
+    });
+  }
+  get sections() {
+    return this._dom.cache.get(this._sectionSelector);
+  }
+  get content() {
+    return this._dom.cache.get(this._contentSelector);
+  }
+  get queries() {
+    return {
+      content: (selector: string) => {
+        this._contentSelector = selector;
+
+        return this._dom.query(selector, true);
+      },
+      sections: (selector: string) => {
+        this._sectionSelector = selector;
+
+        return this._dom.queryAll(selector, true);
+      },
+    };
   }
 
-  /**
-   * Watches for changes in a specific element size. Calls an action whenever an observed object is resized
-   *
-   * @param {number} breakpoint
-   * @param {HTMLElement} el
-   * @param {Function} action
-   * @memberof BreakpointController
-   */
-  observeResize(el: HTMLElement, action: Function) {
-    resizeObserver.observe(el);
-    observerFunctions.has(el)
-      ? observerFunctions.get(el).push(action)
-      : observerFunctions.set(el, [action]);
-    this.observedResizeElements.push(el);
-  }
-  /**
-   * Uses Window.matchMedia on a given media query, with a callback action that will run whenever a change event is observed.
-   *
-   * @param {string} query
-   * @param {MediaQueryCallback} action
-   * @memberof BreakpointController
-   */
-  observeBreakpoint(query: string, action: MediaQueryCallback) {
-    window.matchMedia(query).addEventListener('change', action);
-    this.breakpointQueries.push([window.matchMedia(query), action]);
-    return this;
+  constructor(
+    host: ReactiveControllerHost,
+    contentSelector: string,
+    sectionSelector: string
+  ) {
+    (this.host = host).addController(this);
+    this._dom = new DomController(host);
+    this.queries.content(contentSelector);
+    this.queries.sections(sectionSelector);
+    this._observeMutations();
   }
   hostConnected() {
     this.host.requestUpdate();
   }
   hostDisconnected() {
-    this.observedResizeElements.forEach((el) => {
-      resizeObserver.unobserve(el);
-      observerFunctions.delete(el);
-    });
-    this.breakpointQueries.forEach(([query, action]) =>
-      query.removeEventListener('change', action)
-    );
+    this._mutationObserver.disconnect();
+    this._dom.clear();
   }
 }

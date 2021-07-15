@@ -1,11 +1,7 @@
-import { html, LitElement, TemplateResult, nothing } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { html, LitElement, TemplateResult } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { HicksExpansionPanel } from '../expansion-panel/expansion-panel.component';
-import { elderDrugIcon } from '../../icons/elder-drug.icon';
-import { pkCardIcon } from '../../icons/pk-card.dataurl';
-HicksExpansionPanel;
-import { literal, html as staticHTML, unsafeStatic } from 'lit/static-html.js';
+import { literal, html as staticHTML } from 'lit/static-html.js';
 import { compiledSections } from '../../sections/content-compiler';
 
 export type PageSection = {
@@ -59,6 +55,7 @@ export class Tree {
     let index = 0;
     if (Array.isArray(section)) {
       for (let sub of section) {
+        console.log(section);
         const { title, content, subcontent, marker } = sub;
         if (!title) {
           throw TypeError(

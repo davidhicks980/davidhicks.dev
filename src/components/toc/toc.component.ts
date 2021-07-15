@@ -18,31 +18,10 @@ import { html, LitElement, TemplateResult, svg } from 'lit';
 import { property, queryAll, queryAsync, state } from 'lit/decorators.js';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
-import { Ref } from 'lit/directives/ref.js';
-import { HicksIconToggleButton } from '../icon-button/icon-button';
 import { tocTemplates as templates } from './toc.templates';
 import { HicksListItem } from './toc-item.component';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
-
-customElements.define('hicks-icon-expand-button', HicksIconToggleButton);
-
-const mutationCallback =
-  (updateSections: () => void) =>
-  (mutationList: MutationRecord[]): void => {
-    mutationList
-      .filter((mutation) => mutation.type === 'childList')
-      .map((mutation) => [
-        ...Object.values(mutation.addedNodes),
-        ...Object.values(mutation.removedNodes),
-      ])
-      .some((node) => {
-        return 'tagName' in node
-          ? node['tagName'].toLowerCase() === 'section'
-          : false;
-      })
-      ? updateSections()
-      : null;
-  };
+import { IntersectionController } from '../../util/controllers/intersection.controller';
 
 /**
  * Element that renders table of contents.
@@ -52,7 +31,7 @@ const mutationCallback =
 
 export class TableOfContents extends LitElement {
   static styles = [style];
-
+  /**Queries */
   @queryAll('.is-active')
   links: NodeListOf<HTMLAnchorElement>;
   @queryAll('.list__sublist')
@@ -63,78 +42,67 @@ export class TableOfContents extends LitElement {
   visibleListItems: NodeListOf<HicksListItem>;
   @queryAsync('list-item')
   itemsAttached;
-  @state()
-  activeId: string = '';
+  /**Public properties */
   @property({ type: Boolean, reflect: true })
   open: boolean;
-  @state()
-  toggledLists: Set<string> = new Set();
-  @property({ type: Object }) articleContent!: HTMLElement | null;
-  @property({ type: Boolean, reflect: true }) mobile = true;
-  @property({ type: String }) expandIcon!: string | null;
+  @property({ type: Boolean, reflect: true })
+  mobile = true;
 
-  headings!: HTMLHeadingElement[];
+  @state()
+  activeId: string = '';
 
   previousOffset: number = 0;
-
-  classes: {
-    expanded: string;
-    selected: string;
-  } = { selected: 'is-active', expanded: 'is-expanded' };
-  observers!: {
-    intersection?: IntersectionObserver;
-    sectionChange?: MutationObserver;
-  };
-  sections: HTMLElement[];
-  expandedLists = new Set();
-  items = new Map() as Map<string, Ref<Element>>;
-
-  list: TemplateResult[];
-  offsets = new Map() as Map<string, number>;
-  breakpointControl: any;
-  tablet: any;
   sectionsInViewport: Map<string, { offset: number; el: HTMLElement }> =
     new Map();
-  breakpointController: BreakpointController;
+  controllers: {
+    intersection: IntersectionController;
+    breakpoint: BreakpointController;
+  };
+  //Holds the last scroll direction, in case the user switches direction. In that case, the previous scroll direction will be used
+  switchDirection: number;
+  //The list item template
+  list: TemplateResult[];
 
   constructor() {
     super();
     this.scrollSpy = this.scrollSpy.bind(this);
-    this.observers = {};
+    this.controllers = {
+      intersection: new IntersectionController(this),
+      breakpoint: new BreakpointController(this),
+    };
+    this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
+      this[id] = matches ?? false;
+    });
   }
 
-  connectedCallback() {
-    super.connectedCallback();
+  get sections(): HTMLElement[] {
+    return Array.from(document.querySelectorAll('section'));
   }
+
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
     this.classList.add('toc');
-    this.articleContent = document.querySelector('content-tree');
-    if (!this.articleContent) {
-      console.warn(`Article container not found.`);
-    }
-    //Get sections
-    this.updateSections();
+
     //Build the toc
     this.list = this._refreshLinks(this.sections);
 
-    this.observeSectionMutations();
+    this.initIntersectionObserver();
     this.previousOffset = window.pageYOffset;
-    this.observers.intersection = this.getScrollObserver();
-    this.sections.forEach((section: HTMLElement, i) => {
-      this.observers.intersection.observe(section);
-    });
 
-    this.scrollSpy(this.observers.intersection.takeRecords());
-    this.itemsAttached.then(() => this.initializeExpansion());
-    this.breakpointController = new BreakpointController(this);
-    this.breakpointController
-      .observe('mobile')
-      .subscribe(([id, matches]) => (this[id] = matches ?? false));
+    this.open = true;
   }
-  private initializeExpansion() {
-    this.updateItemCount();
+  initIntersectionObserver() {
+    let margin = { top: '-20%', bottom: '-30%' },
+      threshold = [0];
+    this.controllers.intersection
+      .create('hicks-toc', null, threshold, margin)
+      .observe(this.sections)
+      .on('entry')
+      .subscribe((entries) => {
+        this.scrollSpy(entries);
+      });
   }
+
   /**
    * Used to build the list template whenever sections are changed
    *
@@ -183,23 +151,6 @@ export class TableOfContents extends LitElement {
     return Math.sign(prevOffset - currOffset);
   };
 
-  private getScrollObserver() {
-    return new IntersectionObserver(this.scrollSpy, {
-      root: null,
-      rootMargin: '-40% 0px -40% 0px',
-      threshold: [0, 0.1, 0.9, 1],
-    });
-  }
-
-  private observeSectionMutations() {
-    this.observers.sectionChange = new MutationObserver(
-      mutationCallback(this.updateSections)
-    );
-    this.observers.sectionChange.observe(this.articleContent, {
-      childList: true,
-    });
-  }
-
   private addItemToSubList(
     item: ListChild,
     sublists: Map<string, ListChild[]>,
@@ -231,11 +182,6 @@ export class TableOfContents extends LitElement {
     });
   }
 
-  updateSections() {
-    this.sections = Array.from(
-      this.articleContent?.querySelectorAll('section')
-    );
-  }
   handleToggleEvent(e: MouseEvent) {
     const button = e.target as HTMLButtonElement;
     let tar = button.parentElement.parentElement.querySelector('ul');
@@ -263,14 +209,15 @@ export class TableOfContents extends LitElement {
       offset = 0,
       sort = 0;
 
-    //
-    sections.forEach((section: IntersectionObserverEntry) => {
+    sections.forEach((section: IntersectionObserverEntry, _i, arr) => {
       let el = section.target as HTMLElement,
         id = el.id;
       offset = section.boundingClientRect.top;
       if (this.sectionsInViewport.has(id)) {
         prevOffset = this.sectionsInViewport.get(id).offset;
         sort = this.getScrollDirection(prevOffset, offset);
+      } else {
+        sort = this.switchDirection;
       }
       if (section.isIntersecting) {
         this.sectionsInViewport.set(id, { el, offset });
@@ -279,23 +226,21 @@ export class TableOfContents extends LitElement {
       }
     });
 
-    //Returns 1 if scrolling up, -1 if scrolling down, 0 if static. It should never be zero
-    if (sections.length > 1) {
-      //get the offset of each of the viewport elements so we can sort them
-      const getOffset = ([id, entry]) => {
-          return entry.offset;
-        },
-        sortPredicate = (a, b) =>
-          Math.sign(sort * (getOffset(b) - getOffset(a)));
-      const sortedSections = Array.from(this.sectionsInViewport)
-        //Want a larger top when scrolling down => means element is further down the page
-        .sort(sortPredicate)
-        //Map to viewport entry key => href
-        .map((entry) => entry[0]);
-      if (!sortedSections.length) return;
-      //Get the first item, which is the item closest to the edge in the direction that we are scrolling
-      this.activeId = sortedSections[0];
-    }
+    this.switchDirection = sort * -1;
+    //get the offset of each of the viewport elements so we can sort them
+    const getOffset = ([id, entry]) => {
+        return entry.offset;
+      },
+      sortPredicate = (a, b) => sort * Math.sign(getOffset(b) - getOffset(a));
+    let sortedSections = Array.from(this.sectionsInViewport)
+      //Want a larger top when scrolling down => means element is further down the page
+      .sort(sortPredicate)
+      //Map to viewport entry key => href
+      .map((entry) => entry[0]);
+    if (!sortedSections.length) return;
+    //Get the first item, which is the item closest to the edge in the direction that we are scrolling
+    this.activeId = sortedSections[0];
+
     //Make sure we do not already have the correct element selected
     if (previousActiveId !== this.activeId) {
       let map = this.itemMap();
@@ -309,10 +254,9 @@ export class TableOfContents extends LitElement {
       if (this.sublists.length > 0) {
         this.sublists.forEach(this.collapseList);
       }
-
       this.expandAncestorLists(currLI);
+      this.updateItemOffsets();
     }
-    this.updateItemOffsets();
   }
   private collapseList(list: HTMLUListElement) {
     list.toggleAttribute('data-expanded', false);

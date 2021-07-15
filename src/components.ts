@@ -20,39 +20,10 @@ import { Observable } from 'rxjs';
 import { ObservedStateAction } from './util/mixins/state-observer.mixin';
 import { ObservePropertiesMixin } from './util/mixins/observe-bp.mixin';
 import { HicksListItem } from './components/toc/toc-item.component';
-
-//Table of contents
-const tocStateEmitter = {
-  propertyChangeHandler: state.getStateEmitted(),
-  observedProperties: ['activeLinkId'],
-};
-const tocBreakpointAdapter = [
-  {
-    query: '(max-width: 599.99px)',
-    action: function (matches) {
-      (this as TableOfContents).mobile = matches;
-    },
-  },
-];
-const tocStateObserver = {
-  stream: state.filteredStream(['toggled']) as Observable<
-    Record<string, unknown>
-  >,
-  actions: [
-    {
-      prop: 'toggled',
-      componentHandler(propValue) {
-        (this as TableOfContents).open = propValue;
-      },
-    },
-  ] as ObservedStateAction[],
-};
-const toc = mix(TableOfContents).with(
-  stateEmitterMixin(tocStateEmitter),
-  ObservePropertiesMixin(tocBreakpointAdapter),
-  ObserveStateMixin(tocStateObserver)
-);
-customElements.define('hicks-toc', toc);
+import './components/resume/resume-entry.component';
+import './components/resume/hicks-grid.component';
+import './components/contact-me/contact.component';
+import './components/expansion-panel/expansion-panel.component';
 
 //Table of contents
 const iconButtonHandler = {
@@ -90,6 +61,7 @@ const drawer = mix(DrawerComponent).with(
   ObservePropertiesMixin(drawerBreakpointAdapter)
 );
 customElements.define('hicks-drawer', drawer);
+
 const headerBreakpointAdapter = [
   {
     query: '(max-width: 599.99px)',
@@ -109,12 +81,20 @@ const header = mix(HicksHeader).with(
 );
 customElements.define('hicks-header', header);
 
+//Table of contents
+const tocStateEmitter = {
+  propertyChangeHandler: state.getStateEmitted(),
+  observedProperties: ['activeLinkId'],
+};
+
+const toc = mix(TableOfContents).with(stateEmitterMixin(tocStateEmitter));
+customElements.define('hicks-toc', toc);
+
 ContentTree;
 TableOfContents;
 NavItemComponent;
 NavComponent;
 TableOfContents;
-HicksHeader;
 HicksCardContainer;
 HicksCard;
 PlotEngine;
@@ -125,20 +105,3 @@ IconComponent;
 HicksIconToggleButton;
 DrawerComponent;
 HicksListItem;
-
-/*
-c
-let plot = document.querySelector("plot-engine");
-query(document, ".plots__radio-selector", HTMLFieldSetElement).addEventListener(
-  "input",
-  (e) => {
-    plot["plotType"] = (
-      query(
-        document,
-        "[name=active-plot]:checked",
-        HTMLInputElement
-      ) as HTMLInputElement
-    ).value;
-  }
-);
-*/

@@ -69,8 +69,5 @@
     "tsBuildInfoFile": "./dist/out",
     "noImplicitThis": true
   },
-  "include": [
-    "./src/**/*",
-    "src/components/toc/deprecate/.....toc-item.component.ts"
-  ]
+  "include": ["./src/**/*"]
 }

@@ -5,7 +5,7 @@ import { style } from './navitem.css';
 @customElement('hicks-nav-item')
 export class NavItemComponent extends LitElement {
   @queryAssignedNodes('', true)
-  slot;
+  slotButton;
   @property({ reflect: true })
   link = '';
   @property({ type: Boolean, reflect: true })
@@ -14,8 +14,8 @@ export class NavItemComponent extends LitElement {
   icon = '';
 
   slotChangedCallback(e) {
-    this.link = isFilledArray(this.slot)
-      ? this.slot[0].wholeText.toLowerCase()
+    this.link = isFilledArray(this.slotButton)
+      ? this.slotButton[0].wholeText.toLowerCase()
       : '';
     this.requestUpdate();
   }

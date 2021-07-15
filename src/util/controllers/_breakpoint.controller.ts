@@ -8,7 +8,7 @@ const resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
     observerFunctions.get(entry.target).forEach((fn) => fn());
   }
 });
-export class BreakpointController implements ReactiveController {
+export class _BreakpointController implements ReactiveController {
   host: ReactiveControllerHost;
   breakpointQueries: [MediaQueryList, MediaQueryCallback][] = [];
   observedResizeElements = [];

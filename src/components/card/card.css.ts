@@ -101,8 +101,8 @@ h6 {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid hsl(212, 13.2%, 93.39%);
-  border: 1px solid var(--gray-3);
+  border: 1px solid gray;
+  border: 1px solid var(--card--border, gray);
   height: 150px;
   max-height: 200px;
   min-width: 150px;
@@ -135,6 +135,8 @@ h6 {
 p ::slotted(*) {
   font-size: 10pt;
   font-weight: 400;
+  color: black;
+  color: var(--card-text--font-color, black);
 }
 
 h1 ::slotted(*) {
@@ -143,4 +145,6 @@ h1 ::slotted(*) {
   margin: 0px;
   margin-top: 0px;
   margin-bottom: 0px;
+  color: black;
+  color: var(--card-title--font-color, black);
 }`;
