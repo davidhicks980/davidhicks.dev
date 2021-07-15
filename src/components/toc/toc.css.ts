@@ -54,6 +54,7 @@ h6 {
   --item--height: calc(var(--font-size) + var(--item--margin));
   --item--transition--timing: 0.5s;
   --item--font-color: var(--gray-9);
+  --item--line-color: var(--gray-4);
   --head--margin: calc(var(--font-size) * 1.75);
   --list--item-count: 0;
   --list--header-font: bold calc(var(--font-size) * 1.25) var(--body-font),
@@ -208,7 +209,6 @@ ul {
           transform: translateY(calc(-1 * var(--item--height) / 1.5));
   width: var(--list--width);
   height: var(--list--height);
-  padding-left: calc(var(--font-size) * 2);
 }
 .list__sublist {
   padding-left: calc(0.75 * var(--font-size));
@@ -228,8 +228,6 @@ ul {
   padding-left: 0px;
   padding-right: 0px;
   --list--width: 75vw;
-  --list--height: 100%;
-  border-bottom: 1px dotted gray;
 }
 
 hicks-list-item {
@@ -295,11 +293,12 @@ hicks-list-item {
 }
 :host([mobile]) hicks-list-item {
   --item--font-weight: 300;
+  border-bottom: 1px dashed var(--item--line-color);
 }
 ul[data-expanded] > hicks-list-item {
-  -webkit-transition-delay: calc(var(--item--index) * 200ms);
-          transition-delay: calc(var(--item--index) * 200ms);
   opacity: 1;
+  -webkit-transition-delay: calc(var(--item--index) * 30ms);
+          transition-delay: calc(var(--item--index) * 30ms);
   -webkit-transform: translateY(calc( (0 + 0) * 1rem));
           transform: translateY(calc( (0 + 0) * 1rem));
   -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));

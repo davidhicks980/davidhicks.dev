@@ -12,6 +12,9 @@
   padding: 0px;
 }
 
+:host {
+  width: 100%;
+}
 .item {
   &__content {
     width: calc(var(--host--width) - 10%);

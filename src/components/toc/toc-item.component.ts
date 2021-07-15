@@ -64,6 +64,10 @@ export class HicksListItem extends LitElement {
       return undefined;
     }
   }
+  constructor() {
+    super();
+    this.tabIndex = 0;
+  }
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
     this.breakpointController = new BreakpointController(this);

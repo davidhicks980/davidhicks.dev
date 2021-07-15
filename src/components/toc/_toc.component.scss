@@ -15,6 +15,8 @@
   --item--height: calc(var(--font-size) + var(--item--margin));
   --item--transition--timing: 0.5s;
   --item--font-color: var(--gray-9); //Dimensions
+  --item--line-color: var(--gray-4); //Dimensions
+
   //List variables
   --head--margin: calc(var(--font-size) * 1.75);
   --list--item-count: 0;
@@ -145,7 +147,6 @@ ul {
   transform: translateY(calc(-1 * var(--item--height) / 1.5));
   width: var(--list--width);
   height: var(--list--height);
-  padding-left: calc(var(--font-size) * 2);
   &__sublist {
     padding-left: calc(0.75 * var(--font-size));
     opacity: 0;
@@ -160,8 +161,6 @@ ul {
   @include host(mobile) {
     @include mix-reset-list;
     --list--width: 75vw;
-    --list--height: 100%;
-    border-bottom: 1px dotted gray;
   }
 }
 
@@ -190,11 +189,12 @@ hicks-list-item {
   opacity: 0;
   @include host(mobile) {
     --item--font-weight: 300;
+    border-bottom: 1px dashed var(--item--line-color);
   }
 
   ul[data-expanded] > & {
-    transition-delay: calc(var(--item--index) * 200ms);
     opacity: 1;
+    transition-delay: calc(var(--item--index) * 30ms);
     transform: translateY(
       calc(
         (var(--item--index, 0) + var(--item--offset, 0)) *

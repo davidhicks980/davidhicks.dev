@@ -32,11 +32,12 @@ const FOCUS_SENTINEL_CLASS = 'mdc-dom-focus-sentinel';
  */
 export class FocusTrap {
   // Previously focused element before trapping focus.
-  private elFocusedBeforeTrapFocus: HTMLElement|null = null;
+  private elFocusedBeforeTrapFocus: HTMLElement | null = null;
 
   constructor(
-      private readonly root: HTMLElement,
-      private readonly options: FocusOptions = {}) {}
+    private readonly root: HTMLElement,
+    private readonly options: FocusOptions = {}
+  ) {}
 
   /**
    * Traps focus in `root`. Also focuses on either `initialFocusEl` if set;
@@ -46,12 +47,14 @@ export class FocusTrap {
     const focusableEls = this.getFocusableElements(this.root);
     if (focusableEls.length === 0) {
       throw new Error(
-          'FocusTrap: Element must have at least one focusable child.');
+        'FocusTrap: Element must have at least one focusable child.'
+      );
     }
 
     this.elFocusedBeforeTrapFocus =
-        document.activeElement instanceof HTMLElement ? document.activeElement :
-                                                        null;
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     this.wrapTabFocus(this.root);
 
     if (!this.options.skipInitialFocus) {
@@ -64,10 +67,11 @@ export class FocusTrap {
    * element.
    */
   releaseFocus() {
-    [].slice.call(this.root.querySelectorAll(`.${FOCUS_SENTINEL_CLASS}`))
-        .forEach((sentinelEl: HTMLElement) => {
-          sentinelEl.parentElement!.removeChild(sentinelEl);
-        });
+    [].slice
+      .call(this.root.querySelectorAll(`.${FOCUS_SENTINEL_CLASS}`))
+      .forEach((sentinelEl: HTMLElement) => {
+        sentinelEl.parentElement!.removeChild(sentinelEl);
+      });
 
     if (!this.options.skipRestoreFocus && this.elFocusedBeforeTrapFocus) {
       this.elFocusedBeforeTrapFocus.focus();
@@ -107,7 +111,9 @@ export class FocusTrap {
    * Otherwise, focuses on the first focusable child element of the root.
    */
   private focusInitialElement(
-      focusableEls: HTMLElement[], initialFocusEl?: HTMLElement) {
+    focusableEls: HTMLElement[],
+    initialFocusEl?: HTMLElement
+  ) {
     let focusIndex = 0;
     if (initialFocusEl) {
       focusIndex = Math.max(focusableEls.indexOf(initialFocusEl), 0);
@@ -116,24 +122,28 @@ export class FocusTrap {
   }
 
   private getFocusableElements(root: HTMLElement): HTMLElement[] {
-    const focusableEls =
-        [].slice.call(root.querySelectorAll(
-            '[autofocus], [tabindex], a, input, textarea, select, button')) as
-        HTMLElement[];
+    const focusableEls = [].slice.call(
+      root.querySelectorAll(
+        '[autofocus], [tabindex], a, input, textarea, select, button'
+      )
+    ) as HTMLElement[];
     return focusableEls.filter((el) => {
-      const isDisabledOrHidden = el.getAttribute('aria-disabled') === 'true' ||
-          el.getAttribute('disabled') != null ||
-          el.getAttribute('hidden') != null ||
-          el.getAttribute('aria-hidden') === 'true';
-      const isTabbableAndVisible = el.tabIndex >= 0 &&
-          el.getBoundingClientRect().width > 0 &&
-          !el.classList.contains(FOCUS_SENTINEL_CLASS) && !isDisabledOrHidden;
+      const isDisabledOrHidden =
+        el.getAttribute('aria-disabled') === 'true' ||
+        el.getAttribute('disabled') != null ||
+        el.getAttribute('hidden') != null ||
+        el.getAttribute('aria-hidden') === 'true';
+      const isTabbableAndVisible =
+        el.tabIndex >= 0 &&
+        el.getBoundingClientRect().width > 0 &&
+        !el.classList.contains(FOCUS_SENTINEL_CLASS) &&
+        !isDisabledOrHidden;
 
       let isProgrammaticallyHidden = false;
       if (isTabbableAndVisible) {
         const style = getComputedStyle(el);
         isProgrammaticallyHidden =
-            style.display === 'none' || style.visibility === 'hidden';
+          style.display === 'none' || style.visibility === 'hidden';
       }
       return isTabbableAndVisible && !isProgrammaticallyHidden;
     });

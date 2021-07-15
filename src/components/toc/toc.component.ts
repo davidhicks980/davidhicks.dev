@@ -15,13 +15,14 @@
  */
 
 import { html, LitElement, TemplateResult, svg } from 'lit';
-import { property, queryAll, queryAsync, state } from 'lit/decorators.js';
+import { property, query, queryAll, state } from 'lit/decorators.js';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
 import { tocTemplates as templates } from './toc.templates';
 import { HicksListItem } from './toc-item.component';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { IntersectionController } from '../../util/controllers/intersection.controller';
+import { FocusController } from '../../util/controllers/focus.controller';
 
 /**
  * Element that renders table of contents.
@@ -32,16 +33,14 @@ import { IntersectionController } from '../../util/controllers/intersection.cont
 export class TableOfContents extends LitElement {
   static styles = [style];
   /**Queries */
-  @queryAll('.is-active')
-  links: NodeListOf<HTMLAnchorElement>;
+  @query('.list')
+  rootList: HTMLUListElement;
   @queryAll('.list__sublist')
   sublists: NodeListOf<HTMLUListElement>;
   @queryAll('hicks-list-item')
   listItems: NodeListOf<HicksListItem>;
   @queryAll('ul[data-expanded]>hicks-list-item')
   visibleListItems: NodeListOf<HicksListItem>;
-  @queryAsync('list-item')
-  itemsAttached;
   /**Public properties */
   @property({ type: Boolean, reflect: true })
   open: boolean;
@@ -51,12 +50,10 @@ export class TableOfContents extends LitElement {
   @state()
   activeId: string = '';
 
-  previousOffset: number = 0;
-  sectionsInViewport: Map<string, { offset: number; el: HTMLElement }> =
-    new Map();
   controllers: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
+    focus: FocusController;
   };
   //Holds the last scroll direction, in case the user switches direction. In that case, the previous scroll direction will be used
   switchDirection: number;
@@ -69,6 +66,7 @@ export class TableOfContents extends LitElement {
     this.controllers = {
       intersection: new IntersectionController(this),
       breakpoint: new BreakpointController(this),
+      focus: new FocusController(this),
     };
     this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
       this[id] = matches ?? false;
@@ -87,20 +85,18 @@ export class TableOfContents extends LitElement {
     this.list = this._refreshLinks(this.sections);
 
     this.initIntersectionObserver();
-    this.previousOffset = window.pageYOffset;
 
     this.open = true;
   }
   initIntersectionObserver() {
-    let margin = { top: '-20%', bottom: '-30%' },
+    let margin = { top: '-49%', bottom: '-49%' },
       threshold = [0];
+    const boundScroll = this.scrollSpy.bind(this);
     this.controllers.intersection
       .create('hicks-toc', null, threshold, margin)
       .observe(this.sections)
       .on('entry')
-      .subscribe((entries) => {
-        this.scrollSpy(entries);
-      });
+      .subscribe(boundScroll);
   }
 
   /**
@@ -114,7 +110,6 @@ export class TableOfContents extends LitElement {
     let childLists = new Map() as Map<string, ListChild[]>;
     const sectionInfo = this.getSectionAttributes(sections);
     sectionInfo.sort((a, b) => b.sortOrder - a.sortOrder);
-
     return sectionInfo.reduce((tree, heading) => {
       //prettier-ignore
       const { title, position: {root, index, path}, href, marker } = heading,
@@ -128,27 +123,15 @@ export class TableOfContents extends LitElement {
         { path, href, title, marker, index }
       );
 
-      //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree;
+      //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree
       if (toArr(path).length > 1) {
         const subListItem = { template, treePath: fullPath, isActive };
         this.addItemToSubList(subListItem, childLists, root);
       } else {
         tree.push(template);
       }
-
       return tree;
     }, []);
-  };
-  /**
-   *Returns the direction the user is currently scrolling based on an element's top offset at two seperate time points. -1 means scrolling downwards, +1 means scrolling upwards, 0 means not scrolling
-   *
-   * @param {number} prevOffset
-   * @param {number} currOffset
-   * @memberof TableOfContents
-   */
-  getScrollDirection = (prevOffset: number, currOffset: number) => {
-    //negative means scrolling down
-    return Math.sign(prevOffset - currOffset);
   };
 
   private addItemToSubList(
@@ -196,50 +179,29 @@ export class TableOfContents extends LitElement {
     const expandedChildren = String(this.visibleListItems.length);
     this.style.setProperty('--list--item-count', expandedChildren);
   }
-  update(_changedProperties) {
-    super.update(_changedProperties);
-    if (_changedProperties.has('open') || _changedProperties.has('mobile')) {
-      this.updateItemOffsets();
+
+  updated(_changedProperties) {
+    super.updated(_changedProperties);
+    if (_changedProperties.has('mobile')) {
+      if (this.mobile === true) {
+        console.log(this.rootList);
+        this.controllers.focus.trapElementChildren(
+          this.rootList,
+          this.listItems.item(0)
+        );
+      } else {
+        this.controllers.focus.releaseFocus();
+      }
     }
   }
   scrollSpy(sections: IntersectionObserverEntry[]): void {
     if (!this.sections.length || !sections) return;
     const previousActiveId = this.activeId;
-    let prevOffset = 0,
-      offset = 0,
-      sort = 0;
-
-    sections.forEach((section: IntersectionObserverEntry, _i, arr) => {
-      let el = section.target as HTMLElement,
-        id = el.id;
-      offset = section.boundingClientRect.top;
-      if (this.sectionsInViewport.has(id)) {
-        prevOffset = this.sectionsInViewport.get(id).offset;
-        sort = this.getScrollDirection(prevOffset, offset);
-      } else {
-        sort = this.switchDirection;
-      }
-      if (section.isIntersecting) {
-        this.sectionsInViewport.set(id, { el, offset });
-      } else {
-        this.sectionsInViewport.delete(id);
-      }
-    });
-
-    this.switchDirection = sort * -1;
-    //get the offset of each of the viewport elements so we can sort them
-    const getOffset = ([id, entry]) => {
-        return entry.offset;
-      },
-      sortPredicate = (a, b) => sort * Math.sign(getOffset(b) - getOffset(a));
-    let sortedSections = Array.from(this.sectionsInViewport)
-      //Want a larger top when scrolling down => means element is further down the page
-      .sort(sortPredicate)
-      //Map to viewport entry key => href
-      .map((entry) => entry[0]);
-    if (!sortedSections.length) return;
-    //Get the first item, which is the item closest to the edge in the direction that we are scrolling
-    this.activeId = sortedSections[0];
+    const intersectingSections = sections.filter(
+      (section) => section.isIntersecting
+    );
+    //Take the most recent intersection if one exists. Otherwise, take the last intersecting item
+    this.activeId = intersectingSections[0].target.id || this.activeId;
 
     //Make sure we do not already have the correct element selected
     if (previousActiveId !== this.activeId) {
