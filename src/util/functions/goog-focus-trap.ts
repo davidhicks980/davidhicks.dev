@@ -45,6 +45,7 @@ export class FocusTrap {
    */
   trapFocus() {
     const focusableEls = this.getFocusableElements(this.root);
+    console.log(focusableEls);
     if (focusableEls.length === 0) {
       throw new Error(
         'FocusTrap: Element must have at least one focusable child.'
@@ -122,6 +123,7 @@ export class FocusTrap {
   }
 
   private getFocusableElements(root: HTMLElement): HTMLElement[] {
+    console.log(root);
     const focusableEls = [].slice.call(
       root.querySelectorAll(
         '[autofocus], [tabindex], a, input, textarea, select, button'

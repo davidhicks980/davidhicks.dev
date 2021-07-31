@@ -21,7 +21,7 @@ import { ObservedStateAction } from './util/mixins/state-observer.mixin';
 import { ObservePropertiesMixin } from './util/mixins/observe-bp.mixin';
 import { HicksListItem } from './components/toc/toc-item.component';
 import './components/resume/resume-entry.component';
-import './components/resume/hicks-grid.component';
+import './components/toc/hicks-grid.component';
 import './components/contact-me/contact.component';
 import './components/expansion-panel/expansion-panel.component';
 
@@ -42,8 +42,8 @@ const drawerStateObserver = {
   actions: [
     {
       prop: 'toggled',
-      componentHandler(propValue) {
-        (this as DrawerComponent).opened = propValue;
+      componentHandler(this: DrawerComponent, propValue) {
+        this.opened = propValue;
       },
     },
   ] as ObservedStateAction[],
@@ -51,8 +51,8 @@ const drawerStateObserver = {
 const drawerBreakpointAdapter = [
   {
     query: '(max-width: 599.99px)',
-    action: function (matches) {
-      (this as DrawerComponent).mobile = matches;
+    action: function (this: DrawerComponent, matches) {
+      this.mobile = matches;
     },
   },
 ];
@@ -65,14 +65,14 @@ customElements.define('hicks-drawer', drawer);
 const headerBreakpointAdapter = [
   {
     query: '(max-width: 599.99px)',
-    action: function (matches) {
-      (this as HicksHeader).mobile = matches;
+    action: function (this: HicksHeader, matches) {
+      this.mobile = matches;
     },
   },
   {
     query: '(min-width: 600px) and (max-width: 899.99px)',
-    action: function (matches) {
-      (this as HicksHeader).tablet = matches;
+    action: function (this: HicksHeader, matches) {
+      this.tablet = matches;
     },
   },
 ];

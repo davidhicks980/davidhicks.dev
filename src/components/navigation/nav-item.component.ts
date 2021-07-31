@@ -12,7 +12,6 @@ export class NavItemComponent extends LitElement {
   selected = false;
   @property({ type: String, reflect: true })
   icon = '';
-
   slotChangedCallback(e) {
     this.link = isFilledArray(this.slotButton)
       ? this.slotButton[0].wholeText.toLowerCase()
@@ -20,6 +19,10 @@ export class NavItemComponent extends LitElement {
     this.requestUpdate();
   }
 
+  constructor() {
+    super();
+    this.tabIndex = 0;
+  }
   emitNavigation() {
     this.dispatchEvent(new CustomEvent('navigate', { bubbles: true }));
   }

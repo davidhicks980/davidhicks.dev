@@ -50,12 +50,10 @@ export class Tree {
   }
 
   construct(section: PageSection[], root = []) {
-    //variables
     let contentTree = [];
     let index = 0;
     if (Array.isArray(section)) {
       for (let sub of section) {
-        console.log(section);
         const { title, content, subcontent, marker } = sub;
         if (!title) {
           throw TypeError(

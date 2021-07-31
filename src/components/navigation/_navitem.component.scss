@@ -2,32 +2,32 @@
 @use 'sass:selector';
 @use 'mixins' as *;
 .link {
-    text-decoration: none;
-    position: relative;
-    display: block;
-    padding: var(--nav--item--padding);
-    border-radius: var(--nav--item--radius);
-    background: var(--nav--item--background-color);
-    border: var(--nav--item--border);
-    clip-path: var(--nav-item--clip-path);
-    text-decoration: var(--nav--item--text-decoration);
-    box-shadow: var(--nav--item--hover--box-shadow);
+  text-decoration: none;
+  position: relative;
+  display: block;
+  padding: var(--nav--item--padding);
+  border-radius: var(--nav--item--radius);
+  background: var(--nav--item--background-color);
+  border: var(--nav--item--border);
+  clip-path: var(--nav-item--clip-path);
+  text-decoration: var(--nav--item--text-decoration);
+  box-shadow: var(--nav--item--hover--box-shadow);
+  transition: var(--nav--item--transition);
+  &__content {
+    font: var(--nav--item--font);
+    color: var(--nav--item--font-color);
+    min-height: 2rem;
+    min-width: 2rem;
     transition: var(--nav--item--transition);
-    &__content {
-        font: var(--nav--item--font);
-        color: var(--nav--item--font-color);
-        min-height: 2rem;
-        min-width: 2rem;
-        transition: var(--nav--item--transition);
-         :host([selected]) & {
-            --nav--item--font-color: var(--nav-item--selected--font-color);
-        }
+    :host([selected]) & {
+      --nav--item--font-color: var(--nav-item--selected--font-color);
     }
-    &:hover {
-        opacity: 1;
-        --nav--item--font-color: var(--nav--item--hover--font-color);
-        --nav--item--background-color: var(--nav--item--hover--background-color);
-        --nav--item--box-shadow: var(--nav--item--hover--box-shadow);
-        --nav--item--text-decoration: var(--nav--item--hover--text-decoration);
-    }
+  }
+  &:hover {
+    opacity: 1;
+    --nav--item--font-color: var(--nav--item--hover--font-color);
+    --nav--item--background-color: var(--nav--item--hover--background-color);
+    --nav--item--box-shadow: var(--nav--item--hover--box-shadow);
+    --nav--item--text-decoration: var(--nav--item--hover--text-decoration);
+  }
 }

@@ -1,6 +1,5 @@
 export class ExpansionHandler {
   private _elementsInViewport: HTMLElement[] = [];
-  private _observedElements: HTMLElement[] = [];
   private observers: {
     intersection: IntersectionObserver;
     mutation: MutationObserver;
@@ -23,7 +22,6 @@ export class ExpansionHandler {
     types = ['mutation', 'intersection', 'resize']
   ) {
     elements.forEach((element: HTMLElement) => {
-      console.log(elements);
       types.forEach((type) => this.observers[type].observe(element));
     });
   }

@@ -16,27 +16,17 @@ export const tocTemplates = {
     <path d="M24 24H0V0h24v24z" fill="none" opacity=".87" />
     <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6-1.41-1.41z" />
   </svg>`,
-  expandButton(clickHandler: Function) {
-    return html`<hicks-icon-expand-button
-      class="list-item__content__expand-btn"
-      @toggle="${clickHandler}"
-    >
-      ${this.expandIcon}
-    </hicks-icon-expand-button>`;
-  },
+
   listItem(
     children: Partial<ChildList>,
-    clickHandler: Function,
     { path, href, title, marker, index }: ListItemParameters
   ) {
     const { count: childCount, template: childTemplate } = children,
-      expandButton = childCount > 0 ? this.expandButton(clickHandler) : '',
       styles = {
         '--item--index': index.toString(),
       };
     return html`<hicks-list-item
       childItems="${childCount}"
-      position="${path}"
       marker="${marker}"
       path="${path}"
       href="${href}"
@@ -45,8 +35,12 @@ export const tocTemplates = {
       style="${styleMap(styles)}"
     >
       <span slot="prefix">${marker}</span>
-      <span slot="link">${title}</span>
-      <span slot="suffix">${expandButton}</span>
+      <span class="link-text" slot="link">${title}</span>
+      <span slot="suffix">
+        <hicks-toggle-button class="list-item__content__expand-btn">
+          ${this.expandIcon}
+        </hicks-toggle-button>
+      </span>
 
       ${childTemplate}
     </hicks-list-item>`;
@@ -56,13 +50,7 @@ export const tocTemplates = {
       return child.isActive ? '[act]' : '' + child.treePath;
     };
     const templateFn = (item: ListChild) => item.template;
-    return html`<ul
-      slot="children"
-      data-position="${path}"
-      class="list__sublist"
-    >
-      ${repeat(children, keyDiff, templateFn)}
-    </ul>`;
+    return html` ${repeat(children, keyDiff, templateFn)} `;
   },
   emptyChildList: { fullPath: '', childList: { count: 0, template: nothing } },
 
@@ -79,7 +67,7 @@ export const tocTemplates = {
   },
   list(list: TemplateResult | TemplateResult[]) {
     return html`<div class="toc__list">
-      <ul data-expanded class="list is-expanded">
+      <ul class="root-list list">
         ${list}
       </ul>
     </div>`;

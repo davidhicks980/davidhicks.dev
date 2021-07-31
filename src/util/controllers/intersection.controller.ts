@@ -19,6 +19,7 @@ export class IntersectionController implements ReactiveController {
   ) => (entries: IntersectionObserverEntry[]) => void;
   observe(elements: HTMLElement[], observerId?: string) {
     let id = this._getObserverId(observerId);
+
     if (id) {
       for (let el of elements) {
         observers.get(id).observe(el);
@@ -98,34 +99,33 @@ export class IntersectionController implements ReactiveController {
    * @param {*} [threshold=[0, 0.5, 1]]
    * @memberof IntersectionController
    */
-  create(
+  initiate(
     observerId: string,
     root: HTMLElement = null,
-
     threshold = [0, 0.5, 1],
-    margins?: {
-      top?: string;
-      right?: string;
-      bottom?: string;
-      left?: string;
-    }
+    margins: {
+      top: string;
+      right: string;
+      bottom: string;
+      left: string;
+    } = { top: '0px', right: '0px', bottom: '0px', left: '0px' }
   ) {
-    let rootMargin = ['top', 'right', 'bottom', 'left']
-      .map((dir) => margins[dir] ?? '0px')
-      .join(' ');
-
-    let obs = new IntersectionObserver(this._emitter(observerId).bind(this), {
-      root,
-      rootMargin,
-      threshold,
-    });
-    observers.set(observerId, obs);
     this._activeId = observerId;
+    if (!observers.has(observerId)) {
+      let rootMargin = ['top', 'right', 'bottom', 'left']
+        .map((dir) => margins[dir])
+        .join(' ');
+      let obs = new IntersectionObserver(this._emitter(observerId).bind(this), {
+        root,
+        rootMargin,
+        threshold,
+      });
+      observers.set(observerId, obs);
+    }
     return this;
   }
 
   hostConnected() {
     this.host.requestUpdate();
   }
-  hostDisconnected() {}
 }

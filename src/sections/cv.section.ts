@@ -25,8 +25,7 @@ const getDetail = (detail) => {
     } else {
       details = detail as string[];
     }
-    console.log(details)
-    return details.map((value) => html`<li>${value}</li>`);
+    return details.map((detail) => html`<li>${detail}</li>`);
 
   };
 
@@ -58,12 +57,14 @@ function getEntryTemplate(entries: ResumeEntry){
 function getGroupedArrayMap(entryList: ResumeEntry[], groupBy: string) {
   let map = new Map() as Map<string, TemplateResult<1>[]>
   let entries = entryList.slice()
+  let length = entries.length;
   while (entries.length) {
     let entry = entries.pop() as ResumeEntry;
     let key = entry[groupBy];
     let content = html`
-        <hicks-resume-entry>
+        <hicks-resume-entry index="${length - entries.length}">
             ${getEntryTemplate(entry)}
+            <button slot="expand-button"></button>
         </hicks-resume-entry>
         `;
     

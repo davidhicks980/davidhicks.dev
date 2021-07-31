@@ -1,57 +1,88 @@
-import { ReactiveController } from 'lit';
-import { HicksListItem } from '../../components/toc/toc-item.component';
+import { ReactiveController, ReactiveControllerHost } from 'lit';
+import { ObservableSet } from '../primitives/list-expansion';
+import { BehaviorSubject } from 'rxjs';
+import { combineLatestWith } from 'rxjs/operators';
 
-export class ListItemController implements ReactiveController {
-  host: HicksListItem;
-  /**
-   * Compares the supplied path to the
-   *
-   * @param {string} testPath
-   * @memberof ListItemController
-   */
-  testIfPathComesAfter = (testPath: string, referencePath: string) => {
-    if (testPath && referencePath) {
-      const rootEnd = testPath.lastIndexOf('.');
-      const root = testPath.substr(0, rootEnd);
-      if (root !== referencePath && referencePath.includes(root)) {
-        const testArray = testPath.split('.').map(Number);
-        const refArray = referencePath.split('.').map(Number);
-        const sigDigit = testArray.length - 1;
-        return refArray[sigDigit] < testArray[sigDigit];
-      } else {
-        return false;
-      }
-      /* let shorterArray, longerArray;
-        if (testIsLonger) {
-          shorterArray = refArray;
-          longerArray = testArray;
-        } else {
-          shorterArray = testArray;
-          longerArray = refArray;
-        }
-        const shortPathIsAhead = shorterArray.some(
-          (numb, index) => numb > longerArray[index]
-        );
-        if (testIsLonger) {
-          //If the test element is longer, having the short path ahead means that the test element is not ahead
-          return shortPathIsAhead === false;
-        } else {
-          //If the test element is not longer, having the short path ahead means that the test element is ahead
-          return shortPathIsAhead === true;
-        }*/
-    } else {
-      return false;
-    }
-  };
-
-  constructor(host: HicksListItem) {
-    (this.host = host).addController(this);
+const emitters = new Map() as Map<
+  string,
+  {
+    expansion: ObservableSet;
+    active: BehaviorSubject<string>;
+    paths: Set<string>;
   }
-
-  makeUpdate(item: string, update: string) {}
+>;
+export class ListItemController implements ReactiveController {
+  host: ReactiveControllerHost;
+  _handler: string;
+  _paths: Set<string>;
+  lock = false;
+  createHandler(name: string) {
+    if (emitters.has(name)) {
+      throw new Error(
+        `[${ListItemController.name}.${this.createHandler.name}] Observer already exists`
+      );
+    } else {
+      emitters.set(name, {
+        expansion: new ObservableSet([]),
+        active: new BehaviorSubject(''),
+        paths: new Set(''),
+      });
+      this._handler = name;
+    }
+    return this;
+  }
+  get emitters() {
+    if (this._handler) {
+      return emitters.get(this._handler);
+    } else {
+      throw new Error(
+        `[${ListItemController.name}.emitters] Observer already exists`
+      );
+    }
+  }
+  expandAll() {
+    this.expand('*');
+    this.lock = true;
+  }
+  collapseAll() {
+    this.collapse('*');
+    this.lock = false;
+  }
+  expand(paths: string | string[]) {
+    this.emitters.expansion.add(paths);
+  }
+  collapse(paths: string | string[]) {
+    this.emitters.expansion.delete(paths);
+  }
+  activate(path: string) {
+    this.emitters.active.next(path);
+    this._expandAncestors(path);
+  }
+  _expandAncestors(path: string) {
+    let ancestors = path.split('.');
+    const ancestorPaths = [];
+    while (ancestors.length) {
+      ancestorPaths.push(ancestors.join('.'));
+      ancestors.pop();
+    }
+    this.expand(ancestorPaths);
+  }
+  observe = {
+    all: () =>
+      this.emitters.expansion.observer.pipe(
+        combineLatestWith(this.emitters.active.asObservable())
+      ),
+    expansion: () => this.emitters.expansion.observer,
+    active: () => this.emitters.active.asObservable(),
+  };
+  constructor(host: ReactiveControllerHost, handler?: string, path?: string) {
+    (this.host = host).addController(this);
+    if (handler) {
+      this._handler = handler;
+    }
+  }
 
   hostConnected() {
     this.host.requestUpdate();
   }
-  hostDisconnected() {}
 }

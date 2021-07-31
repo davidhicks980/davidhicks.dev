@@ -11,9 +11,8 @@ import { css } from 'lit';
   --nav--item--font-size: 1em;
   --nav--item--border: none;
   --nav--item--font-weight: 500;
-  --nav--item--hover--opacity: 0.6;
+  --nav--item--hover--opacity: 0.8;
   --nav--item--selected--font-color: black;
-  --nav--item--hover--text-transform: underline;
 }
 
 .navigation {

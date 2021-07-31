@@ -8,7 +8,7 @@
     <link
       media="print"
       onload="this.media='all'"
-      href="https://fonts.googleapis.com/css2?family=Arimo&family=DM+Mono:wght@400;500&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Arimo&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=Roboto:ital,wght@0,400;0,500;1,400&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
       rel="stylesheet"
     />
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
@@ -17,7 +17,11 @@
 
     <title>The Developer Site for David Hicks</title>
   </head>
-
+  <script>
+    document.addEventListener('keydown', (e) =>
+      e.key === 'Tab' ? console.log(document.activeElement) : null
+    );
+  </script>
   <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
 
@@ -46,12 +50,8 @@
         </hicks-nav>
       </div>
       <div slot="header-toolbar-toggle">
-        <hicks-toggle-button
-          defaulticon="./icons/menu.svg"
-          toggleicon="./icons/close.svg"
-        >
+        <hicks-toggle-button>
           <svg
-            slot="icon"
             class="menu-icon"
             style="transform: scale(1.1)"
             xmlns="http://www.w3.org/2000/svg"
@@ -101,7 +101,10 @@
       <div class="left"></div>
       <content-tree class="center"></content-tree>
       <div class="right">
-        <hicks-toc expandIconSrc="./icons/close.svg"></hicks-toc>
+        <hicks-toc
+          style="--body--font: 'Arimo'"
+          expandIconSrc="./icons/close.svg"
+        ></hicks-toc>
       </div>
     </main>
   </body>

@@ -1,68 +1,99 @@
 @use 'mixins' as *;
-@mixin host($state) {
-  :host([mobile]) & {
-    @content;
+@use 'styles/mixins/shadow-root' as root;
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+.transition--fade-in {
+  animation-name: fade-in;
+  animation-timing-function: cubic-bezier(0.43, 0.04, 1, -0.1);
+  animation-duration: calc(var(--item--index) * 75ms);
+  animation-iteration-count: 1;
+}
+:host {
+  width: inherit;
+  //Layout
+  display: list-item;
+  padding-left: 0.5em;
+  //Transforms
+  will-change: transform;
+  transition: 0.3s ease-in-out 0s;
+  transform: translateY(
+    calc(-1 * (var(--item--offset, 0) * var(--item--height, 0)))
+  );
+  transition-property: transform opacity;
+  //Misc
+  font: var(--item--font);
+  min-width: 15ch;
+  @media (prefers-reduced-motion) {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
+  @include root.state('[hidden]') {
+    will-change: transform;
+    transform: translateY(calc(-1 * (var(--item--offset, 0))));
+  }
+
+  .sublist {
+    visibility: hidden;
+    opacity: 0;
+    margin: 0px;
+    padding: 0px 0px 0px 1rem;
+    list-style-type: none;
+    @media (prefers-reduced-motion) {
+      visibility: visible;
+    }
+    @include root.state('[expanded]') {
+      visibility: visible;
+      opacity: 1;
+    }
   }
 }
 
-@mixin button-reset {
-  border: none;
-  background: none;
-  margin: 0px;
-  padding: 0px;
-}
-
-:host {
-  width: 100%;
-}
 .item {
   &__content {
-    width: calc(var(--host--width) - 10%);
-    position: absolute;
-    z-index: 2;
     display: grid;
     grid-template-areas: 'icon link button';
-    grid-template-columns: 1fr 9fr 2fr;
+    grid-template-columns: 2fr 8fr 2fr;
     align-items: center;
+    height: var(--item--height);
+
     &__prefix {
       grid-area: icon;
-      padding: 0.5rem;
     }
-    @include host(mobile) {
+    :host([mobile]) & {
       width: inherit;
-      height: 100%;
     }
-    &__link {
-      color: var(--item--font-color);
+    &__a {
       text-decoration: none;
-      z-index: 1;
-      position: relative;
       grid-area: link;
-      padding: 0.25rem;
+      box-sizing: border-box;
       @include mix-text-ellipsis;
-      @include host(mobile) {
+
+      :host([mobile]) & {
         width: inherit;
       }
-      &:hover,
       :host([active]) & ::slotted(*) {
         color: var(--primary-8);
-        text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px,
-          currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
-        transition: text-shadow var(--item--transition--timing);
-      }
-      &:hover {
-        text-decoration: underline var(--secondary-9) 2px;
-        text-underline-offset: 1px;
       }
     }
+    &__link {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
     &__suffix {
-      @include button-reset;
       width: var(--item--height);
-      height: var(--font-size);
-      padding: 0px var(--font-size);
-      position: relative;
-      padding: 0.4rem;
       grid-area: button;
+    }
+    :host([top-level]) &__link {
+      font-weight: 500;
     }
   }
 }

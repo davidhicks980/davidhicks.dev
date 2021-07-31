@@ -32,10 +32,10 @@ export class HicksGrid extends LitElement {
   columnGap: string;
   @property({ attribute: 'row-gap' })
   rowGap: string;
-  @property({ attribute: 'item-width' })
-  itemWidth: string;
-  @property({ attribute: 'item-height' })
-  itemHeight: string;
+  @property({ attribute: 'cell-width' })
+  cellWidth: string;
+  @property({ attribute: 'cell-height' })
+  cellHeight: string;
 
   @state()
   mobile: boolean;
@@ -45,8 +45,8 @@ export class HicksGrid extends LitElement {
     super();
     this.columns = 1;
     this.rows = 1;
-    this.itemWidth = '1fr';
-    this.itemHeight = '1fr';
+    this.cellWidth = '1fr';
+    this.cellHeight = '1fr';
   }
   firstUpdated(_changedProperties) {
     this.breakpointControl = new BreakpointController(this);
@@ -63,14 +63,14 @@ export class HicksGrid extends LitElement {
       gridTemplateColumns: `repeat(${
         this.autofillColumn ? 'auto-fill' : this.columns
       }, ${
-        this.itemWidth.match(/,/) ? `minmax(${this.itemWidth})` : this.itemWidth
+        this.cellWidth.match(/,/) ? `minmax(${this.cellWidth})` : this.cellWidth
       })`,
       gridTemplateRows: `repeat(${
         this.autofillRow ? 'auto-fill' : this.rows
       }, ${
-        this.itemHeight.match(/,/)
-          ? `minmax(${this.itemHeight})`
-          : this.itemHeight
+        this.cellHeight.match(/,/)
+          ? `minmax(${this.cellHeight})`
+          : this.cellHeight
       })`,
     };
     //const colorClass = classMap({ color: this.color });

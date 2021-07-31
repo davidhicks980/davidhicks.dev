@@ -1,20 +1,16 @@
 @use 'mixins' as *;
-@mixin host($state) {
-  :host([mobile]) & {
-    @content;
-  }
-}
+@use 'styles/mixins/button' as button;
+@use 'styles/mixins/shadow-root' as root;
 
 :host {
-  --font-size: 1rem;
+  --font-size: 10pt;
   --item--font-weight: 400;
-  --item--font: var(--item--font-weight) var(--font-size) var(--body-font),
-    sans-serif;
+  --item--font: var(--item--font-weight) var(--font-size);
   //Item variables
-  --item--margin: calc(var(--font-size) * 0.825); // Padding around the item
-  --item--height: calc(var(--font-size) + var(--item--margin));
+  // --item--margin: calc(var(--font-size) * 0.825); // Padding around the item
+  --item--height: calc(var(--font-size) * 2);
   --item--transition--timing: 0.5s;
-  --item--font-color: var(--gray-9); //Dimensions
+  --item--font-color: var(--gray-11); //Dimensions
   --item--line-color: var(--gray-4); //Dimensions
 
   //List variables
@@ -64,7 +60,7 @@
   height: var(--host--height);
   background: var(--host--background);
   padding-top: var(--host--padding-top);
-  @include mix-append-host-state('[mobile]') {
+  @include root.state('[mobile]') {
     --host--width: 100vw;
     --host--top: calc(var(--toolbar-height) - 1rem);
     --host--height: 100vh;
@@ -89,17 +85,18 @@
   &__list {
     width: var(--list--width);
     grid-area: content;
-    height: calc(var(--host--height) - var(--head--margin));
     display: block;
     &__link-icon {
       vertical-align: middle;
     }
-    @include host(mobile) {
-      --list--width: 75vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow: hidden;
+    &:host {
+      @include root.state('[mobile]') {
+        --list--width: 75vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow: hidden;
+      }
     }
   }
   /* &__track {
@@ -133,125 +130,30 @@
 }
 */
 
-ul {
-  margin: 0px;
-  padding: 0px;
-}
-
 .list {
-  padding-left: 0.5rem;
-  margin: 0;
-  position: absolute;
-  list-style-type: none;
-  //Small offset to account for the first item being inline with the top of the scrollspy
-  transform: translateY(calc(-1 * var(--item--height) / 1.5));
-  width: var(--list--width);
-  height: var(--list--height);
-  &__sublist {
-    padding-left: calc(0.75 * var(--font-size));
-    opacity: 0;
-    padding-bottom: 2rem;
-    position: absolute;
-    width: inherit;
-    height: inherit;
-    &[data-expanded] {
-      opacity: 1;
-    }
-  }
-  @include host(mobile) {
-    @include mix-reset-list;
-    --list--width: 75vw;
-  }
-}
-
-@mixin button-reset {
-  border: none;
-  background: none;
-  margin: 0px;
   padding: 0px;
+  margin: 0px;
+  list-style-type: none;
+  :host {
+    @include root.state('[mobile]') {
+      @include mix-reset-list;
+      --list--width: 75vw;
+    }
+  }
+}
+.link-text {
+  color: var(--item--font-color);
+  @include mix-text-ellipsis;
+  & :hover {
+    color: var(--primary-8);
+  }
 }
 
-hicks-list-item {
-  height: var(--item--height);
-  //Layout
-  display: list-item;
-  position: absolute;
-  padding-left: 0.5em;
-  //Transforms
-  transform: translateY(0px);
-  will-change: transform opacity;
-  transition-property: transform opacity;
-  transition: var(--item--transition--timing) cubic-bezier(0.25, 1, 0.3, 1);
-  //Misc
-  font: var(--item--font);
-  min-width: 15ch;
-
-  opacity: 0;
-  @include host(mobile) {
-    --item--font-weight: 300;
-    border-bottom: 1px dashed var(--item--line-color);
-  }
-
-  ul[data-expanded] > & {
-    opacity: 1;
-    transition-delay: calc(var(--item--index) * 30ms);
-    transform: translateY(
-      calc(
-        (var(--item--index, 0) + var(--item--offset, 0)) *
-          var(--item--height, 1rem)
-      )
-    );
-  } /*
-  &__content {
-    width: calc(var(--host--width) - var(--font-size) * 2);
-    position: absolute;
-    z-index: 2;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    @include host(mobile) {
-      width: inherit;
-      height: 100%;
-    }
-    &__link {
-      color: var(--item--font-color);
-      text-decoration: none;
-      z-index: 1;
-      position: relative;
-      @include mix-text-ellipsis;
-      @include host(mobile) {
-        width: inherit;
-      }
-      &:hover,
-      &.is-active {
-        color: var(--primary-8);
-        text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px,
-          currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
-        transition: text-shadow var(--item--transition--timing);
-      }
-      &:hover {
-        text-decoration: underline var(--secondary-9) 2px;
-        text-underline-offset: 1px;
-      }
-    }
-    &__expand-btn {
-      @include button-reset;
-      width: calc(var(--item--height) + 1em);
-      height: var(--font-size);
-      padding: 0px var(--font-size);
-      position: relative;
-      padding: 0.4rem;
-    }
-  }*/
+.expand-button {
+  @include button.button(1.5rem, 15ch, 1rem);
 }
 
-.expand-icon {
-  fill: black;
-  transform: rotate(0deg);
-  transition: transform 500ms cubic-bezier(0.25, 1, 0.3, 1);
-  &.toggled {
-    fill: blue;
-    transform: rotate(180deg);
-  }
+.button__wrapper {
+  display: flex;
+  align-self: flex-end;
 }

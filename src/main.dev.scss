@@ -2,6 +2,8 @@
 @import 'util/styles/normalize';
 @import 'util/styles/variables';
 @import 'util/styles/component-vars';
+@import 'styles/mixins/shadows';
+
 .hidden {
   padding: 8px;
   position: absolute;
@@ -53,20 +55,29 @@ background-animation {
   display: grid;
   grid-template-columns: auto var(--sidebar-width);
   padding-bottom: 200px;
+  margin-left: 1rem;
+  justify-content: center;
+
   & .center {
     grid-column: 1 / 2;
     height: 100%;
     width: 100%;
+    max-width: 700px;
     background-color: white;
-    padding: 3rem;
-    margin-top: 5rem;
+    margin-top: 2rem;
     position: relative;
+    padding: 4rem;
     @include mix-hoverable-shadow(3);
+    @include shadow(3);
   }
   & .right {
     grid-column: 2 / 3;
     width: 100%;
-    position: relative;
+
+    @include mix-media-size('small', 'large') {
+      display: flex;
+      justify-content: center;
+    }
     @include mix-media-size('zero', 'small') {
       grid-column: none;
       position: absolute;
@@ -75,11 +86,8 @@ background-animation {
   &.is-mobile {
     grid-template-columns: 1fr;
   }
-  @include mix-media-size('medium', 'large') {
+  @include mix-media-size('small', 'large') {
     grid-template-columns: auto var(--sidebar-width);
-  }
-  @include mix-media-size('small', 'medium') {
-    grid-template-columns: 1fr;
   }
 }
 

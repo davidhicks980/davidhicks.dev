@@ -46,14 +46,12 @@ h6 {
 * @param {String} $element - Element's name
 */
 :host {
-  --font-size: 1rem;
+  --font-size: 10pt;
   --item--font-weight: 400;
-  --item--font: var(--item--font-weight) var(--font-size) var(--body-font),
-    sans-serif;
-  --item--margin: calc(var(--font-size) * 0.825);
-  --item--height: calc(var(--font-size) + var(--item--margin));
+  --item--font: var(--item--font-weight) var(--font-size);
+  --item--height: calc(var(--font-size) * 2);
   --item--transition--timing: 0.5s;
-  --item--font-color: var(--gray-9);
+  --item--font-color: var(--gray-11);
   --item--line-color: var(--gray-4);
   --head--margin: calc(var(--font-size) * 1.75);
   --list--item-count: 0;
@@ -153,13 +151,12 @@ h6 {
 .toc__list {
   width: var(--list--width);
   grid-area: content;
-  height: calc(var(--host--height) - var(--head--margin));
   display: block;
 }
 .toc__list__link-icon {
   vertical-align: middle;
 }
-:host([mobile]) .toc__list {
+.toc__list:host([mobile]) {
   --list--width: 75vw;
   display: -webkit-box;
   display: -ms-flexbox;
@@ -173,6 +170,7 @@ h6 {
           align-items: center;
   overflow: hidden;
 }
+
 .toc__head {
   grid-area: header;
   border-bottom: 1px solid var(--gray-7);
@@ -195,33 +193,12 @@ h6 {
     border-width: 0 0 0 2px;
 }
 */
-ul {
-  margin: 0px;
-  padding: 0px;
-}
-
 .list {
-  padding-left: 0.5rem;
-  margin: 0;
-  position: absolute;
+  padding: 0px;
+  margin: 0px;
   list-style-type: none;
-  -webkit-transform: translateY(calc(-1 * var(--item--height) / 1.5));
-          transform: translateY(calc(-1 * var(--item--height) / 1.5));
-  width: var(--list--width);
-  height: var(--list--height);
 }
-.list__sublist {
-  padding-left: calc(0.75 * var(--font-size));
-  opacity: 0;
-  padding-bottom: 2rem;
-  position: absolute;
-  width: inherit;
-  height: inherit;
-}
-.list__sublist[data-expanded] {
-  opacity: 1;
-}
-:host([mobile]) .list {
+.list :host([mobile]) {
   list-style-type: none;
   margin-top: 0px;
   margin-bottom: 0px;
@@ -230,92 +207,115 @@ ul {
   --list--width: 75vw;
 }
 
-hicks-list-item {
-  height: var(--item--height);
-  display: list-item;
-  position: absolute;
-  padding-left: 0.5em;
-  -webkit-transform: translateY(0px);
-          transform: translateY(0px);
-  will-change: transform opacity;
-  -webkit-transition-property: -webkit-transform opacity;
-  transition-property: -webkit-transform opacity;
-  transition-property: transform opacity;
-  transition-property: transform opacity, -webkit-transform opacity;
-  -webkit-transition: var(--item--transition--timing) cubic-bezier(0.25, 1, 0.3, 1);
-  transition: var(--item--transition--timing) cubic-bezier(0.25, 1, 0.3, 1);
-  font: var(--item--font);
-  min-width: 15ch;
-  opacity: 0;
-  /*
-  &__content {
-    width: calc(var(--host--width) - var(--font-size) * 2);
-    position: absolute;
-    z-index: 2;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    @include host(mobile) {
-      width: inherit;
-      height: 100%;
-    }
-    &__link {
-      color: var(--item--font-color);
-      text-decoration: none;
-      z-index: 1;
-      position: relative;
-      @include mix-text-ellipsis;
-      @include host(mobile) {
-        width: inherit;
-      }
-      &:hover,
-      &.is-active {
-        color: var(--primary-8);
-        text-shadow: currentColor 0.1px -0.1px, currentColor -0.1px 0.1px,
-          currentColor 0.1px 0.1px, currentColor -0.1px -0.1px;
-        transition: text-shadow var(--item--transition--timing);
-      }
-      &:hover {
-        text-decoration: underline var(--secondary-9) 2px;
-        text-underline-offset: 1px;
-      }
-    }
-    &__expand-btn {
-      @include button-reset;
-      width: calc(var(--item--height) + 1em);
-      height: var(--font-size);
-      padding: 0px var(--font-size);
-      position: relative;
-      padding: 0.4rem;
-    }
-  }*/
+.link-text {
+  color: var(--item--font-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-:host([mobile]) hicks-list-item {
-  --item--font-weight: 300;
-  border-bottom: 1px dashed var(--item--line-color);
-}
-ul[data-expanded] > hicks-list-item {
-  opacity: 1;
-  -webkit-transition-delay: calc(var(--item--index) * 30ms);
-          transition-delay: calc(var(--item--index) * 30ms);
-  -webkit-transform: translateY(calc( (0 + 0) * 1rem));
-          transform: translateY(calc( (0 + 0) * 1rem));
-  -webkit-transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
-          transform: translateY(calc( (var(--item--index, 0) + var(--item--offset, 0)) * var(--item--height, 1rem) ));
+.link-text :hover {
+  color: var(--primary-8);
 }
 
-.expand-icon {
-  fill: black;
-  -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-  -webkit-transition: -webkit-transform 500ms cubic-bezier(0.25, 1, 0.3, 1);
-  transition: -webkit-transform 500ms cubic-bezier(0.25, 1, 0.3, 1);
-  transition: transform 500ms cubic-bezier(0.25, 1, 0.3, 1);
-  transition: transform 500ms cubic-bezier(0.25, 1, 0.3, 1), -webkit-transform 500ms cubic-bezier(0.25, 1, 0.3, 1);
+.expand-button.button {
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  font-size: calc(1.5rem * 0.5);
+  height: 1.5rem;
+  -webkit-transition: all 250ms;
+  transition: all 250ms;
+  -ms-touch-action: manipulation;
+      touch-action: manipulation;
+  width: 15ch;
+  border: none;
+  position: relative;
 }
-.expand-icon.toggled {
-  fill: blue;
-  -webkit-transform: rotate(180deg);
-          transform: rotate(180deg);
+.expand-button.button--primary {
+  --button--background--primary: var(--primary-11);
+  --button--color--primary: white;
+  --button--shadow--primary: var(--gray-6);
+  --button--shadow--primary--active: var(--gray-6);
+  color: var(--button--color--primary);
+  background: var(--button--primary-background);
+}
+.expand-button.button--primary:hover::after {
+  opacity: 0.8;
+}
+.expand-button.button--primary::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border-radius: inherit;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+  margin: 0px;
+  -webkit-box-shadow: 0 2px 4px rgb(87 107 138/24%);
+          box-shadow: 0 2px 4px rgb(87 107 138/24%);
+}
+.expand-button.button--primary:hover {
+  -webkit-filter: brightness(1.1);
+          filter: brightness(1.1);
+}
+.expand-button.button--primary:active {
+  -webkit-box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
+          box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
+}
+.expand-button.button--secondary {
+  --button--background--secondary: var(--gray-1);
+  --button--color--secondary: var(--gray-11);
+  --button--shadow--secondary: box-shadow: inset 0px 0px 0px 1px var(--gray-6);
+  --button--shadow--secondary--active: inset 0px 0px 0px 1px blue;
+  background-color: var(--button--background--secondary);
+  color: var(--button--color--secondary);
+  -webkit-box-shadow: var(--button--shadow--secondary);
+          box-shadow: var(--button--shadow--secondary);
+  border: 1px solid lightgray;
+}
+.expand-button.button--secondary:hover::after {
+  opacity: 0.8;
+}
+.expand-button.button--secondary::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border-radius: inherit;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+  margin: 0px;
+  -webkit-box-shadow: 0 2px 4px rgb(87 107 138/24%);
+          box-shadow: 0 2px 4px rgb(87 107 138/24%);
+}
+.expand-button.button--secondary:hover {
+  -webkit-filter: brightness(0.975);
+          filter: brightness(0.975);
+}
+.expand-button.button--secondary:active {
+  border: 1px solid blue;
+  -webkit-filter: brightness(0.95);
+          filter: brightness(0.95);
+}
+.expand-button.button--secondary:active::after {
+  opacity: 1;
+}
+
+.button__wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-item-align: end;
+      align-self: flex-end;
 }`;

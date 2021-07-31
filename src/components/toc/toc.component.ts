@@ -1,21 +1,11 @@
-/*
- * Copyright 2020 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { html, LitElement, TemplateResult, svg } from 'lit';
-import { property, query, queryAll, state } from 'lit/decorators.js';
+import {
+  property,
+  query,
+  queryAll,
+  queryAsync,
+  state,
+} from 'lit/decorators.js';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
 import { tocTemplates as templates } from './toc.templates';
@@ -23,6 +13,9 @@ import { HicksListItem } from './toc-item.component';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { IntersectionController } from '../../util/controllers/intersection.controller';
 import { FocusController } from '../../util/controllers/focus.controller';
+import { ListItemController } from '../../util/controllers/item.controller';
+import { fastHash } from '../../util/primitives/salt-id';
+import { mapTo } from 'rxjs/operators';
 
 /**
  * Element that renders table of contents.
@@ -32,33 +25,49 @@ import { FocusController } from '../../util/controllers/focus.controller';
 
 export class TableOfContents extends LitElement {
   static styles = [style];
-  /**Queries */
-  @query('.list')
-  rootList: HTMLUListElement;
+  static shadowRootOptions = {
+    ...LitElement.shadowRootOptions,
+    delegatesFocus: true,
+  };
+  //Child Queries
+  @query('.list', true)
+  topLevelList: HTMLUListElement;
   @queryAll('.list__sublist')
   sublists: NodeListOf<HTMLUListElement>;
   @queryAll('hicks-list-item')
   listItems: NodeListOf<HicksListItem>;
-  @queryAll('ul[data-expanded]>hicks-list-item')
-  visibleListItems: NodeListOf<HicksListItem>;
-  /**Public properties */
+  @queryAsync('hicks-list-item')
+  itemsLoaded: Promise<HicksListItem>;
+  //Public properties
   @property({ type: Boolean, reflect: true })
   open: boolean;
   @property({ type: Boolean, reflect: true })
   mobile = true;
-
+  @property({ type: Boolean })
+  loaded = false;
+  //Internal States
   @state()
   activeId: string = '';
-
+  //Shared controllers
   controllers: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
     focus: FocusController;
+    item: ListItemController;
   };
-  //Holds the last scroll direction, in case the user switches direction. In that case, the previous scroll direction will be used
-  switchDirection: number;
-  //The list item template
+  //Templates
   list: TemplateResult[];
+  displayedElements = new Set();
+  hash = {
+    section: 0,
+    template: 0,
+  };
+
+  template: TemplateResult<1>;
+  itemMap: any;
+  displayedListItems: HicksListItem[];
+  @state()
+  allExpanded: boolean = false;
 
   constructor() {
     super();
@@ -67,10 +76,18 @@ export class TableOfContents extends LitElement {
       intersection: new IntersectionController(this),
       breakpoint: new BreakpointController(this),
       focus: new FocusController(this),
+      item: new ListItemController(this),
     };
     this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
       this[id] = matches ?? false;
     });
+    this.controllers.item
+      .createHandler('hicks-toc')
+      .observe.all()
+      .pipe(mapTo(true))
+      .subscribe((_) => {
+        window.requestAnimationFrame(() => this.updateItemOffsets());
+      });
   }
 
   get sections(): HTMLElement[] {
@@ -79,21 +96,20 @@ export class TableOfContents extends LitElement {
 
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
-    this.classList.add('toc');
-
     //Build the toc
-    this.list = this._refreshLinks(this.sections);
-
+    this.list = this.refreshLinks(this.sections);
     this.initIntersectionObserver();
-
     this.open = true;
+    this.itemsLoaded.then(() => {
+      this.loaded = true;
+    });
   }
   initIntersectionObserver() {
-    let margin = { top: '-49%', bottom: '-49%' },
+    let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
       threshold = [0];
     const boundScroll = this.scrollSpy.bind(this);
     this.controllers.intersection
-      .create('hicks-toc', null, threshold, margin)
+      .initiate('hicks-toc', null, threshold, margin)
       .observe(this.sections)
       .on('entry')
       .subscribe(boundScroll);
@@ -105,11 +121,15 @@ export class TableOfContents extends LitElement {
    * @param {HTMLElement[]} sections
    * @memberof TableOfContents
    */
-  _refreshLinks = (sections: HTMLElement[]) => {
+  refreshLinks = (sections: HTMLElement[]) => {
     const toArr = (position: string) => position.split('.');
     let childLists = new Map() as Map<string, ListChild[]>;
     const sectionInfo = this.getSectionAttributes(sections);
     sectionInfo.sort((a, b) => b.sortOrder - a.sortOrder);
+
+    this.hash.section = fastHash(
+      sectionInfo.map((item) => item.href).join('-')
+    );
     return sectionInfo.reduce((tree, heading) => {
       //prettier-ignore
       const { title, position: {root, index, path}, href, marker } = heading,
@@ -119,7 +139,6 @@ export class TableOfContents extends LitElement {
        {  fullPath,  childList } = templates.buildChildlist(childLists, path),
         template = templates.listItem(
         childList,
-        this.handleToggleEvent,
         { path, href, title, marker, index }
       );
 
@@ -164,36 +183,29 @@ export class TableOfContents extends LitElement {
       };
     });
   }
-
-  handleToggleEvent(e: MouseEvent) {
-    const button = e.target as HTMLButtonElement;
-    let tar = button.parentElement.parentElement.querySelector('ul');
-
-    if (tar) {
-      tar.toggleAttribute('data-expanded');
-    }
-    this.expandAncestorLists(tar);
-    this.updateItemOffsets();
+  update(_changedProperties) {
+    super.update(_changedProperties);
+    this.displayedListItems = Array.from(this.listItems)?.filter(
+      (item) => !item.hidden
+    );
   }
-  updateItemCount() {
-    const expandedChildren = String(this.visibleListItems.length);
-    this.style.setProperty('--list--item-count', expandedChildren);
-  }
-
   updated(_changedProperties) {
     super.updated(_changedProperties);
+
     if (_changedProperties.has('mobile')) {
       if (this.mobile === true) {
-        console.log(this.rootList);
-        this.controllers.focus.trapElementChildren(
-          this.rootList,
-          this.listItems.item(0)
-        );
+        this.itemsLoaded.then(() => {
+          this.controllers.focus.trapFocus(
+            this.topLevelList,
+            this.listItems.item(0)
+          );
+        });
       } else {
         this.controllers.focus.releaseFocus();
       }
     }
   }
+
   scrollSpy(sections: IntersectionObserverEntry[]): void {
     if (!this.sections.length || !sections) return;
     const previousActiveId = this.activeId;
@@ -201,96 +213,71 @@ export class TableOfContents extends LitElement {
       (section) => section.isIntersecting
     );
     //Take the most recent intersection if one exists. Otherwise, take the last intersecting item
-    this.activeId = intersectingSections[0].target.id || this.activeId;
+    this.activeId = intersectingSections[0]?.target?.id || this.activeId;
 
     //Make sure we do not already have the correct element selected
     if (previousActiveId !== this.activeId) {
-      let map = this.itemMap();
-      const currLI = map.get(this.activeId);
-      currLI.activate();
-      const prevLI = map.get(previousActiveId);
-      if (prevLI) {
-        prevLI.deactivate();
+      if (this.listItems.length > 0) {
+        this.collapseLists(Array.from(this.listItems).map((el) => el.path));
       }
-
-      if (this.sublists.length > 0) {
-        this.sublists.forEach(this.collapseList);
-      }
-      this.expandAncestorLists(currLI);
+      this.controllers.item.activate(this.activeId.split('--')[0]);
       this.updateItemOffsets();
     }
   }
-  private collapseList(list: HTMLUListElement) {
-    list.toggleAttribute('data-expanded', false);
+
+  expandLists(paths: string | string[]) {
+    this.controllers.item.expand(paths);
   }
-  private expandList(list: HTMLUListElement) {
-    list.toggleAttribute('data-expanded', true);
-    Array.from(list.children).forEach((element) => {
-      (element as HicksListItem).shown = true;
-    });
+  collapseLists(paths: string | string[]) {
+    this.controllers.item.collapse(paths);
   }
 
-  private expandAncestorLists(currLI: Element) {
-    let parent = currLI?.parentElement;
-    while (
-      parent?.hasAttribute('data-position') ||
-      parent.tagName === 'HICKS-LIST-ITEM'
-    ) {
-      if (parent.tagName === 'UL') {
-        this.expandList(parent as HTMLUListElement);
-      }
-      parent = parent.parentElement;
-    }
-    this.updateItemOffsets();
+  get closedLists() {
+    return Array.from(this.listItems).filter((sl) => !sl.expanded);
   }
-
   private updateItemOffsets() {
-    this.updateItemCount();
-    const childLayers = new Map() as Map<number, number>; // keep track of layers and item count. If a prior sibling has more children than the current item, shift the current element by the number of siblings;
-    Array.from(this.visibleListItems).map((el: HicksListItem, i) => {
-      const { childItems, path } = el;
-      //Get element's layer within the toc
-      const itemLayer = path.split('.').length;
-
-      //If there were any layers of children before this element, add their respective indices to the element's position
-      let layer = itemLayer,
-        previousChildren = 0;
-      while (childLayers.has(layer)) {
-        previousChildren += childLayers.get(layer);
-        layer++;
-      }
-      const offset = previousChildren;
-      el.offset = offset;
-      //Find if the element has an expanded child to determine whether to add it's children's layers to our element map
-      if (el.getSlottedList()?.hasAttribute('data-expanded')) {
-        let childrenOnLayer = childLayers.has(itemLayer)
-          ? childLayers.get(itemLayer)
-          : 0;
-        //Add element's child count to current layer
-        childLayers.set(itemLayer, Number(childItems) + childrenOnLayer);
-      }
-    });
+    if (this.displayedListItems) {
+      Array.from(this.displayedListItems).map((el: HicksListItem, i) => {
+        let prevEl = el.previousElementSibling as HicksListItem;
+        if (prevEl && prevEl.index === el.index - 1) {
+          const offset = Array.from(this.closedLists)
+            .filter((list) => list.path.includes(prevEl.path))
+            .reduce((total, curr) => total + curr.listChildren, 0);
+          if ((el.offset = offset + prevEl.offset)) {
+            return;
+          } else {
+            el.offset = offset + prevEl.offset;
+          }
+        } else {
+          el.offset = 0;
+        }
+      });
+    }
   }
 
-  itemMap() {
-    return new Map(Array.from(this.listItems).map((el) => [el.href, el]));
+  toggleAll() {
+    this.allExpanded
+      ? this.controllers.item.collapseAll()
+      : this.controllers.item.expandAll();
+    this.allExpanded = !this.allExpanded;
   }
-
   render() {
+    if (this.hash.template != this.hash.section) {
+      this.template = templates.list(this.list);
+      this.hash.template = this.hash.section;
+    }
     return html`
-      ${this.mobile
-        ? ''
-        : html`<div class="toc__head">
-              <div class="toc__label">
-                <span>Content</span>
-              </div>
-            </div>
-            <!--<div class="toc__track"><span class="track"></span></div>--> `}
-      ${templates.list(this.list)}
+      <div class="button__wrapper">
+        <button
+          @click=${this.toggleAll}
+          type="button"
+          class="expand-button button button--secondary"
+          data-toggled=${this.allExpanded}
+        >
+          Expand All <span>+</span>
+        </button>
+      </div>
+      ${this.template}
     `;
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
   }
 }
