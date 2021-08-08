@@ -30,7 +30,6 @@ export class HicksRadioGroup extends LitControl {
   handleMultiSelect(e) {
     const childNodes = this.radioSlot.assignedNodes({ flatten: true });
     this.selectNodes = childNodes;
-    console.log(this.selectNodes);
   }
   arrowKeyHandler(toProceeding: boolean) {
     let ref = this.selectNodes[this.currentNode];

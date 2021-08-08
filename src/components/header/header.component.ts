@@ -4,23 +4,29 @@ import anime from 'animejs';
 import { style } from './header.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { classMap } from 'lit/directives/class-map.js';
+import { removeUnderscores } from '../../util/directives/remove-underscore.directive';
+import { interval } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { IntersectionController } from '../../util/controllers/intersection.controller';
 
 export class HicksHeader extends LitElement {
-  @query('.header__grid')
+  @query('.header__grid', true)
   container: HTMLElement;
-  @query('.header__upper')
+  @query('.header__upper', true)
   upper: HTMLElement;
-  @query('.header__upper__nav')
+  @query('.header__upper__nav', true)
   upperNav: HTMLElement;
-  @query('.header__title-wrapper')
+  @query('.header__title-wrapper', true)
   titleWrapper: HTMLDivElement;
-  @query('.header__toolbar__content')
+  @query('.header__toolbar__content', true)
   lowerNav: HTMLDivElement;
+  @query('.header__toolbar__content__section', true)
+  section: HTMLDivElement;
   @query('.header__toolbar__content__nav')
   navEl: HTMLSlotElement;
-  @query('.header__toolbar')
+  @query('.header__toolbar', true)
   toolbar: HTMLDivElement;
-  @query('.header__toolbar__svg__path')
+  @query('.header__toolbar__svg__path', true)
   curvedToolbar: SVGPathElement;
 
   breakpointControl: BreakpointController;
@@ -31,9 +37,19 @@ export class HicksHeader extends LitElement {
   @property({ type: Boolean, reflect: true })
   tablet: boolean;
   lowerNavNode: Node;
+  @property({ type: String })
+  sectionTitle: string = '';
+  controllers: {
+    breakpoint: BreakpointController;
+    intersection: IntersectionController;
+  };
 
   constructor() {
     super();
+    this.controllers = {
+      breakpoint: new BreakpointController(this),
+      intersection: new IntersectionController(this),
+    };
   }
 
   firstUpdated(_changedProperties): void {
@@ -55,7 +71,9 @@ export class HicksHeader extends LitElement {
         duration: 1000,
       })
       .add({ targets: this.titleWrapper });
-
+    this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
+      this[id] = matches;
+    });
     const seekSVGAnimation = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         let { intersectionRatio: ratio, target } = entry;
@@ -76,14 +94,16 @@ export class HicksHeader extends LitElement {
 
     let getArrayOfLen = (n: number) => [...Array(n)].map((_, i) => i / n);
 
-    const intersection = new IntersectionObserver(seekSVGAnimation, {
-      root: document.getElementById('layoutViewport'),
-      rootMargin: '-20px 0px 0px 0px',
-      threshold: getArrayOfLen(25),
-    });
-
-    intersection.observe(this.upper);
-    intersection.observe(this.toolbar);
+    this.controllers.intersection
+      .initiate(
+        'header',
+        document.getElementById('layoutViewport'),
+        getArrayOfLen(25),
+        { top: '-20px', right: '0px', left: '0px', bottom: '0px' }
+      )
+      .observe([this.upper, this.toolbar])
+      .on('entry')
+      .subscribe(seekSVGAnimation);
   }
 
   checkIfCurved() {
@@ -106,14 +126,11 @@ export class HicksHeader extends LitElement {
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = (isMobile) =>
-    isMobile
-      ? html`<span class="divider"></span
-          ><slot
-            name="header-toolbar-toggle"
-            class="header__toolbar__toggle"
-          ></slot>`
-      : nothing;
+  navToggle = html`<span class="divider"></span
+    ><slot
+      name="header-toolbar-toggle"
+      class="header__toolbar__toggle"
+    ></slot>`;
   toolbarPath = html`<svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -127,6 +144,19 @@ export class HicksHeader extends LitElement {
       d="M1200, 0 H0 V 300 c 144, 0, 216 -120, 360 -120 s 216, 120, 360, 120, 216 -120, 360 -120, 216, 120, 360, 120V0Z"
     />
   </svg>`;
+
+  updated(_changedProperties: Map<string, unknown>) {
+    if (_changedProperties.has('sectionTitle')) {
+      this.section.classList.add('animate-title--in');
+
+      interval(500)
+        .pipe(take(1))
+        .subscribe(() => {
+          this.section.classList.remove('animate-title--in');
+        });
+    }
+  }
+
   render() {
     const upperVisibility = classMap({
       'is-hidden': !this.isCurved,
@@ -149,8 +179,11 @@ export class HicksHeader extends LitElement {
         <div id="animeHeaderToolbar" class="header__toolbar">
           <div class="header__toolbar__content ${toolbarVisibility}">
             ${this.logo}
+            <div class="header__toolbar__content__section">
+              <h3>${removeUnderscores(this.sectionTitle)}</h3>
+            </div>
             <div class="header__toolbar__content__links">
-              ${this.social} ${this.navToggle(this.mobile)}
+              ${this.social} ${this.mobile ? this.navToggle : ''}
             </div>
           </div>
           ${this.toolbarPath}

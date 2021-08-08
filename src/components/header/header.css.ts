@@ -53,6 +53,10 @@ import { css } from 'lit';
   grid-gap: 0.75rem;
   gap: 0.75rem;
 }
+.header__toolbar__content__section {
+  color: white;
+  font-size: 14pt;
+}
 .header__grid {
   position: sticky;
   top: calc(var(--upper-height) * -1 - 1px);
@@ -320,4 +324,33 @@ hicks-nav {
   to {
     opacity: 0;
   }
+}
+@-webkit-keyframes fade-slide-in {
+  to {
+    opacity: 1;
+  }
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-slide-in {
+  to {
+    opacity: 1;
+  }
+  from {
+    opacity: 0;
+  }
+}
+.animate-title--in {
+  -webkit-animation-name: fade-slide-in;
+          animation-name: fade-slide-in;
+  -webkit-animation-iteration-count: 1;
+          animation-iteration-count: 1;
+  -webkit-animation-direction: forwards;
+          animation-direction: forwards;
+  -webkit-animation-timing-function: ease-in;
+          animation-timing-function: ease-in;
+  -webkit-animation-duration: 500ms;
+          animation-duration: 500ms;
+  overflow: hidden;
 }`;

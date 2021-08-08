@@ -1,12 +1,13 @@
 import { html, nothing, svg, TemplateResult } from 'lit';
+import './toc-item.component';
 import { styleMap } from 'lit/directives/style-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ListChild } from '../../types/ListChild';
 import { ChildList } from '../../types/ChildList';
+import '../toggle/expansion.toggle.adapter';
 import { ListItemParameters } from '../../types/ListItemParameters';
-
 export const tocTemplates = {
-  expandIcon: svg`<svg
+  expandIcon: () => svg`<svg
     xmlns="http://www.w3.org/2000/svg"
     height="24px"
     viewBox="0 0 24 24"
@@ -29,7 +30,7 @@ export const tocTemplates = {
       childItems="${childCount}"
       marker="${marker}"
       path="${path}"
-      href="${href}"
+      link="${href}"
       ?active="${false}"
       class="list list-item"
       style="${styleMap(styles)}"
@@ -37,9 +38,9 @@ export const tocTemplates = {
       <span slot="prefix">${marker}</span>
       <span class="link-text" slot="link">${title}</span>
       <span slot="suffix">
-        <hicks-toggle-button class="list-item__content__expand-btn">
-          ${this.expandIcon}
-        </hicks-toggle-button>
+        <hicks-expansion-toggle class="list-item__content__expand-btn">
+          ${this.expandIcon()}
+        </hicks-expansion-toggle>
       </span>
 
       ${childTemplate}
@@ -47,7 +48,7 @@ export const tocTemplates = {
   },
   childList(path: string, children: ListChild[]) {
     const keyDiff = (child: ListChild) => {
-      return child.isActive ? '[act]' : '' + child.treePath;
+      return child.treePath;
     };
     const templateFn = (item: ListChild) => item.template;
     return html` ${repeat(children, keyDiff, templateFn)} `;

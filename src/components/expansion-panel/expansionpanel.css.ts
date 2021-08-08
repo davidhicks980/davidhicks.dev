@@ -14,18 +14,19 @@ h1 ::slotted([slot=header]) {
   display: content;
   color: black;
   color: var(--header--font-color, black);
-  font: 500 20pt monospace;
-  font: var(--header--font-weight, 500) var(--header--font-size, 20pt) var(--header--font-family, monospace) ;
+  font: 500 20pt;
+  font: var(--header--font-weight, 500) var(--header--font-size, 20pt) ;
+}
+
+::slotted([slot=built-with]) {
+  max-height: 50px;
 }
 
 :host {
   opacity: 1;
   -webkit-transition: opacity 1s ease;
   transition: opacity 1s ease;
-}
-
-:host(.is-expanding) {
-  opacity: 0.99;
+  display: block;
 }
 
 .expansion {
@@ -65,7 +66,7 @@ h1 ::slotted([slot=header]) {
   -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
           box-shadow: 0 3px 6px rgb(87 107 138/36%);
 }
-:host([open]) .expansion {
+:host:not([collapsed]) .expansion {
   border-radius: 7px 7px 0px 0px;
 }
 .expansion:active {
@@ -90,7 +91,7 @@ h1 ::slotted([slot=header]) {
   -webkit-filter: hue-rotate(45deg);
           filter: hue-rotate(45deg);
 }
-:host([open]) .expansion__img {
+:host:not([collapsed]) .expansion__img {
   border-radius: 7px 0px 0px 0px;
 }
 .expansion__summary {
@@ -100,6 +101,7 @@ h1 ::slotted([slot=header]) {
 }
 .expansion__summary__title {
   line-height: 0px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .expansion__summary__ruler {
   border: solid var(--primary-8);
@@ -107,22 +109,33 @@ h1 ::slotted([slot=header]) {
   margin: 0px;
   border-width: 2px 0 0 0;
 }
+.expansion__panel {
+  height: auto;
+}
 .expansion__content {
-  overflow: hidden;
-}
-.expansion__content__transform-wrapper {
   border-radius: 8px;
-  background-color: var(--primary-8);
-  height: 0px;
-}
-:host([open]) .expansion__content__transform-wrapper {
   border-radius: 0px 0px 8px 8px;
   visibility: visible;
-  height: auto;
   padding: 10px;
+  background-color: var(--primary-8);
+  -webkit-transform: scale(1) translateY(0px);
+          transform: scale(1) translateY(0px);
+  -webkit-transition-property: -webkit-transform opacity;
+  transition-property: -webkit-transform opacity;
+  transition-property: transform opacity;
+  transition-property: transform opacity, -webkit-transform opacity;
+  -webkit-transition: 250ms ease-out;
+  transition: 250ms ease-out;
+  opacity: 1;
 }
-.expansion__content__anime {
+.expansion__content__padding {
   border-radius: 7px;
   background: #f2f2f2;
   padding: 10px;
+}
+:host([collapsed]:not(.is-expanding)) .expansion__content, :host(.is-collapsing) .expansion__content {
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transform: scale(0.5) translateY(-150px);
+          transform: scale(0.5) translateY(-150px);
 }`;

@@ -4,3 +4,4 @@ dist/
 .rollup.cache/
 .vscode/
 yarn.lock
+private

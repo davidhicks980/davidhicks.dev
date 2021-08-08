@@ -60,7 +60,6 @@ export class FocusController implements ReactiveController {
 
     sentinelStart.addEventListener('focus', (e) => {
       const els = getElements();
-      console.log(els);
       if (sentinelStart.isSameNode(e.target as HTMLElement) && els.length > 0) {
         (els[els.length - 1] as HTMLElement).focus();
       }

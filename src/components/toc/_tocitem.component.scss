@@ -1,6 +1,8 @@
 @use 'mixins' as *;
 @use 'styles/mixins/shadow-root' as root;
 
+@use 'styles/mixins/responsive' as *;
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -31,10 +33,14 @@
   //Misc
   font: var(--item--font);
   min-width: 15ch;
+  outline: none;
   @media (prefers-reduced-motion) {
     transition: none;
     transform: none;
     opacity: 1;
+  }
+  @include media-size(zero, small) {
+    width: inherit;
   }
   @include root.state('[hidden]') {
     will-change: transform;
@@ -68,18 +74,17 @@
     &__prefix {
       grid-area: icon;
     }
-    :host([mobile]) & {
+    @include media-size(zero, small) {
       width: inherit;
     }
+
     &__a {
       text-decoration: none;
       grid-area: link;
       box-sizing: border-box;
+
       @include mix-text-ellipsis;
 
-      :host([mobile]) & {
-        width: inherit;
-      }
       :host([active]) & ::slotted(*) {
         color: var(--primary-8);
       }

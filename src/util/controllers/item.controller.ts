@@ -50,13 +50,16 @@ export class ListItemController implements ReactiveController {
   }
   expand(paths: string | string[]) {
     this.emitters.expansion.add(paths);
+    return this;
   }
   collapse(paths: string | string[]) {
     this.emitters.expansion.delete(paths);
+    return this;
   }
   activate(path: string) {
     this.emitters.active.next(path);
     this._expandAncestors(path);
+    return this;
   }
   _expandAncestors(path: string) {
     let ancestors = path.split('.');

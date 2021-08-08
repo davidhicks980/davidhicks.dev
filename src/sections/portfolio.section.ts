@@ -1,6 +1,8 @@
 import { html } from 'lit';
 import { pkCardIcon } from '../icons/pk-card.dataurl';
 import { elderDrugIcon } from '../icons/elder-drug.icon';
+import { LOGO_LIT, LOGO_ROLLUP, LOGO_RXJS, LOGO_TYPESCRIPT, LOGO_WEB_COMPONENTS } from '../icons/logos';
+//            ${LOGO_LIT}     ${LOGO_WEB_COMPONENTS}       ${LOGO_RXJS}            ${LOGO_ROLLUP}            ${LOGO_TYPESCRIPT} 
 
 export const portfolioSection = {
   title: 'Portfolio',
@@ -8,16 +10,24 @@ export const portfolioSection = {
   subcontent: [
     {
       title: 'Section 2.1',
-      content: html`<hicks-expansion imageuri="${pkCardIcon}">
+      content: html`<hicks-expansion>
           <span slot="header">Pharmacokinetics Components</span>
           <span slot="description">
-            Built for students at the Eshelman School of Pharmacy, the
-            pharmacokinetics component project was aimed at creating interactive
-            learning tools to visualize how changes in drug dosing parameters
-            affect the net amount of drug found in a patient's serum
+            Interactive pharmacokinetic web components.
           </span>
+          <div style="max-height:50px; display:block;" slot="built-with">
+          <img height='40px' src="./assets/icons/logo-lit.svg" alt="LitElement">
+          <img height='40px' src="./assets/icons/logo-web-component.svg" alt="Web components">
+          <img height='40px' src="./assets/icons/logo-rxjs.svg" alt="RxJS">
+          <img height='40px' src="./assets/icons/logo-typescript.svg" alt="Typescript">
+          <img height='50px' src="./assets/icons/logo-rollup.svg" alt="Rollup">
+
+
+
+          </div>
+          <plot-engine slot="content"></plot-engine>
         </hicks-expansion>
-     <hicks-expansion imageuri="${elderDrugIcon}">
+     <hicks-expansion>
           <span slot="header">Elder Drug</span>
           <span slot="description">
             ElderDrug.com is an Angular project aimed at making Beers Criteria

@@ -21,15 +21,15 @@ class StateStore {
     this.store = new BehaviorSubject({});
     this.changes = new BehaviorSubject({});
   }
-  getStateEmitted() {
-    return this.updateState.bind(this);
+  hookPropertyUpdates() {
+    return this.update.bind(this);
   }
   filteredStream(filter: string[]): Observable<Record<string, unknown>> {
     //Probably not super scalable, but this function will not be used a lot
     return this.stream.pipe(
       map((state) => {
         return Object.entries(state)
-          .filter(([key, val]) => filter.includes(key))
+          .filter(([key]) => filter.includes(key))
           .reduce((obj, [key, value]) => {
             obj[key] = value;
             return obj;
@@ -37,7 +37,7 @@ class StateStore {
       })
     );
   }
-  updateState(newState: { [key: string]: any }) {
+  update(newState: { [key: string]: any }) {
     if (validateObj(newState)) {
       Object.keys(newState);
       const value = this.store.value;

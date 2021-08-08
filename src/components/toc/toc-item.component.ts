@@ -11,7 +11,20 @@ import { literal, html } from 'lit/static-html.js';
 
 import { ListItemController } from '../../util/controllers/item.controller';
 import { classMap } from 'lit/directives/class-map.js';
-@customElement('hicks-list-item')
+import { fromEvent } from 'rxjs';
+import { ARROW_KEYS } from '../radio-group/keys.constants';
+import { filter } from 'rxjs/operators';
+/**
+ *Allows focusing without having to typecase to an HTMLElement
+ *
+ * @param {Element} element
+ */
+function focus(element: Element): HTMLElement {
+  (element as HTMLElement).focus();
+  return element as HTMLElement;
+}
+const TAG_NAME = 'hicks-list-item';
+@customElement(TAG_NAME)
 export class HicksListItem extends LitElement {
   static shadowRootOptions = {
     ...LitElement.shadowRootOptions,
@@ -19,14 +32,12 @@ export class HicksListItem extends LitElement {
   };
   private _path: string = '';
   private _position: number[] = [0];
-  @queryAssignedNodes('', true, 'hicks-list-item')
+
+  @queryAssignedNodes('', true, TAG_NAME)
   childSlot: NodeListOf<HicksListItem>;
   @property({ type: Number, reflect: true })
   listChildren: number = 0;
-  @property({ type: Boolean })
-  childless: boolean = false;
-  @property({ type: String, reflect: true })
-  href: string = '';
+
   @property({ type: Boolean, reflect: true })
   active: boolean = false;
   @property({ type: Boolean, reflect: true })
@@ -40,6 +51,7 @@ export class HicksListItem extends LitElement {
   controllers: { item: ListItemController; breakpoint: BreakpointController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
   topLevel: boolean;
+  tabIndex = 0;
   refreshChildren() {
     this.listChildren = this.childSlot.length;
     if (this.listChildren === 0) {
@@ -68,6 +80,8 @@ export class HicksListItem extends LitElement {
     this._position = value.split('.').map((el) => parseInt(el, 10));
     this._path = value;
   }
+  @property({ type: String, reflect: true })
+  link: string = '';
 
   get hasListChildren() {
     return this.listChildren > 0;
@@ -114,6 +128,65 @@ export class HicksListItem extends LitElement {
           : true;
       this.active = this.path === active;
     });
+    fromEvent(this, 'keydown')
+      .pipe(filter((ev: KeyboardEvent) => ARROW_KEYS.includes(ev.key)))
+      .subscribe((ev) => {
+        if (ev.defaultPrevented) {
+          return; // Do nothing if the event was already processed
+        }
+        //Yes, yes. Fallthrough switch bad
+        switch (ev.key) {
+          case 'Down': // IE/Edge specific value
+          case 'ArrowDown':
+            // Do something for "down arrow" key press.
+            if (this.hasListChildren && this.expanded) {
+              this.childSlot[0].focus();
+            } else if (this.nextElementSibling) {
+              focus(this.nextElementSibling);
+            } else {
+              let nextParent = this.parentElement?.nextElementSibling;
+              if (nextParent?.tagName === this.tagName) {
+                focus(nextParent.shadowRoot.querySelector('a'));
+              } else {
+                focus(this.parentElement.firstElementChild);
+              }
+            }
+            break;
+          case 'Up': // IE/Edge specific value
+          case 'ArrowUp':
+            // Do something for "down arrow" key press.
+            if (this.previousElementSibling?.tagName === this.tagName) {
+              let el = this.previousElementSibling as HicksListItem;
+              if (el.expanded && el.hasListChildren) {
+                el.childSlot[el.childSlot.length - 1].focus();
+              } else if (el.tagName === this.tagName) {
+                focus(el);
+              }
+            } else {
+              if (this.parentElement.tagName === this.tagName) {
+                this.parentElement.shadowRoot.querySelector('a').focus();
+              } else {
+                focus(this.parentElement.lastElementChild);
+              }
+            }
+
+            break;
+          case 'Left': // IE/Edge specific value
+          case 'ArrowLeft':
+            this.controllers.item.collapse(this.path);
+            break;
+          case 'Right': // IE/Edge specific value
+          case 'ArrowRight':
+          case 'Enter':
+            this.controllers.item.expand(this.path);
+            break;
+          default:
+            return; // Quit when this doesn't handle the key event.
+        }
+
+        // Cancel the default action to avoid it being handled twice
+        ev.preventDefault();
+      });
   }
   updateSlots() {
     const show = this.hasListChildren;
@@ -171,10 +244,10 @@ export class HicksListItem extends LitElement {
       <div class="item__content" @toggle="${this.handleToggle}">
         ${this.templates.slots.prefix}
         <a
+          tabindex="0"
           role="treeitem"
-          tabindex="${this.tabIndex}"
           class="item__content__a"
-          href="#${this.href}"
+          href="#${this.link}"
         >
           ${this.templates.slots.link}
         </a>

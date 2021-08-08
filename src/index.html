@@ -18,6 +18,10 @@
     <title>The Developer Site for David Hicks</title>
   </head>
   <script>
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+  </script>
+
+  <script>
     document.addEventListener('keydown', (e) =>
       e.key === 'Tab' ? console.log(document.activeElement) : null
     );
@@ -50,7 +54,7 @@
         </hicks-nav>
       </div>
       <div slot="header-toolbar-toggle">
-        <hicks-toggle-button>
+        <hicks-menu-toggle id="menu-toggle">
           <svg
             class="menu-icon"
             style="transform: scale(1.1)"
@@ -88,7 +92,7 @@
               height="8.25%"
             ></rect>
           </svg>
-        </hicks-toggle-button>
+        </hicks-menu-toggle>
       </div>
       <hicks-nav slot="header-navigation">
         <hicks-nav-item>About</hicks-nav-item>
@@ -102,11 +106,13 @@
       <content-tree class="center"></content-tree>
       <div class="right">
         <hicks-toc
+          id="table-of-contents"
           style="--body--font: 'Arimo'"
           expandIconSrc="./icons/close.svg"
         ></hicks-toc>
       </div>
     </main>
   </body>
+
   <script type="module" src="./components.js"></script>
 </html>

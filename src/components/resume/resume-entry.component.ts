@@ -1,35 +1,24 @@
-import {
-  LitElement,
-  html,
-  CSSResultGroup,
-  TemplateResult,
-  nothing,
-  svg,
-} from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { fastHash } from '../../util/primitives/salt-id';
+import { state as stateStore } from '../../util/primitives/store';
+import { CollapseController } from '../../util/controllers/expansion.controller';
+import { LitElement, html, CSSResultGroup, TemplateResult, svg } from 'lit';
+import { property, query, state } from 'lit/decorators.js';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { IntersectionController } from '../../util/controllers/intersection.controller';
 import { style } from './resume-entry.css';
-import { fastHash } from '../../util/primitives/salt-id';
-import { state as stateStore } from '../../store';
+import { styleMap } from 'lit/directives/style-map.js';
+import { ExpandMixin } from '../../util/mixins/expandable.mixin';
 import { mix } from '../../util/mixins/mix.with';
-import { ObserveStateMixin } from '../../util/mixins/state-observer.mixin';
-import { resumeEntryObserver } from './resume-entry.adapter';
-import { ExpansionController } from '../../util/controllers/expansion.controller';
 
-export class HicksResumeEntry extends LitElement {
+export class HicksResumeEntry extends ExpandMixin(LitElement) {
   @property({ type: Boolean })
   onResume: boolean;
   @property({ type: Boolean })
   open: boolean;
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive: boolean = false;
-  @property({ attribute: 'entry-id', type: Number, reflect: true })
+  @property({ attribute: 'entry-id', type: Number })
   entryId: number = 0;
-  @property({ type: Boolean, reflect: true })
-  expanded: boolean = false;
-  @property({ type: Number, reflect: true })
-  index: number = 0;
   @state()
   mobile: boolean;
 
@@ -37,8 +26,10 @@ export class HicksResumeEntry extends LitElement {
   controllers: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
-    expansion: ExpansionController;
+    expansion: CollapseController;
   };
+  observers: { resize: ResizeObserver };
+
   constructor() {
     super();
     this.entryId = Math.abs(
@@ -46,16 +37,22 @@ export class HicksResumeEntry extends LitElement {
     );
   }
   firstUpdated(_changedProperties) {
+    this.collapsed = true;
+    let root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
     this.controllers = {
       intersection: new IntersectionController(this),
       breakpoint: new BreakpointController(this),
-      expansion: new ExpansionController(this),
+      expansion: this.makeCollapsible('resume-entries', root),
     };
+    this.updatePanel('.entry__expansion');
     this.controllers.breakpoint
       .observe('mobile')
       .subscribe(([id, matches]) => (this[id] = matches ?? false));
     this.watchScroll();
-    console.log(this.index);
+  }
+  watchResize() {
+    this.observers.resize = new ResizeObserver(() => this.updateOffset());
+    this.observers.resize.observe(this);
   }
   watchScroll() {
     let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
@@ -67,16 +64,19 @@ export class HicksResumeEntry extends LitElement {
       let entry = entries.filter((e) => e.isIntersecting)[0]
         ?.target as HicksResumeEntry;
       let id = entry?.entryId;
-      if (id) stateStore.updateState({ 'active-entry': id });
+      if (id) {
+        stateStore.update({ 'active-entry': id });
+      }
     });
   }
 
-  expandIco = (
-    expanded
-  ) => svg`<svg class="expand" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/> 
+  expandIcon(collapsed) {
+    return svg`<svg class="expand" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/> 
     <rect class="expand__v"  y='4' x="11.075" width="1.85" height="16" />
     <rect class="expand__h"  y='11.075' x="4" width="16" height="1.85" />
 </svg>`;
+  }
+
   render(): TemplateResult {
     return html`
       <div class="entry">
@@ -87,7 +87,7 @@ export class HicksResumeEntry extends LitElement {
         </div>
         <div class="entry__timeline"></div>
         <div class="entry__right">
-          <h4 class="entry__title">
+          <h4 @click=${this.toggle} class="entry__title">
             <slot name="title"></slot>
           </h4>
           <h5 class="entry__logistics">
@@ -99,24 +99,28 @@ export class HicksResumeEntry extends LitElement {
           <h5 class="entry__supervisor">
             <slot name="supervisor"></slot>
           </h5>
-          ${this.expanded
-            ? html`<p class="entry__description">
-                  <slot name="description"></slot>
-                </p>
-                <ul class="entry__detail">
-                  <slot name="detail"></slot>
-                </ul>`
-            : nothing}
+
+          <div class="entry__expansion">
+            <p class="entry__description">
+              <slot
+                @slotchange="${this.updateOffset}"
+                name="description"
+              ></slot>
+            </p>
+            <ul class="entry__detail">
+              <slot @slotchange="${this.updateOffset}" name="detail"></slot>
+            </ul>
+          </div>
         </div>
         <div class="entry__expand">
-          <hicks-toggle-button
-            aria-expanded="${this.expanded}"
-            @click="${() => (this.expanded = !this.expanded)}"
+          <hicks-expansion-toggle
+            aria-expanded="${!this.collapsed}"
+            @click="${this.handleToggle}"
             title="Expand"
             class="entry__expand__button"
           >
-            ${this.expandIco(this.expanded)}
-          </hicks-toggle-button>
+            ${this.expandIcon(!this.collapsed)}
+          </hicks-expansion-toggle>
         </div>
       </div>
     `;
@@ -125,6 +129,3 @@ export class HicksResumeEntry extends LitElement {
     return [style];
   }
 }
-const e = mix(HicksResumeEntry).with(ObserveStateMixin(resumeEntryObserver));
-
-customElements.define('hicks-resume-entry', e);

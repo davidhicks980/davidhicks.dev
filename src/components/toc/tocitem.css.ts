@@ -89,6 +89,7 @@ h6 {
   transition-property: transform opacity, -webkit-transform opacity;
   font: var(--item--font);
   min-width: 15ch;
+  outline: none;
 }
 @media (prefers-reduced-motion) {
   :host {
@@ -97,6 +98,11 @@ h6 {
     -webkit-transform: none;
             transform: none;
     opacity: 1;
+  }
+}
+@media ( min-width: 0px) and ( max-width: 599.99px) {
+  :host {
+    width: inherit;
   }
 }
 :host([hidden]) {
@@ -136,8 +142,10 @@ h6 {
 .item__content__prefix {
   grid-area: icon;
 }
-:host([mobile]) .item__content {
-  width: inherit;
+@media ( min-width: 0px) and ( max-width: 599.99px) {
+  .item__content {
+    width: inherit;
+  }
 }
 .item__content__a {
   text-decoration: none;
@@ -147,9 +155,6 @@ h6 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-:host([mobile]) .item__content__a {
-  width: inherit;
 }
 :host([active]) .item__content__a ::slotted(*) {
   color: var(--primary-8);

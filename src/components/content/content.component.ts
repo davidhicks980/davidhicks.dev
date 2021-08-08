@@ -1,17 +1,12 @@
-import { html, LitElement, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { html, LitElement, Template, TemplateResult } from 'lit';
+import { property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { literal, html as staticHTML } from 'lit/static-html.js';
-import { compiledSections } from '../../sections/content-compiler';
-
-export type PageSection = {
-  title: string;
-  content?: TemplateResult;
-  subcontent?: PageSection[];
-  marker?: string;
-};
-
+import { fastHash } from '../../util/primitives/salt-id';
+import { clone } from './deep-clone';
+import { PageSection } from './PageSection';
 export class Tree {
+  private _cachedTree: PageSection[];
   constructor() {}
   private _linkIcon = html`<svg
     xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +20,6 @@ export class Tree {
       d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8z"
     />
   </svg>`;
-  template: TemplateResult<any>[];
 
   _compose(
     header: TemplateResult,
@@ -34,7 +28,7 @@ export class Tree {
     position: string,
     marker = ''
   ) {
-    return html`<section data-toc-marker="${marker}" id="${position}">
+    return html`<section data-toc-marker="${marker}">
         ${header} ${content}
       </section>
       ${children}`;
@@ -45,39 +39,58 @@ export class Tree {
    * @param {PageSection} tree
    * @memberof Tree
    */
-  loadTree(tree: PageSection[]) {
-    this.template = this.construct(tree).map((node) => node.template);
+  loadTree(tree: PageSection[], cache = false) {
+    if (cache) {
+      this._cachedTree = tree;
+    }
+    return this._buildTree(tree, 1);
   }
 
-  construct(section: PageSection[], root = []) {
+  insertContent(position: number[], content: PageSection | PageSection[]) {
+    let clonedTree = clone(this._cachedTree),
+      branch = clonedTree;
+    while (position.length) {
+      branch = branch[position.shift()];
+      branch.subcontent = branch?.subcontent ?? [];
+      branch = branch.subcontent;
+    }
+    if (Array.isArray(content)) {
+      content.forEach((el) => branch.push(el));
+    } else {
+      branch.push(content);
+    }
+    return clonedTree;
+  }
+  update(position: number, content: PageSection) {
+    let clonedTree = clone(this._cachedTree) as PageSection[];
+    clonedTree.splice(position, 1, content);
+    return clonedTree;
+  }
+
+  _buildTree(section: PageSection[], depth: number) {
+    let root = section.slice();
     let contentTree = [];
-    let index = 0;
+
     if (Array.isArray(section)) {
-      for (let sub of section) {
-        const { title, content, subcontent, marker } = sub;
+      while (root.length) {
+        const { title, content, subcontent, marker } = root.shift();
         if (!title) {
           throw TypeError(
             '[content.component.tree]Content title cannot be undefined.'
           );
         }
-
-        index++;
-        const location = [...root, index];
-        const href = `${location.join('.')}--${title}`.replace(
-          /[^\w\d.-]/g,
-          '_'
-        );
+        const href = `${title}`.replace(/[^\w\d.-]/g, '_');
         const hasChildren = Array.isArray(subcontent) && subcontent.length;
-        const depth = location.length;
-
-        let children = html``;
+        let children = html``,
+          childHash = 0;
 
         if (hasChildren) {
-          const childArray = this.construct(subcontent, location);
-          const compareKey = (template) => true;
-          const getTemplate = (template) => html`${template.template}`;
+          const childArray = this._buildTree(subcontent, depth + 1);
+          const compareKey = (template) => template.key;
+          const getTemplate = (template) => template.template;
+          childHash = fastHash(childArray.map((item) => item.key).join('--'));
           //repeat used because it allows key tracking, which may be more performant for large objects
-          children = html` ${repeat(childArray, compareKey, getTemplate)} `;
+          children = html`${repeat(childArray, compareKey, getTemplate)} `;
         }
         const link = this._getHeaderLink(href);
         const heading = this._getHeader(depth, html`${title}${link}`);
@@ -91,7 +104,7 @@ export class Tree {
 
         contentTree.push({
           template: template,
-          key: location.join('.') + title,
+          key: href + childHash + depth,
         });
       }
     }
@@ -125,40 +138,50 @@ export class Tree {
   }
 }
 
-@customElement('content-tree')
+type TemplateTuple = [string, TemplateResult<1>];
+
+type KeyedTemplate = Map<string, TemplateResult<1>>;
+
 export class ContentTree extends LitElement {
-  @property()
-  file: string = '';
-  @property({
-    type: Array,
-    hasChanged(value, oldValue) {
-      return true;
-    },
-  })
-  template: TemplateResult<any>[];
   tree: Tree;
+  content: KeyedTemplate;
+  @state()
+  template: TemplateTuple[];
 
   createRenderRoot() {
     // Disable shadow DOM.
     // Instead templates will be rendered in the light DOM.
     return this;
   }
-  @property({ type: String })
-  title: string = 'home';
+  load(sections: PageSection[]) {
+    this.tree.loadTree(sections, true).forEach((e) => {
+      this.content.set(e.key, e.template);
+    });
+    this.refreshTemplate(this.content);
+  }
+  updateSection(position: number, entries: PageSection) {
+    let update = this.tree.update(position, entries);
+    this.tree.loadTree(update, true).forEach(({ template, key }) => {
+      this.content.set(key, template);
+    });
+    this.refreshTemplate(this.content);
+  }
 
-  content = [] as TemplateResult[];
-
-  connectedCallback() {
-    super.connectedCallback();
+  refreshTemplate(content: KeyedTemplate) {
+    this.template = this._getContentArray(content);
+    this.requestUpdate();
   }
   constructor() {
     super();
     this.tree = new Tree() as Tree;
-    this.tree.loadTree(compiledSections);
-    this.template = this.tree.template;
+    this.content = new Map();
   }
+  private _getContentKey = ([key, _]: TemplateTuple) => key;
 
+  private _getContentTemplate = ([_, template]: TemplateTuple) => template;
+
+  private _getContentArray = (content): TemplateTuple[] => Array.from(content);
   render() {
-    return html`${this.template}`;
+    return repeat(this.template, this._getContentKey, this._getContentTemplate);
   }
 }

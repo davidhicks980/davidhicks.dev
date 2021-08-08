@@ -15,6 +15,7 @@ const copyConfig = {
     { src: 'src/assets/', dest: 'dist' },
     { src: 'src/index.html', dest: 'dist' },
     { src: 'src/icons', dest: 'dist' },
+    { src: 'src/icons', dest: 'dist/assets' },
   ],
 };
 process.env.NODE_ENV = 'dev';

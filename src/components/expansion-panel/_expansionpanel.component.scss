@@ -1,6 +1,7 @@
 @use 'mixins/fonts' as *;
 @use 'mixins/shadows' as *;
 @use 'mixins/borders' as *;
+@use 'styles/mixins/shadow-root' as root;
 @mixin animate-expand(
   $name: '',
   $duration: 1s,
@@ -33,19 +34,19 @@ h1 ::slotted([slot='header']) {
     (
       'weight': 500,
       'size': 20pt,
-      'family': monospace,
       'color': black,
     )
   );
 }
-
+::slotted([slot='built-with']) {
+  max-height: 50px;
+}
 :host {
   opacity: 1;
   transition: opacity 1s ease;
+  display: block;
 }
-:host(.is-expanding) {
-  opacity: 0.99;
-}
+
 .expansion {
   all: unset;
   display: grid;
@@ -61,7 +62,7 @@ h1 ::slotted([slot='header']) {
   filter: brightness(1);
   width: min-max(200px, 600px);
   @include hoverable-shadow(3);
-  :host([open]) & {
+  :host:not([collapsed]) & {
     @include radius('top', 7px);
   }
   &:active {
@@ -80,7 +81,7 @@ h1 ::slotted([slot='header']) {
     :host(:hover) & {
       filter: hue-rotate(45deg);
     }
-    :host([open]) & {
+    :host:not([collapsed]) & {
       @include radius('top-left', 7px);
     }
   }
@@ -90,6 +91,7 @@ h1 ::slotted([slot='header']) {
     color: var(--gray-8);
     &__title {
       line-height: 0px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     &__ruler {
       border: solid var(--primary-8);
@@ -98,26 +100,31 @@ h1 ::slotted([slot='header']) {
       border-width: 2px 0 0 0;
     }
   }
+  &__panel {
+    height: auto;
+  }
+
   &__content {
-    overflow: hidden;
+    border-radius: 8px;
+    @include radius('bottom', 8px);
+    visibility: visible;
+    padding: 10px;
+    background-color: var(--primary-8);
+    transform: scale(1) translateY(0px);
+    transition-property: transform opacity;
+    transition: 250ms ease-out;
+    opacity: 1;
 
-    &__transform-wrapper {
-      border-radius: 8px;
-      background-color: var(--primary-8);
-
-      height: 0px;
-      :host([open]) & {
-        @include radius('bottom', 8px);
-
-        visibility: visible;
-        height: auto;
-        padding: 10px;
-      }
-    }
-    &__anime {
+    &__padding {
       border-radius: 7px;
       background: rgb(242 242 242);
       padding: 10px;
+    }
+    :host([collapsed]:not(.is-expanding)) &,
+    :host(.is-collapsing) & {
+      visibility: hidden;
+      opacity: 0;
+      transform: scale(0.5) translateY(-150px);
     }
   }
 }

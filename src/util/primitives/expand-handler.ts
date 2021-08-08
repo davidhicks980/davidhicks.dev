@@ -1,15 +1,50 @@
+import { ReactiveControllerHost, ReactiveElement } from 'lit';
+import { fromEvent, Observable, of, Subject, BehaviorSubject } from 'rxjs';
+import { mapTo, take, timestamp, filter } from 'rxjs/operators';
+type Controller<T> = ReactiveControllerHost & T;
+
+const isParent = (parent: HTMLElement, child: HTMLElement) =>
+  parent.compareDocumentPosition(child) & Node.DOCUMENT_POSITION_CONTAINED_BY;
+const isAfter = (before: HTMLElement, after: HTMLElement) =>
+  before.compareDocumentPosition(after) & Node.DOCUMENT_POSITION_PRECEDING;
 export class ExpansionHandler {
-  private _elementsInViewport: HTMLElement[] = [];
+  private _inViewport: WeakSet<HTMLElement>;
+
   private observers: {
     intersection: IntersectionObserver;
-    mutation: MutationObserver;
-    resize?: ResizeObserver;
   };
-  transition: string;
-  private _animationMap: WeakMap<HTMLElement, Animation[]>;
-  addVisibleElements(elements: HTMLElement[]) {
-    this._elementsInViewport.push(...elements);
-  }
+  private _animations: Map<
+    Symbol,
+    {
+      key: Symbol;
+      element: HTMLElement;
+      host: HTMLElement;
+      frames: {
+        element: HTMLElement;
+        animations: { expand: Animation; collapse: Animation };
+      }[];
+      offset: number;
+      proceeding: HTMLElement[];
+      startTime: number;
+      endTime: number;
+      observer: Observable<{
+        key: Symbol;
+        state: 'STARTED' | 'FINISHED';
+        collapsed: boolean;
+      }>;
+    }
+  >;
+  private _completionMap: WeakMap<
+    HTMLElement,
+    {
+      start: number;
+      end: number;
+    }
+  >;
+  private _parentEl: HTMLElement;
+  private _elementKeys: WeakMap<object, any>;
+  animating: boolean;
+
   /**
    *  Starts observing elements in the specified observers. If the type of observers are not specified, all observers will start observing the specified elements
    *
@@ -17,67 +52,123 @@ export class ExpansionHandler {
    * @param {string} [types=['mutation', 'intersection', 'resize']]
    * @memberof ExpansionHandler
    */
-  observeElements(
-    elements: HTMLElement[],
-    types = ['mutation', 'intersection', 'resize']
-  ) {
+  _observe(elements: HTMLElement[], types = ['intersection']) {
     elements.forEach((element: HTMLElement) => {
       types.forEach((type) => this.observers[type].observe(element));
     });
   }
-  getElementIds(elements: HTMLElement[]) {
-    return elements.map((el: HTMLElement) => el.id);
-  }
-  removeHiddenElements(elements: HTMLElement[]) {
-    const filter = (el: HTMLElement) =>
-      !this.getElementIds(elements).includes(el.id);
-    this._elementsInViewport = this._elementsInViewport.filter(filter);
-  }
-  getElementsAfter(elem: HTMLElement) {
-    let after = false;
-    this._elementsInViewport.filter((el) => {
-      if (el.isSameNode(elem)) {
-        after = true;
-        return false;
-      }
-      return after;
-    });
-  }
-  addElementAnimation(
-    el: HTMLElement,
-    offset: number,
-    proceedingElements: HTMLElement[]
-  ) {
-    let keyframes = [
-      { transform: `translateY(-${offset}px)` },
-      { transform: 'translateY(0px)' },
-    ];
-    let timings = {
-      duration: 1000,
-    };
 
-    let frames = proceedingElements.map(
-      (el: HTMLElement) =>
-        new Animation(
-          new KeyframeEffect(el, keyframes, timings),
-          document.timeline
-        )
-    );
-    this._animationMap.set(el, frames);
+  _walkChildren(children: HTMLElement[], host) {
+    let el: HTMLElement;
+    let proceeding = [];
+    while (children.length) {
+      el = children.pop() as HTMLElement;
+      if (isParent(el, host)) {
+        let nodeChildren = Array.from(el.children) as HTMLElement[];
+        proceeding = proceeding.concat(this._walkChildren(nodeChildren, host));
+      } else if (isAfter(el, host)) {
+        proceeding.push(el);
+      } else continue;
+    }
+    return proceeding;
   }
-  elementClicked(el: HTMLElement) {
-    let animations = this._animationMap.get(el);
-    animations.forEach((anime) => {
-      let playState = anime.playState;
-      switch (playState) {
-        case 'running':
-          anime.reverse();
-          break;
-        case 'finished':
-          anime.reverse();
-          anime.play();
-          break;
-      }
+
+  _getElementsFollowing(host: HTMLElement) {
+    const children = Array.from(this._parentEl.children) as HTMLElement[];
+    return this._walkChildren(children, host);
+  }
+  _updateObservedChildren() {
+    return Array.from(this._animations)
+      .map(([_, { host, proceeding }]) => [host, proceeding])
+      .flat(3) as HTMLElement[];
+  }
+  addAnimation(
+    element: HTMLElement,
+    expandAfterHost: HTMLElement,
+    offset: number,
+    options = { duration: 250, easing: 'ease-in-out' }
+  ) {
+    let expandKeyframes = [
+      { transform: `translateY(0px)` },
+      { transform: `translateY(${offset}px)` },
+    ];
+    let collapseKeyframes = [
+      { transform: `translateY(0px)` },
+      { transform: `translateY(-${offset}px)` },
+    ];
+
+    let proceeding = this._getElementsFollowing(
+      expandAfterHost
+    ) as HTMLElement[];
+    const frames = proceeding.map((el: HTMLElement) => {
+      const expandEffect = new KeyframeEffect(el, expandKeyframes, options);
+      const collapseEffect = new KeyframeEffect(el, collapseKeyframes, options);
+      return {
+        element: el,
+        animations: {
+          expand: new Animation(expandEffect, document.timeline),
+          collapse: new Animation(collapseEffect, document.timeline),
+        },
+      };
+    });
+    let key = this._accessKey(element);
+    let observer = this._animationSubject
+      .asObservable()
+      .pipe(filter((animation) => animation.key === key));
+    this._animations.set(key, {
+      key,
+      host: expandAfterHost,
+      observer,
+      element,
+      frames,
+      offset,
+      proceeding,
+      startTime: 0,
+      endTime: 0,
+    });
+    this._observe(this._updateObservedChildren());
+    return observer;
+  }
+  _animationSubject = new Subject() as Subject<{
+    key: Symbol;
+    state: 'STARTED' | 'FINISHED';
+    collapsed: boolean;
+  }>;
+
+  _accessKey(element: HTMLElement) {
+    if (!this._elementKeys.has(element)) {
+      this._elementKeys.set(element, Symbol('expanding-element'));
+    }
+    return this._elementKeys.get(element);
+  }
+  _getAnimation(element: HTMLElement) {
+    return this._animations.get(this._accessKey(element));
+  }
+
+  toggle(element: HTMLElement, host: HTMLElement, collapsed: boolean) {
+    let { frames, key } = this._getAnimation(element);
+    const animations = frames
+      .filter((frame) => this._inViewport.has(frame.element))
+      .map(({ animations }) =>
+        collapsed ? animations.expand : animations.collapse
+      );
+
+    let state = 'STARTED' as 'STARTED' | 'FINISHED';
+    this._animationSubject.next({ key, state, collapsed });
+
+    animations.forEach((a) => {
+      a.onfinish = ({ target }) => {
+        if (state === 'STARTED') {
+          state = 'FINISHED';
+          collapsed = !collapsed;
+          this._animationSubject.next({
+            key,
+            state,
+            collapsed,
+          });
+        }
+      };
+      a.play();
     });
   }
 
@@ -88,74 +179,45 @@ export class ExpansionHandler {
    * @param {string} [types=['mutation', 'intersection', 'resize']]
    * @memberof ExpansionHandler
    */
-  unobserveElements(
-    elements: HTMLElement[],
+  unobserve(
+    element: HTMLElement,
     types = ['mutation', 'intersection', 'resize']
-  ) {
-    elements.forEach((element: HTMLElement) => {
-      for (let type of types) {
-        this.observers[type].unobserve(element);
-      }
-    });
-  }
+  ) {}
   destroy() {
     Object.values(this.observers).forEach((obs) => obs.disconnect());
   }
-  initIntersectionObserver() {
-    return new IntersectionObserver(
-      function (this: ExpansionHandler, entries: IntersectionObserverEntry[]) {
-        let entered = [],
-          left = [];
-        let inView = (e) => e.isIntersection;
-        entries.forEach((e) => (inView(e) ? entered.push(e) : left.push(e)));
-        this.addVisibleElements(entered);
-        this.removeHiddenElements(left);
-
-        // If intersectionRatio is 0, the target is out of view
-        // and we do not need to do anything.
-      },
-      {
-        root: null,
-        rootMargin: '0px 0px 0px 0px',
-        threshold: [0, 1],
-      }
-    );
-  }
-  initMutationObserver() {
-    const mutationCallback = (mutationList: MutationRecord[]): void => {
-      mutationList
-        .filter((mutation) => mutation.type === 'childList')
-        .map((mutation) => [...Object.values(mutation.removedNodes)]);
+  getIntersectionObserver() {
+    let callback = function (
+      this: ExpansionHandler,
+      entries: IntersectionObserverEntry[]
+    ) {
+      let inView = (e: IntersectionObserverEntry) => e.isIntersecting;
+      entries.forEach((e) => {
+        let tar = e.target as HTMLElement;
+        window.requestAnimationFrame(() => {
+          if (inView(e)) {
+            this._inViewport.add(tar);
+            tar.style.willChange = 'transform';
+          } else {
+            this._inViewport.delete(tar);
+            tar.style.willChange = 'unset';
+          }
+        });
+      });
     };
-    // start observing
-    return new MutationObserver(mutationCallback);
-  }
-
-  constructor(elements: HTMLElement[]) {
-    this.observers = {
-      mutation: this.initMutationObserver(),
-      intersection: this.initIntersectionObserver(),
+    let props = {
+      root: null,
+      rootMargin: '0px 0px 400px 0px',
+      threshold: [0],
     };
-    this.observeElements(elements, ['mutation', 'intersection']);
+    return new IntersectionObserver(callback.bind(this), props);
   }
-  /**
-   * Watch for element resize whenever elements enter into the viewport.
-   *
-   * @returns {*}  {*}
-   * @memberof ExpansionHandler
-   */
-  initResizeObserver(): any {
-    return new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        if (entry.contentBoxSize) {
-          const contentBoxSize = Array.isArray(entry.contentBoxSize)
-            ? entry.contentBoxSize[0]
-            : entry.contentBoxSize;
-        } else {
-        }
-      }
 
-      console.log('Size changed');
-    });
+  constructor(root: HTMLElement) {
+    this.observers = { intersection: this.getIntersectionObserver() };
+    this._animations = new Map();
+    this._parentEl = root;
+    this._inViewport = new WeakSet();
+    this._elementKeys = new WeakMap();
   }
 }

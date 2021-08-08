@@ -54,6 +54,7 @@ export class HicksGrid extends LitElement {
       .observe('mobile')
       .subscribe(([id, matches]) => (this[id] = matches ?? false));
   }
+
   render(): TemplateResult {
     const gridStyle = {
       display: 'grid',

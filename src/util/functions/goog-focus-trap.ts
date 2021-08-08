@@ -45,7 +45,6 @@ export class FocusTrap {
    */
   trapFocus() {
     const focusableEls = this.getFocusableElements(this.root);
-    console.log(focusableEls);
     if (focusableEls.length === 0) {
       throw new Error(
         'FocusTrap: Element must have at least one focusable child.'

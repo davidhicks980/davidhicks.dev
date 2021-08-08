@@ -1,0 +1,59 @@
+@use 'styles/mixins/button' as *;
+@use 'styles/mixins/shadows' as *;
+
+input {
+  padding: 0.5em;
+  font-size: 12pt;
+  font-family: system-ui;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid var(--gray-9);
+
+  &[type='text'] {
+    font-size: 12pt;
+    max-width: 30ch;
+    caret-color: var(--primary-9);
+    grid-column: 3 / 4;
+    -webkit-text-security: disc;
+  }
+
+  &::-webkit-input-placeholder {
+    color: var(--gray-8);
+  }
+  &::placeholder {
+    color: var(--gray-8);
+  }
+  &:hover {
+    background-color: var(--gray-1);
+  }
+}
+.unlock-resume__hint {
+  font-size: 9pt;
+  color: var(--gray-11);
+  &--emphasis {
+    text-decoration: underline;
+    font-style: normal;
+    text-underline-position: from-font;
+  }
+}
+
+button {
+  @include button();
+}
+label {
+  font-family: system-ui;
+  font-weight: 500;
+  display: block;
+}
+
+.form-field__padding {
+  padding: 0.4em 0px 0.6em 0px;
+}
+fieldset {
+  background: white;
+  border-radius: 5px;
+  padding: 1rem;
+  border: 1px solid rgb(207, 201, 201);
+
+  @include shadow(3);
+}

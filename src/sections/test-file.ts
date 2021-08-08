@@ -1,5 +1,5 @@
 import { html } from "lit";
-import { PageSection } from "../components/content/content.component";
+import { PageSection } from "../components/content/PageSection";
 import { elderDrugIcon } from "../icons/elder-drug.icon";
 import { pkCardIcon } from "../icons/pk-card.dataurl";
 

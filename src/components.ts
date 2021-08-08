@@ -1,100 +1,30 @@
-import { ContentTree } from './components/content/content.component';
-import { TableOfContents } from './components/toc/toc.component';
 import { NavComponent } from './components/navigation/nav.component';
-import { HicksHeader } from './components/header/header.component';
 import { HicksCardContainer } from './components/card/card-container.component';
 import { HicksCard } from './components/card/card.component';
 import { PlotEngine } from './components/plot/plot.component';
 import { BrandComponent } from './components/brand/brand.component';
 import { LogoComponent } from './components/brand/logo/logo.component';
 import { ResponsiveLogo } from './components/brand/logo/responsive-logo.component';
-import { state } from './store';
-import { stateEmitterMixin } from './util/mixins/state-emitter.mixin';
-import { mix } from './util/mixins/mix.with';
 import { NavItemComponent } from './components/navigation/nav-item.component';
 import { IconComponent } from './icons/icon.component';
-import { HicksIconToggleButton } from './components/icon-button/icon-button';
 import { DrawerComponent } from './components/drawer/drawer.component';
-import { ObserveStateMixin } from './util/mixins/state-observer.mixin';
-import { Observable } from 'rxjs';
-import { ObservedStateAction } from './util/mixins/state-observer.mixin';
-import { ObservePropertiesMixin } from './util/mixins/observe-bp.mixin';
-import { HicksListItem } from './components/toc/toc-item.component';
-import './components/resume/resume-entry.component';
+import './components/toc/toc-item.component';
 import './components/toc/hicks-grid.component';
 import './components/contact-me/contact.component';
 import './components/expansion-panel/expansion-panel.component';
-
+import './components/toggle/menu.toggle.adapter';
+import './components/content/content.adapter';
+//Declarations
+import './components/header/header.adapter';
+import './global-logic';
+import './components/resume/unlock-form/unlock-resume.component';
+import './components/resume/resume-entry.adapter';
+import './sections/content-compiler';
+import './components/toc/toc.adapter';
 //Table of contents
-const iconButtonHandler = {
-  propertyChangeHandler: state.getStateEmitted(),
-  observedProperties: ['toggled'],
-};
-const iconButton = mix(HicksIconToggleButton).with(
-  stateEmitterMixin(iconButtonHandler)
-);
-customElements.define('hicks-icon-toggle-button', iconButton);
 
-const drawerStateObserver = {
-  stream: state.filteredStream(['toggled']) as Observable<
-    Record<string, unknown>
-  >,
-  actions: [
-    {
-      prop: 'toggled',
-      componentHandler(this: DrawerComponent, propValue) {
-        this.opened = propValue;
-      },
-    },
-  ] as ObservedStateAction[],
-};
-const drawerBreakpointAdapter = [
-  {
-    query: '(max-width: 599.99px)',
-    action: function (this: DrawerComponent, matches) {
-      this.mobile = matches;
-    },
-  },
-];
-const drawer = mix(DrawerComponent).with(
-  ObserveStateMixin(drawerStateObserver),
-  ObservePropertiesMixin(drawerBreakpointAdapter)
-);
-customElements.define('hicks-drawer', drawer);
-
-const headerBreakpointAdapter = [
-  {
-    query: '(max-width: 599.99px)',
-    action: function (this: HicksHeader, matches) {
-      this.mobile = matches;
-    },
-  },
-  {
-    query: '(min-width: 600px) and (max-width: 899.99px)',
-    action: function (this: HicksHeader, matches) {
-      this.tablet = matches;
-    },
-  },
-];
-const header = mix(HicksHeader).with(
-  ObservePropertiesMixin(headerBreakpointAdapter)
-);
-customElements.define('hicks-header', header);
-
-//Table of contents
-const tocStateEmitter = {
-  propertyChangeHandler: state.getStateEmitted(),
-  observedProperties: ['activeLinkId'],
-};
-
-const toc = mix(TableOfContents).with(stateEmitterMixin(tocStateEmitter));
-customElements.define('hicks-toc', toc);
-
-ContentTree;
-TableOfContents;
 NavItemComponent;
 NavComponent;
-TableOfContents;
 HicksCardContainer;
 HicksCard;
 PlotEngine;
@@ -102,6 +32,4 @@ LogoComponent;
 BrandComponent;
 ResponsiveLogo;
 IconComponent;
-HicksIconToggleButton;
 DrawerComponent;
-HicksListItem;

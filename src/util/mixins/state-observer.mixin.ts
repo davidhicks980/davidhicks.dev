@@ -21,7 +21,7 @@ export function ObserveStateMixin(handler: {
         super();
         const { actions, stream } = handler;
         this.actionsMap = new Map();
-        actions.map(({ prop, componentHandler }) => {
+        actions.map(({ prop: prop, componentHandler }) => {
           const handler = componentHandler.bind(this);
           this.actionsMap.set(prop, handler);
         });

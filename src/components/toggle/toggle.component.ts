@@ -1,9 +1,12 @@
 import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
-import { style } from './iconbutton.css';
+import { style } from './toggle.css';
 
-@customElement('hicks-toggle-button')
-export class HicksIconToggleButton extends LitElement {
+export enum ToggleProperties {
+  TOGGLED = 'toggled',
+}
+
+export class HicksToggle extends LitElement {
   @property({ type: Boolean, reflect: true }) toggled: boolean = false;
   @property({ type: String }) height: string = '2rem';
   @property({ type: String }) width: string = '2rem';

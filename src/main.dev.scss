@@ -1,9 +1,10 @@
+@use 'styles/mixins/shadows' as *;
+@use 'styles/mixins/responsive' as *;
+@use 'styles/mixins/button' as *;
 @use 'mixins' as *;
 @import 'util/styles/normalize';
-@import 'util/styles/variables';
 @import 'util/styles/component-vars';
-@import 'styles/mixins/shadows';
-
+@import 'util/styles/variables';
 .hidden {
   padding: 8px;
   position: absolute;
@@ -26,6 +27,11 @@ a.hidden {
 html,
 body {
   box-sizing: border-box;
+  @include media-size(zero, small) {
+    .has-open-menu {
+      overflow: hidden;
+    }
+  }
 }
 
 *,
@@ -50,35 +56,48 @@ body {
 background-animation {
   --background-color: var(--primary-9);
 }
+section {
+  background: white;
+}
 
 .layout {
   display: grid;
   grid-template-columns: auto var(--sidebar-width);
   padding-bottom: 200px;
+  max-width: calc(100vw - 1rem);
   margin-left: 1rem;
   justify-content: center;
-
+  @include media-size('zero', 'small') {
+    display: block;
+    margin: 0px;
+    max-width: 100vw;
+  }
   & .center {
     grid-column: 1 / 2;
     height: 100%;
-    width: 100%;
-    max-width: 700px;
+    max-width: 800px;
+    min-width: 350px;
     background-color: white;
     margin-top: 2rem;
     position: relative;
     padding: 4rem;
-    @include mix-hoverable-shadow(3);
+
+    @include hoverable-shadow(3);
     @include shadow(3);
+    @include media-size('zero', 'small') {
+      &::after {
+        box-shadow: none;
+      }
+    }
   }
   & .right {
     grid-column: 2 / 3;
-    width: 100%;
 
-    @include mix-media-size('small', 'large') {
+    @include media-size('small', 'large') {
       display: flex;
       justify-content: center;
     }
-    @include mix-media-size('zero', 'small') {
+    @include media-size('zero', 'small') {
       grid-column: none;
       position: absolute;
     }
@@ -86,8 +105,8 @@ background-animation {
   &.is-mobile {
     grid-template-columns: 1fr;
   }
-  @include mix-media-size('small', 'large') {
-    grid-template-columns: auto var(--sidebar-width);
+  @include media-size('small', 'large') {
+    grid-template-columns: 1fr var(--sidebar-width);
   }
 }
 
@@ -140,4 +159,9 @@ background-animation {
 .sticky {
   position: sticky;
   top: var(--toolbar-height);
+}
+
+[data-primary-button],
+[data-secondary-button] {
+  @include button(2rem, 15ch, 0.6rem);
 }

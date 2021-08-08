@@ -1,8 +1,9 @@
 @use 'mixins/fonts' as *;
 @use 'mixins/shadows' as *;
-
+@use 'mixins/responsive' as *;
 :host {
   --timeline--marker-size: 0.6rem;
+  font-family: Helvetica, Arial, sans-serif;
 }
 h2,
 h3,
@@ -12,26 +13,40 @@ h5 {
   margin-bottom: 0.25em;
 }
 :host {
-  height: fit-content;
-  width: fit-content;
   display: block;
+  background: white;
+}
+%minor-text {
+  font-size: 10pt;
+  font-weight: 400;
 }
 .entry {
   display: grid;
-  grid-template-columns: 80px 1px 400px 50px;
+  grid-template-areas: 'date timeline content expand';
+  grid-template-columns: 80px 1px 1fr 30px;
   position: relative;
   gap: 1rem;
   border-radius: 5px;
+  background-color: white;
+
+  @include media-size(zero, small) {
+    grid-template-areas: 'timeline date date' 'timeline content expand';
+    grid-template-columns: 1px 1fr 50px;
+    grid-template-rows: 20px 1fr;
+  }
   //@include hoverable-shadow(3);
   &__left {
-    grid-column: 1 / 2;
     display: flex;
-    text-align: right;
     justify-content: flex-end;
+    grid-area: date;
+    @include media-size(zero, small) {
+      justify-content: flex-start;
+    }
   }
   &__timeline {
-    grid-column: 2 / 3;
+    grid-area: timeline;
     background-color: lightgray;
+
     &::after {
       color: var(--gray-6);
       --timeline--marker-size: 0.6rem;
@@ -50,11 +65,11 @@ h5 {
     }
   }
   &__right {
-    grid-column: 3 / 4;
-    padding: 0rem 0rem 1rem 0rem;
+    grid-area: content;
+    padding-bottom: 0.5rem;
   }
   &__expand {
-    grid-column: 4 / 5;
+    grid-area: expand;
     &__button {
       height: 2rem;
       width: 2rem;
@@ -62,10 +77,11 @@ h5 {
   }
   &__date {
     display: block;
-    font-size: 10pt;
+    font-size: 9pt;
     color: var(--gray-13);
     font-weight: 500;
     text-transform: uppercase;
+    padding-top: 0.15rem;
     & ::slotted(*) {
       color: var(--gray-11);
       transition: color 0.3s ease-in;
@@ -74,9 +90,15 @@ h5 {
       color: var(--primary-9);
     }
   }
-  &__title ::slotted(*) {
-    font-size: 12pt;
-    color: var(--gray-13);
+  &__title {
+    cursor: pointer;
+    :hover {
+      text-decoration: underline;
+    }
+    & ::slotted(*) {
+      font-size: 12pt;
+      color: var(--gray-13);
+    }
   }
   &__logistics ::slotted(*) {
     font-size: 11pt;
@@ -84,29 +106,58 @@ h5 {
     font-weight: 400;
   }
 
-  &__supervisor ::slotted(*) {
-    font-size: 10pt;
-    font-weight: 400;
+  &__supervisor {
     color: var(--gray-11);
+    *::slotted(*) {
+      @extend %minor-text;
+    }
   }
 
-  &__description ::slotted(*) {
-    font-size: 10pt;
-    font-weight: 400;
+  &__description {
+    margin: 0px;
+    *::slotted(*) {
+      @extend %minor-text;
+    }
   }
 
-  &__detail ::slotted(*) {
-    all: unset;
-    font-size: 10pt;
-    font-weight: 400;
+  &__detail {
+    margin: 0px;
+
+    *::slotted(*) {
+      @extend %minor-text;
+    }
+  }
+  &__expansion {
+    margin: 0px;
+    transform: scale(1);
+    opacity: 1;
+    transition-property: opacity transform;
+    transition: 0.35s ease-in-out;
+    visibility: visible;
+    :host([collapsed]) &,
+    :host(.is-collapsing) & {
+      transform: scale(0.8);
+      opacity: 0;
+      visibility: hidden;
+    }
+    :host([collapsed].is-expanding) & {
+      transform: scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }
+
 .expand__v {
-  transform: rotate(0deg);
+  transform: rotate(-90deg);
   transform-origin: center center;
   transition: transform 0.35s ease-in-out;
 
-  :host([expanded]) & {
+  :host([collapsed]) &,
+  :host(.is-collapsing) & {
+    transform: rotate(0deg);
+  }
+  :host(.is-expanding) & {
     transform: rotate(-90deg);
   }
 }
@@ -115,11 +166,16 @@ h5 {
   transform: rotate(0deg);
   transform-origin: center center;
   transition: transform 0.35s ease-in-out;
-  color: var(--primary-9);
+  color: var(--gray-7);
+  cursor: pointer;
   &:hover {
     color: var(--primary-11);
   }
-  :host([expanded]) & {
+  :host([collapsed]) &,
+  :host(.is-collapsing) & {
     transform: rotate(-180deg);
+  }
+  :host(.is-expanding) & {
+    transform: rotate(0deg);
   }
 }

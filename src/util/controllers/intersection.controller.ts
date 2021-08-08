@@ -11,12 +11,10 @@ type IntersectionObserverRecord = {
 
 export class IntersectionController implements ReactiveController {
   host: ReactiveControllerHost;
-  private _activeId: string;
-  private _emitEntries: Subject<IntersectionObserverRecord>;
-  private _entryStream$: Observable<IntersectionObserverRecord>;
-  private _emitter: (
-    id: string
-  ) => (entries: IntersectionObserverEntry[]) => void;
+  _handlerKey: string;
+  _emitEntries: Subject<IntersectionObserverRecord>;
+  _entryStream$: Observable<IntersectionObserverRecord>;
+  _emitter: (id: string) => (entries: IntersectionObserverEntry[]) => void;
   observe(elements: HTMLElement[], observerId?: string) {
     let id = this._getObserverId(observerId);
 
@@ -28,11 +26,11 @@ export class IntersectionController implements ReactiveController {
     return this;
   }
 
-  private _getObserverId(id) {
+  _getObserverId(id) {
     if (observers.has(id)) {
       return id;
-    } else if (observers.has(this._activeId)) {
-      return this._activeId;
+    } else if (observers.has(this._handlerKey)) {
+      return this._handlerKey;
     } else return false;
   }
   takeRecords(observerId: string) {
@@ -68,7 +66,7 @@ export class IntersectionController implements ReactiveController {
   }
   use(id?: string) {
     if (observers.has(id)) {
-      this._activeId = id;
+      this._handlerKey = id;
     }
     return this;
   }
@@ -110,7 +108,7 @@ export class IntersectionController implements ReactiveController {
       left: string;
     } = { top: '0px', right: '0px', bottom: '0px', left: '0px' }
   ) {
-    this._activeId = observerId;
+    this._handlerKey = observerId;
     if (!observers.has(observerId)) {
       let rootMargin = ['top', 'right', 'bottom', 'left']
         .map((dir) => margins[dir])

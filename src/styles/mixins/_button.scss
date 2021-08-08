@@ -1,54 +1,57 @@
-@use 'mixins/shadows' as *;
+@use 'shadows' as *;
 
-@mixin button($height: 2.5rem, $width: 30ch, $font-size: 1rem) {
-&.button{
-  border-radius: 3px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: system-ui, sans-serif;
-  font-size: calc(#{$height} * 0.5);
-  height: $height;
-  transition: all 250ms;
-  touch-action: manipulation;
-  width: $width;
-  border: none;
-  position: relative;
-  &--primary {
-    --button--background--primary: var(--primary-11);
-    --button--color--primary: white;
-    --button--shadow--primary: var(--gray-6);
-    --button--shadow--primary--active: var(--gray-6);
-    color: var(--button--color--primary);
-    background: var(--button--primary-background);
+@mixin button($height: 2em, $width: 20ch, $font-size: 0.8rem) {
+  &.button {
+    border-radius: 3px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: calc(#{$height} * 0.5);
+    height: $height;
+    transition: all 250ms;
+    touch-action: manipulation;
+    width: $width;
+    border: none;
+    position: relative;
+    &--primary {
+      @extend .button;
 
-    @include hoverable-shadow(2);
-    &:hover {
-      filter: brightness(1.1);
-    }
-    &:active {
-      box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
-    }
-  }
-  &--secondary {
-    --button--background--secondary: var(--gray-1);
-    --button--color--secondary: var(--gray-11);
-    --button--shadow--secondary:     box-shadow: inset 0px 0px 0px 1px var(--gray-6);
-    --button--shadow--secondary--active:  inset 0px 0px 0px 1px blue;
-    background-color: var(--button--background--secondary);
-    color: var(--button--color--secondary);
-     box-shadow: var(--button--shadow--secondary);
-     border:1px solid lightgray;
-    @include hoverable-shadow(2);
+      --button--background--primary: var(--primary-11);
+      --button--color--primary: white;
+      --button--shadow--primary: var(--gray-6);
+      --button--shadow--primary--active: var(--gray-6);
+      color: var(--button--color--primary);
+      background: var(--button--background--primary);
 
-    &:hover {
-      filter: brightness(0.975);
+      @include hoverable-shadow(2);
+      &:hover {
+        filter: brightness(1.1);
+      }
+      &:active {
+        box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
+      }
     }
-    &:active {
-        border:1px solid blue;
-      filter: brightness(0.95);
-       &::after{
-        opacity:1;
+    &--secondary {
+      @extend .button;
+      --button--background--secondary: var(--gray-1);
+      --button--color--secondary: var(--gray-11);
+      --button--shadow--secondary: inset 0px 0px 0px 1px var(--gray-6);
+      --button--shadow--secondary--active: inset 0px 0px 0px 1px blue;
+      background-color: var(--button--background--secondary);
+      color: var(--button--color--secondary);
+      box-shadow: var(--button--shadow--secondary);
+      @include hoverable-shadow(2);
+
+      &:hover {
+        filter: brightness(0.975);
+      }
+      &:active {
+        box-shadow: var(--button--shadow--secondary--active);
+        filter: brightness(0.95);
+        &::after {
+          opacity: 1;
         }
+      }
     }
   }
-}}
+}
