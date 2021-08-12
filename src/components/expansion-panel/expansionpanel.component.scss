@@ -2,6 +2,8 @@
 @use 'mixins/shadows' as *;
 @use 'mixins/borders' as *;
 @use 'styles/mixins/shadow-root' as root;
+@use 'styles/mixins/button' as *;
+
 @mixin animate-expand(
   $name: '',
   $duration: 1s,
@@ -15,32 +17,18 @@
 }
 
 p ::slotted([slot='description']) {
-  @include gen-font-var(
-    description,
-    (
-      'weight': 400,
-      'size': 12pt,
-      'color': black,
-    )
-  );
+  font: 11pt;
+  color: var(--gray-10);
 }
 
 h1 ::slotted([slot='header']) {
   margin: 0px;
   margin-block: 0px;
   display: content;
-  @include gen-font-var(
-    header,
-    (
-      'weight': 500,
-      'size': 20pt,
-      'color': black,
-    )
-  );
+  font-size: 20pt;
+  color: var(--gray-12);
 }
-::slotted([slot='built-with']) {
-  max-height: 50px;
-}
+
 :host {
   opacity: 1;
   transition: opacity 1s ease;
@@ -48,50 +36,58 @@ h1 ::slotted([slot='header']) {
 }
 
 .expansion {
+  --panel--max-height: 350px;
   all: unset;
   display: grid;
-  grid-template-columns: 120px calc(70% - 1em);
+  grid-template-columns: 120px 1fr;
   grid-template-areas: 'image summary';
   background-color: white;
   text-align: left;
   gap: 1em;
+  box-shadow: 0 0 0 1px var(--gray-5);
   border: var(--panel--border);
   cursor: pointer;
-  margin-bottom: 10px;
   border-radius: 7px;
   filter: brightness(1);
-  width: min-max(200px, 600px);
+  width: 100%;
+  max-height: var(--panel--max-height);
   @include hoverable-shadow(3);
   :host:not([collapsed]) & {
-    @include radius('top', 7px);
+    border-bottom-right-radius: 0px;
   }
-  &:active {
-    filter: brightness(0.9);
-  }
+
   &__img {
     grid-area: image;
-    height: 100%;
+    height: inherit;
     width: 100%;
-    background-color: var(--primary-9);
+    background-color: var(--primary-10);
+    background-image: var(--panel--image);
     transition: background-size 500ms ease, filter 500ms ease-in-out;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 80%;
+    background-size: var(--panel--image--size);
     @include radius('left', 7px);
-    :host(:hover) & {
-      filter: hue-rotate(45deg);
-    }
-    :host:not([collapsed]) & {
-      @include radius('top-left', 7px);
+    :host(:not([collapsed])) & {
+      border-bottom-left-radius: 0px;
     }
   }
   &__summary {
     grid-area: summary;
     background: white;
     color: var(--gray-8);
+    overflow: auto;
+    max-height: inherit;
+    border-bottom-right-radius: 7px;
+    border-top-right-radius: 7px;
+
+    :host(:not([collapsed])) & {
+      border-bottom-right-radius: 0px;
+    }
     &__title {
       line-height: 0px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
+        sans-serif;
     }
     &__ruler {
       border: solid var(--primary-8);
@@ -99,13 +95,39 @@ h1 ::slotted([slot='header']) {
       margin: 0px;
       border-width: 2px 0 0 0;
     }
+    &__button {
+      display: flex;
+      justify-content: flex-end;
+      padding: 1rem;
+    }
+    &__bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
   &__panel {
     height: auto;
   }
+  &__icons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    ::slotted([slot='icon']) {
+      filter: grayscale(1);
+      padding: 0.5rem;
+      border: 1px solid var(--primary-5);
+      max-height: 2rem;
+      &:hover {
+        filter: grayscale(0);
+      }
+    }
+    ::slotted([slot='icon']:hover) {
+      filter: grayscale(0);
+    }
+  }
 
   &__content {
-    border-radius: 8px;
     @include radius('bottom', 8px);
     visibility: visible;
     padding: 10px;
@@ -120,11 +142,35 @@ h1 ::slotted([slot='header']) {
       background: rgb(242 242 242);
       padding: 10px;
     }
+
     :host([collapsed]:not(.is-expanding)) &,
     :host(.is-collapsing) & {
       visibility: hidden;
       opacity: 0;
       transform: scale(0.5) translateY(-150px);
     }
+  }
+}
+
+p {
+  margin-right: 1em;
+}
+.button--text {
+  all: unset;
+  padding: 0.5em 0.75em;
+  margin: 1em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--primary-10);
+  font-weight: 500;
+  border-radius: 5px;
+  &:hover {
+    background-color: var(--primary-4);
+  }
+  &:active {
+    box-shadow: inset 0 0 0 1px var(--primary-10);
+  }
+  &:focus {
+    box-shadow: inset 0 0 0 1px var(--primary-8);
+    outline: auto;
   }
 }

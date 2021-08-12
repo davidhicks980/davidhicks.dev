@@ -46,12 +46,14 @@ export const tocTemplates = {
       ${childTemplate}
     </hicks-list-item>`;
   },
-  childList(path: string, children: ListChild[]) {
+  childList(children: ListChild[]) {
     const keyDiff = (child: ListChild) => {
       return child.treePath;
     };
-    const templateFn = (item: ListChild) => item.template;
-    return html` ${repeat(children, keyDiff, templateFn)} `;
+    const templateFn = (item: ListChild) => {
+      return item.template;
+    };
+    return html`${repeat(children, keyDiff, templateFn)}`;
   },
   emptyChildList: { fullPath: '', childList: { count: 0, template: nothing } },
 
@@ -62,7 +64,7 @@ export const tocTemplates = {
     let childList: Partial<ChildList> = {};
     childList.params = sublists.get(path);
     childList.count = childList.params.length;
-    childList.template = this.childList(path, childList.params);
+    childList.template = this.childList(childList.params);
     let fullPath = path + childList.params.join('||');
     return { childList, fullPath };
   },

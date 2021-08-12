@@ -21,7 +21,6 @@ export class Resume {
   get content(){
     return  html`
   <hicks-unlock-resume>
-      
   </hicks-unlock-resume>
         <button
           id="view-resume-cv"

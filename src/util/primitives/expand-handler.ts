@@ -1,6 +1,6 @@
-import { ReactiveControllerHost, ReactiveElement } from 'lit';
-import { fromEvent, Observable, of, Subject, BehaviorSubject } from 'rxjs';
-import { mapTo, take, timestamp, filter } from 'rxjs/operators';
+import { ReactiveControllerHost } from 'lit';
+import { Observable, Subject } from 'rxjs';
+import { filter } from 'rxjs/operators';
 type Controller<T> = ReactiveControllerHost & T;
 
 const isParent = (parent: HTMLElement, child: HTMLElement) =>
@@ -34,13 +34,7 @@ export class ExpansionHandler {
       }>;
     }
   >;
-  private _completionMap: WeakMap<
-    HTMLElement,
-    {
-      start: number;
-      end: number;
-    }
-  >;
+
   private _parentEl: HTMLElement;
   private _elementKeys: WeakMap<object, any>;
   animating: boolean;
@@ -145,29 +139,36 @@ export class ExpansionHandler {
     return this._animations.get(this._accessKey(element));
   }
 
-  toggle(element: HTMLElement, host: HTMLElement, collapsed: boolean) {
+  toggle(element: HTMLElement, collapsed: boolean) {
     let { frames, key } = this._getAnimation(element);
-    const animations = frames
+    let animations = frames
       .filter((frame) => this._inViewport.has(frame.element))
       .map(({ animations }) =>
         collapsed ? animations.expand : animations.collapse
       );
 
+    if (animations.length === 0) {
+      animations = frames
+        .filter((el) => el.element.clientTop < 3000)
+        .map(({ animations }) =>
+          collapsed ? animations.expand : animations.collapse
+        );
+    }
     let state = 'STARTED' as 'STARTED' | 'FINISHED';
     this._animationSubject.next({ key, state, collapsed });
 
     animations.forEach((a) => {
       a.onfinish = ({ target }) => {
-        if (state === 'STARTED') {
-          state = 'FINISHED';
-          collapsed = !collapsed;
-          this._animationSubject.next({
-            key,
-            state,
-            collapsed,
-          });
-        }
+        console.log(target);
+        state = 'FINISHED';
+        collapsed = !collapsed;
+        this._animationSubject.next({
+          key,
+          state,
+          collapsed,
+        });
       };
+
       a.play();
     });
   }
@@ -207,8 +208,8 @@ export class ExpansionHandler {
     };
     let props = {
       root: null,
-      rootMargin: '0px 0px 400px 0px',
-      threshold: [0],
+      rootMargin: '0px 0px 600px 0px',
+      threshold: [0, 0.5],
     };
     return new IntersectionObserver(callback.bind(this), props);
   }

@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { PageSection } from "../components/content/PageSection";
-import { elderDrugIcon } from "../icons/elder-drug.icon";
-import { pkCardIcon } from "../icons/pk-card.dataurl";
+import { elderDrugDataURI } from "../icons/elder-drug.data-uri";
+import { kineticsDataURI } from "../icons/kinetics.data-uri";
 
 export const testFile = {
   title: 'header',
@@ -9,7 +9,7 @@ export const testFile = {
     {
       title: '1',
       content: html`
-        <hicks-expansion imageuri="${pkCardIcon}">
+        <hicks-expansion imageuri="${kineticsDataURI}">
           <h4 slot="title">Pharmacokinetics Components</h4>
           <p slot="description">
             Built for students at the Eshelman School of Pharmacy, the
@@ -19,7 +19,7 @@ export const testFile = {
           </p>
           <div slot="content"><plot-engine> </plot-engine></div>
         </hicks-expansion>
-        <hicks-expansion imageuri="${elderDrugIcon}">
+        <hicks-expansion imageuri="${elderDrugDataURI}">
           <h4 slot="title">Elder Drug</h4>
           <p slot="description">
             ElderDrug.com is an Angular project aimed at making Beers Criteria

@@ -4,5 +4,5 @@ export function fastHash(string) {
   while (i > 0) {
     h = ((h << 5) - h + string.charCodeAt(--i)) | 0;
   }
-  return h;
+  return Math.abs(h);
 }

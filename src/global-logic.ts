@@ -16,7 +16,7 @@ fromEvent(window, 'load')
         }
       });
 
-    document
+    /* document
       .getElementById('show-hide-details')
       .addEventListener('click', function (this: HTMLElement, ev: MouseEvent) {
         let isChecked = this.getAttribute('aria-checked') === 'true';
@@ -28,5 +28,5 @@ fromEvent(window, 'load')
         let tags;
         tags.forEach((el) => el.toggleAttribute('data-collapsed', isChecked));
         console.log(tags);
-      });
+      });*/
   });

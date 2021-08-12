@@ -18,11 +18,11 @@ export const ExpandMixin = <T extends LitProto>(superClass: T) => {
     updateOffset() {
       window.requestAnimationFrame(() => {
         this.panelHeight = this.collapsingPanel.offsetHeight;
-        console.log(this.panelHeight);
-        this.controllers.expansion.watchElement(
-          this.collapsingPanel,
-          this.panelHeight
-        );
+        if (this.panelHeight > 0)
+          this.controllers.expansion.watchElement(
+            this.collapsingPanel,
+            this.panelHeight
+          );
       });
     }
     makeCollapsible(entryId: string, root: HTMLElement) {
@@ -32,7 +32,6 @@ export const ExpandMixin = <T extends LitProto>(superClass: T) => {
       this.collapsingPanel = this.shadowRoot.querySelector(selector);
       if (this.collapsingPanel) {
         this.updateOffset();
-        console.log(this.collapsingPanel.offsetHeight);
       } else {
         throw Error('Collapsing panel selector returns null');
       }

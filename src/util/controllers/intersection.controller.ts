@@ -9,6 +9,9 @@ type IntersectionObserverRecord = {
   entries: IntersectionObserverEntry[];
 };
 
+const undefinedID = Error(
+  'An ID has not been defined for your intersection observer'
+);
 export class IntersectionController implements ReactiveController {
   host: ReactiveControllerHost;
   _handlerKey: string;
@@ -22,6 +25,8 @@ export class IntersectionController implements ReactiveController {
       for (let el of elements) {
         observers.get(id).observe(el);
       }
+    } else {
+      throw undefinedID;
     }
     return this;
   }
@@ -31,7 +36,7 @@ export class IntersectionController implements ReactiveController {
       return id;
     } else if (observers.has(this._handlerKey)) {
       return this._handlerKey;
-    } else return false;
+    } else throw undefinedID;
   }
   takeRecords(observerId: string) {
     const id = this._getObserverId(observerId),
@@ -62,11 +67,15 @@ export class IntersectionController implements ReactiveController {
             map((entries) => entries.filter((entry) => entry.isIntersecting))
           );
       }
+    } else {
+      throw undefinedID;
     }
   }
-  use(id?: string) {
+  use(id: string) {
     if (observers.has(id)) {
       this._handlerKey = id;
+    } else {
+      throw undefinedID;
     }
     return this;
   }
@@ -108,7 +117,6 @@ export class IntersectionController implements ReactiveController {
       left: string;
     } = { top: '0px', right: '0px', bottom: '0px', left: '0px' }
   ) {
-    this._handlerKey = observerId;
     if (!observers.has(observerId)) {
       let rootMargin = ['top', 'right', 'bottom', 'left']
         .map((dir) => margins[dir])
@@ -120,6 +128,7 @@ export class IntersectionController implements ReactiveController {
       });
       observers.set(observerId, obs);
     }
+    this._handlerKey = observerId;
     return this;
   }
 

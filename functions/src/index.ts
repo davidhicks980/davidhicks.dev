@@ -46,7 +46,6 @@ const decrypt = (pass: string, text: string) => {
 );
 */
 exports.submit = functions.https.onRequest((req, res) => {
-  console.log('started');
   const mailOptions = {
     from: 'davidhicks980@gmail.com',
     to: 'davidhicks980@gmail.com',

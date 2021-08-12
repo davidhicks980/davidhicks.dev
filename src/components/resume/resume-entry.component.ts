@@ -6,11 +6,8 @@ import { property, query, state } from 'lit/decorators.js';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { IntersectionController } from '../../util/controllers/intersection.controller';
 import { style } from './resume-entry.css';
-import { styleMap } from 'lit/directives/style-map.js';
-import { ExpandMixin } from '../../util/mixins/expandable.mixin';
-import { mix } from '../../util/mixins/mix.with';
 
-export class HicksResumeEntry extends ExpandMixin(LitElement) {
+export class HicksResumeEntry extends LitElement {
   @property({ type: Boolean })
   onResume: boolean;
   @property({ type: Boolean })
@@ -19,16 +16,18 @@ export class HicksResumeEntry extends ExpandMixin(LitElement) {
   isActive: boolean = false;
   @property({ attribute: 'entry-id', type: Number })
   entryId: number = 0;
+  @property({ type: Boolean })
+  collapsed;
   @state()
   mobile: boolean;
+  @query('.entry__expansion', true)
+  collapsingPanel: HTMLElement;
 
-  breakpointControl: BreakpointController;
-  controllers: {
+  declare controllers: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
     expansion: CollapseController;
   };
-  observers: { resize: ResizeObserver };
 
   constructor() {
     super();
@@ -39,21 +38,24 @@ export class HicksResumeEntry extends ExpandMixin(LitElement) {
   firstUpdated(_changedProperties) {
     this.collapsed = true;
     let root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
+
+    console.log(this.shadowRoot.querySelector('.entry__expansion'));
     this.controllers = {
       intersection: new IntersectionController(this),
       breakpoint: new BreakpointController(this),
-      expansion: this.makeCollapsible('resume-entries', root),
+      expansion: new CollapseController(
+        this,
+        'resume-entries',
+        root,
+        this.collapsingPanel
+      ),
     };
-    this.updatePanel('.entry__expansion');
     this.controllers.breakpoint
       .observe('mobile')
       .subscribe(([id, matches]) => (this[id] = matches ?? false));
     this.watchScroll();
   }
-  watchResize() {
-    this.observers.resize = new ResizeObserver(() => this.updateOffset());
-    this.observers.resize.observe(this);
-  }
+
   watchScroll() {
     let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
       threshold = [0];
@@ -77,6 +79,12 @@ export class HicksResumeEntry extends ExpandMixin(LitElement) {
 </svg>`;
   }
 
+  updateOffset() {
+    this.controllers.expansion.updateOffset();
+  }
+  toggle() {
+    this.controllers.expansion.toggle();
+  }
   render(): TemplateResult {
     return html`
       <div class="entry">
@@ -115,7 +123,7 @@ export class HicksResumeEntry extends ExpandMixin(LitElement) {
         <div class="entry__expand">
           <hicks-expansion-toggle
             aria-expanded="${!this.collapsed}"
-            @click="${this.handleToggle}"
+            @click="${this.toggle}"
             title="Expand"
             class="entry__expand__button"
           >

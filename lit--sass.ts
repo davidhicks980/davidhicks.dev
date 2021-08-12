@@ -43,7 +43,7 @@ export const writeFile = (outFile, data) => {
 };
 
 export const sassRender = async (file: string) => {
-  if (/_([\w\d\s-]+).component.scss/.test(file)) {
+  if (/([\w\d\s-]+).component.scss/.test(file)) {
     const template =
       "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
     // const sassFiles = await getFiles();
@@ -52,10 +52,9 @@ export const sassRender = async (file: string) => {
     const processedCss = await postcss([
       autoprefixer({ grid: 'autoplace' }),
       postcssPresetEnv,
-      postcssNesting(),
     ]).process(cssString);
     const newFileName = file.replace(
-      /_([\w\d\s-]+).component.scss/,
+      /([\w\d\s-]+).component.scss/,
       '$1.css.ts'
     );
     const cssTemplate = template.replace('{0}', processedCss.css.trim());
@@ -66,9 +65,3 @@ export const sassRender = async (file: string) => {
 
   // }
 };
-/*
-sassRender().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error(err);
-  process.exit(-1);
-});*/

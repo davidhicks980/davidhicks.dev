@@ -42,7 +42,6 @@ var sass = require("sass");
 var postcss = require("postcss");
 var autoprefixer = require("autoprefixer");
 var postcssPresetEnv = require("postcss-preset-env");
-var postcssNesting = require("postcss-nesting");
 /////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 /**
@@ -85,6 +84,7 @@ var sassRender = function (file) { return __awaiter(void 0, void 0, void 0, func
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                if (!/([\w\d\s-]+).component.scss/.test(file)) return [3 /*break*/, 4];
                 template = "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
                 return [4 /*yield*/, exports.sassToCss(file)];
             case 1:
@@ -92,23 +92,18 @@ var sassRender = function (file) { return __awaiter(void 0, void 0, void 0, func
                 return [4 /*yield*/, postcss([
                         autoprefixer({ grid: 'autoplace' }),
                         postcssPresetEnv,
-                        postcssNesting(),
                     ]).process(cssString)];
             case 2:
                 processedCss = _a.sent();
-                newFileName = file.replace(/_([\w\d\s-]+).component.scss/, '$1.css.ts');
+                newFileName = file.replace(/([\w\d\s-]+).component.scss/, '$1.css.ts');
                 cssTemplate = template.replace('{0}', processedCss.css.trim());
                 return [4 /*yield*/, exports.writeFile(newFileName, cssTemplate)];
             case 3:
                 _a.sent();
-                return [2 /*return*/];
+                return [3 /*break*/, 5];
+            case 4: throw new Error('File does not match syntax _FILENAME.component.scss ');
+            case 5: return [2 /*return*/];
         }
     });
 }); };
 exports.sassRender = sassRender;
-/*
-sassRender().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error(err);
-  process.exit(-1);
-});*/

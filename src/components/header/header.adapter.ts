@@ -1,3 +1,4 @@
+import { HicksHeader } from './header.component';
 import { state } from '../../util/primitives/store';
 import { Observable } from 'rxjs';
 import { mix } from '../../util/mixins/mix.with';
@@ -5,7 +6,6 @@ import {
   ObservedStateAction,
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
-import { HicksHeader } from './header.component';
 import { TOCProperties } from '../toc/TableOfContentsProperties.enum';
 
 const changeSectionTitle = {
