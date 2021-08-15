@@ -1,6 +1,11 @@
 @use 'styles/mixins/button' as *;
 @use 'styles/mixins/shadows' as *;
 
+.unlock-resume {
+  &__input-wrapper {
+    padding: 0px 0.4rem;
+  }
+}
 input {
   padding: 0.5em;
   font-size: 12pt;
@@ -41,7 +46,7 @@ button {
   @include button();
 }
 label {
-  font-family: system-ui;
+  font-family: var(--body-font);
   font-weight: 500;
   display: block;
 }
@@ -54,6 +59,5 @@ fieldset {
   border-radius: 5px;
   padding: 1rem;
   border: 1px solid rgb(207, 201, 201);
-
   @include shadow(3);
 }

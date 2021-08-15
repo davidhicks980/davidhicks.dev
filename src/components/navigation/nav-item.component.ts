@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit';
 import { customElement, queryAssignedNodes, property } from 'lit/decorators.js';
 import { isFilledArray } from '../../util/func';
-import { style } from './navitem.css';
+import { style } from './nav-item.css';
 @customElement('hicks-nav-item')
 export class NavItemComponent extends LitElement {
   @queryAssignedNodes('', true)

@@ -40,7 +40,6 @@ export default {
     // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
     json(),
     typescript(),
-
     copy(copyConfig),
     commonjs(),
     resolve(),

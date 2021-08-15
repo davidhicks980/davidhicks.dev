@@ -5,9 +5,10 @@
   "main": "./src/component.ts",
   "scripts": {
     "style": "sass src/main.dev.scss dist/styles/main.prod.css --no-source-map",
+    "shadow-style": "node lit-sass.watch.js",
     "format": "prettier src/* --write",
     "docs": "npm run docs:clean && npm run build && npm run analyze && npm run docs:build && npm run docs:assets && npm run docs:gen",
-    "serve": "concurrently  \"rollup -c --watch\"  \"node lit-sass.watch.js\""
+    "serve": "rollup -c --watch"
   },
   "keywords": [
     "web-components",

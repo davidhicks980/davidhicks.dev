@@ -1,48 +1,6 @@
 import { css } from 'lit';
 
- export const style = css`@charset "UTF-8";
-:root {
-  --header-font: "PT Sans", sans-serif;
-  --body-font: "Arimo", sans-serif;
-}
-
-h1 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 99;
-}
-
-h2 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 62;
-}
-
-h3 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 49;
-}
-
-h4 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 35;
-}
-
-h5 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 25;
-}
-
-h6 {
-  font-family: "PT Sans", sans-serif;
-  font-family: var(--header-font);
-  font-size: 21;
-}
-
-/** Block Element
+ export const style = css`/** Block Element
 * @access public
 * @param {String} $element - Element's name
 */
@@ -137,8 +95,10 @@ h6 {
 .item__content__prefix {
   grid-area: icon;
 }
-.item__content__prefix :host([active]:not([top-level])) {
-  content: "◆";
+@media ( min-width: 0px) and ( max-width: 899.99px) {
+  .item__content__prefix {
+    display: none;
+  }
 }
 @media ( min-width: 0px) and ( max-width: 599.99px) {
   .item__content {
@@ -158,6 +118,9 @@ h6 {
 :host([active]) .item__content__link {
   color: var(--primary-10);
   font-weight: 500;
+}
+:host(:hover) .item__content__link {
+  color: var(--primry-8);
 }
 .item__content__suffix {
   width: var(--list-item--height);

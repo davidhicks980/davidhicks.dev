@@ -13,9 +13,9 @@ import { timer } from 'rxjs';
 export class HicksExpansionPanel extends LitElement {
   @state()
   backgroundStyle: { backgroundImage: string };
-  @queryAsync('.expansion__content')
+  @queryAsync('.panel')
   onPanelLoad: Promise<HTMLElement>;
-  @query('.expansion__content', true)
+  @query('.panel', true)
   collapsingPanel;
   @property({ attribute: 'data-uri', type: String })
   dataURI: string = 'none';
@@ -53,14 +53,20 @@ export class HicksExpansionPanel extends LitElement {
       <div class="expansion">
         <span class="expansion__img"></span>
         <div class="expansion__summary">
-          <h1><slot name="header"></slot></h1>
-          <hr class="expansion__summary__ruler" />
-          <p><slot name="description"></slot></p>
-          <div class="expansion__summary__bottom">
-            <div class="expansion__icons">
+          <div class="header">
+            <h1 class="header__title">
+              <slot name="header"> </slot>
+            </h1>
+          </div>
+          <hr class="ruler" />
+          <p class="body">
+            <slot name="description"></slot>
+          </p>
+          <div class="footer">
+            <div class="footer__icons">
               <slot name="icon"></slot>
             </div>
-            <button @click="${this.toggle}" class="button--text">
+            <button @click="${this.toggle}" class="footer__button button--text">
               ${this.collapsed
                 ? html`<slot name="button-label"></slot>`
                 : 'COLLAPSE'}
@@ -68,8 +74,8 @@ export class HicksExpansionPanel extends LitElement {
           </div>
         </div>
       </div>
-      <div class="expansion__content">
-        <div class="expansion__content__padding">
+      <div class="panel">
+        <div class="panel__padding">
           <slot @slotchange="${this.updateOffset}" name="content"></slot>
         </div>
       </div>

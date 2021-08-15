@@ -88,13 +88,15 @@ export class UnlockResumeElement extends LitElement {
           <label for="unlock-resume-input">
             Enter your recruiter token below
           </label>
-          <input
-            autocomplete="off"
-            name="unlock-resume-token"
-            type="password"
-            id="unlock-resume-input"
-            ?disabled="${disabled}"
-          />
+          <div class="unlock-resume__input-wrapper">
+            <input
+              autocomplete="off"
+              name="unlock-resume-token"
+              type="password"
+              id="unlock-resume-input"
+              ?disabled="${disabled}"
+            />
+          </div>
 
           <div class="unlock-resume__hint">
             <b>Note:</b>

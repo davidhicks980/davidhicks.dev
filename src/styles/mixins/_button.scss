@@ -15,7 +15,6 @@
     position: relative;
     &--primary {
       @extend .button;
-
       --button--background--primary: var(--primary-11);
       --button--color--primary: white;
       --button--shadow--primary: var(--gray-6);

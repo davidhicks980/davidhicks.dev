@@ -83,8 +83,9 @@
 
     &__prefix {
       grid-area: icon;
-      :host([active]:not([top-level])) {
-        content: '◆';
+
+      @include media-size(zero, medium) {
+        display: none;
       }
     }
     @include media-size(zero, small) {
@@ -101,6 +102,9 @@
       :host([active]) & {
         color: var(--primary-10);
         font-weight: 500;
+      }
+      :host(:hover) & {
+        color: var(--primry-8);
       }
       font-family: var(--list-item--font-family);
     }

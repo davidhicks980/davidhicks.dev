@@ -119,10 +119,12 @@ import { css } from 'lit';
 }
 .header__upper__nav ::slotted(hicks-nav) {
   --nav--item--font-color: var(--gray-12);
-  --nav--item--font: 500 1rem/1.5rem "DM Mono", sans-serif;
   --nav--item--hover--font-color: var(--gray-13, slategray);
   --nav--item--selected--font-color: var(--primary-10);
   --nav--item--hover--text-decoration: underline;
+  --nav--item--padding: 0.5rem;
+  --nav--item--border: 2px solid black;
+  --nav--item--radius: 1rem;
 }
 @media ( min-width: 0px) and ( max-width: 899.99px) {
   .header__upper {
@@ -157,10 +159,9 @@ import { css } from 'lit';
   }
   .header__upper__nav ::slotted(hicks-nav) {
     --nav--item--hover--opacity: 1;
-    --nav--item--hover--background-color: var(--primary-8);
-    --nav--item--radius: 1em;
+    --nav--item--hover--background-color: transparent;
     --nav--item--font-color: var(--gray-12);
-    --nav--item--font: 500 1rem/1.5rem "DM Mono", sans-serif;
+    --nav--item--font: 500 1rem/1.5rem var(--body-font), sans-serif;
   }
   .header__upper__title {
     display: -webkit-box;
@@ -195,12 +196,8 @@ import { css } from 'lit';
     --nav--item--font-color: white;
     --nav--item--hover--font-color: white;
     --nav--item--hover--opacity: 1;
-    --nav--item--hover--background-color: black;
-    --nav--item--hover--box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.32157);
     --nav--item--border: 2px solid var(--secondary-4);
     border-left: 5px solid darkseagreen;
-    --nav--item--radius: 0.5rem 0 0.5rem 0;
-    --nav--item--font: 500 1.2rem/2rem "DM Mono", sans-serif;
     --nav--item--transition: background-color 500ms ease-in;
   }
   .header__upper__nav ::slotted(hicks-nav):hover::after {

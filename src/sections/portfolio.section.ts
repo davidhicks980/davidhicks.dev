@@ -12,17 +12,19 @@ export const portfolioSection = {
       title: 'Section 2.1',
       content: html`
       <style>
-            #kinetics-card  {
-              --panel--image:  url("${kineticsDataURI('#87b1de')}");
-              --panel--image--size: 90%
-            }
-            
-            #elder-drug-card  {
-              --panel--image:  url("${elderDrugDataURI('#87b1de')}");
-              --panel--image--size: 80%
-
-            }
-            
+        #kinetics-card  {
+          --panel--image:  url("${kineticsDataURI('#87b1de')}");
+           
+          --panel--image--size: 90%;
+          --panel--icon--size: 105%
+        }
+        
+        #elder-drug-card  {
+          --panel--image:  url("${elderDrugDataURI('#87b1de')}");
+          --panel--image--size: 80%;
+          --panel--icon--size: 65%
+        }
+        
             details {
               border: 1px solid #aaa;
               border-radius: 4px;
@@ -48,7 +50,23 @@ export const portfolioSection = {
               border-bottom: 1px solid #aaa;
               margin-bottom: .5em;
             }
+            hicks-expansion{
+              --expand-card--header-font: var(--title-font);
+              --expand-card--content-font: var(--body-font);
 
+            }
+            hicks-expansion h1{
+                  font-size: 18pt;
+    font-weight: 500;
+            }
+            hicks-expansion h2{
+                  font-size: 16pt;
+    font-weight: 500;
+            }
+            hicks-expansion p{
+                  font-size: 12pt;
+                  font-family: var(--body-font)
+            }
       </style>
        
       <hicks-expansion id="kinetics-card">

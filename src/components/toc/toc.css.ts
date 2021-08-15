@@ -63,6 +63,7 @@ import { css } from 'lit';
       -ms-flex-direction: column;
           flex-direction: column;
   height: var(--host--height);
+  top: var(--toolbar-height);
 }
 :host([mobile]) {
   --host--width: 100vw;
