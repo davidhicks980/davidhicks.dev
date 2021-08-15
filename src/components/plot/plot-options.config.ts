@@ -1,4 +1,4 @@
-import { ChartConfiguration, ChartOptions } from "chart.js";
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 
 export function plotOptions(
   coordinates: { x: number; y: number }[],
@@ -6,17 +6,17 @@ export function plotOptions(
   color: string,
   highlight: string
 ) {
-  const gradient = canvas.getContext("2d")?.createLinearGradient(0, 1000, 0, 0);
+  const gradient = canvas.getContext('2d')?.createLinearGradient(0, 1000, 0, 0);
 
   // Add two color stops
-  gradient?.addColorStop(0.75, "rgba(255,255,255,0)");
+  gradient?.addColorStop(0.75, 'rgba(255,255,255,0)');
   gradient?.addColorStop(1, highlight);
   const ticks = {
-    font: { color: "rgb(90,90,90)", family: "IBM Plex Sans", size: 14 },
+    font: { color: 'rgb(90,90,90)', family: 'IBM Plex Sans', size: 14 },
     maxTicksLimit: 10,
     padding: 2,
-    precision: 0.1,
-    color: "rgb(90,90,90)",
+    precision: 0.5,
+    color: 'rgb(90,90,90)',
   };
   const gridLines = {
     tickLength: 5,
@@ -29,22 +29,22 @@ export function plotOptions(
       text,
       font: {
         size: 14,
-        color: "rgb(50,50,50)",
+        color: 'rgb(50,50,50)',
       },
       padding: { top: 3, bottom: 3 },
     };
   };
   return {
-    type: "line",
+    type: 'line',
     data: {
-      labels: ["x", "y"],
+      labels: ['x', 'y'],
       datasets: [
         {
-          label: "Dataset",
+          label: 'Dataset',
           data: coordinates,
           spanGaps: true,
           fill: {
-            target: "origin",
+            target: 'origin',
             below: gradient,
           },
         },
@@ -69,7 +69,7 @@ export function plotOptions(
         line: {
           tension: 0, // disables bezier curves
           backgroundColor: gradient,
-          borderJoinStyle: "round",
+          borderJoinStyle: 'round',
           borderColor: color,
           borderWidth: 2,
         },
@@ -90,19 +90,19 @@ export function plotOptions(
 
       scales: {
         y: {
-          title: title("Concentration"),
-          axis: "y",
+          title: title('Concentration'),
+          axis: 'y',
           weight: 2,
-          type: "linear",
+          type: 'linear',
           gridLines,
           ticks,
         },
         x: {
-          title: title("Time(hours)"),
-          position: "bottom",
-          axis: "x",
+          title: title('Time(hours)'),
+          position: 'bottom',
+          axis: 'x',
           weight: 1,
-          type: "linear",
+          type: 'linear',
           gridLines,
           ticks,
         },

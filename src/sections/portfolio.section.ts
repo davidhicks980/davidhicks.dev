@@ -1,6 +1,8 @@
 import { html } from 'lit';
 import { kineticsDataURI } from '../icons/kinetics.data-uri';
 import { elderDrugDataURI } from '../icons/elder-drug.data-uri';
+import { state } from '../util/primitives/store';
+import { ContentModification } from '../components/content/content.component';
 
 export const portfolioSection = {
   title: 'Portfolio',
@@ -122,3 +124,4 @@ export const portfolioSection = {
     },
   ],
 };
+state.update({sectionAdditions: { position: 1, template: portfolioSection , change: ContentModification.INSERT}})

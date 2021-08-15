@@ -1,21 +1,31 @@
 import { LitElement, html } from 'lit';
-import { customElement, property, query, state } from 'lit/decorators.js';
-import { style } from './expansionpanel.css';
+import {
+  customElement,
+  property,
+  query,
+  state,
+  queryAsync,
+} from 'lit/decorators.js';
+import { style } from './expansion-panel.css';
 import { CollapseController } from '../../util/controllers/expansion.controller';
+import { timer } from 'rxjs';
 @customElement('hicks-expansion')
 export class HicksExpansionPanel extends LitElement {
   @state()
   backgroundStyle: { backgroundImage: string };
+  @queryAsync('.expansion__content')
+  onPanelLoad: Promise<HTMLElement>;
   @query('.expansion__content', true)
   collapsingPanel;
   @property({ attribute: 'data-uri', type: String })
   dataURI: string = 'none';
   @property({ type: Boolean, reflect: true })
-  collapsed = false;
+  collapsed: boolean;
   controllers: { expansion: CollapseController };
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
+    this.collapsed = true;
     this.controllers = {
       expansion: new CollapseController(
         this,
@@ -24,8 +34,20 @@ export class HicksExpansionPanel extends LitElement {
         this.collapsingPanel
       ),
     };
+    this.onPanelLoad.then(() => {
+      timer(10).subscribe(() => {
+        this.controllers.expansion.collapse();
+      });
+    });
   }
 
+  private updateOffset(): void {
+    this.controllers.expansion.updateOffset();
+  }
+
+  private toggle(): void {
+    this.controllers.expansion.toggle();
+  }
   render() {
     return html`
       <div class="expansion">
@@ -39,7 +61,9 @@ export class HicksExpansionPanel extends LitElement {
               <slot name="icon"></slot>
             </div>
             <button @click="${this.toggle}" class="button--text">
-              <slot name="button-label"></slot>
+              ${this.collapsed
+                ? html`<slot name="button-label"></slot>`
+                : 'COLLAPSE'}
             </button>
           </div>
         </div>
@@ -50,13 +74,6 @@ export class HicksExpansionPanel extends LitElement {
         </div>
       </div>
     `;
-  }
-  private updateOffset(): void {
-    this.controllers.expansion.updateOffset();
-  }
-
-  private toggle(): void {
-    this.controllers.expansion.toggle();
   }
 
   static get styles() {

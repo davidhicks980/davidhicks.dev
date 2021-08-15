@@ -40,6 +40,7 @@ export class ListItemController implements ReactiveController {
       );
     }
   }
+
   expandAll() {
     this.expand('*');
     this.lock = true;

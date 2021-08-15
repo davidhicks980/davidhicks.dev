@@ -1,4 +1,6 @@
 import { ReplaySubject } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { clone } from '../../components/content/deep-clone';
 import { QueryEntry } from '../../types/QueryEntry';
 import { breakpoints } from './breakpoints';
 export class BreakpointEmitter {
@@ -6,6 +8,7 @@ export class BreakpointEmitter {
   private _queryEmitter: ReplaySubject<[string, boolean]> = new ReplaySubject(
     2
   );
+  private _currentMatches = new Map();
 
   addQueries(queries: QueryEntry[]) {
     this.queries = [...this._dedupeQueries(this.queries, queries), ...queries];
@@ -47,10 +50,17 @@ export class BreakpointEmitter {
     this.queries = queries;
     this._updateListeners();
   }
-  get observer() {
+  get observer$() {
     return this._queryEmitter.asObservable();
   }
 
+  get observeAllMatches$() {
+    return this._queryEmitter.asObservable().pipe(
+      map(([id, matches]) => {
+        return clone(this._currentMatches.set(id, matches));
+      })
+    );
+  }
   private _getQueryListener(
     id: string,
     emitter: ReplaySubject<[string, boolean]>

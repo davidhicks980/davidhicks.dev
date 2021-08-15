@@ -15,6 +15,11 @@ import { css } from 'lit';
           justify-content: center;
   overflow: hidden;
 }
+@media ( min-width: 900px) {
+  .header__toolbar__toggle__container {
+    display: none;
+  }
+}
 .header__toolbar__svg {
   position: absolute;
   width: 1920px;
@@ -41,7 +46,7 @@ import { css } from 'lit';
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
-  z-index: 200;
+  z-index: 5;
   -ms-flex-line-pack: center;
       align-content: center;
   -webkit-box-align: center;
@@ -60,7 +65,7 @@ import { css } from 'lit';
 .header__grid {
   position: sticky;
   top: calc(var(--upper-height) * -1 - 1px);
-  z-index: 10000;
+  z-index: 10;
 }
 .header__upper {
   height: var(--upper-height);

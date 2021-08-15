@@ -19,10 +19,7 @@ export const ExpandMixin = <T extends LitProto>(superClass: T) => {
       window.requestAnimationFrame(() => {
         this.panelHeight = this.collapsingPanel.offsetHeight;
         if (this.panelHeight > 0)
-          this.controllers.expansion.watchElement(
-            this.collapsingPanel,
-            this.panelHeight
-          );
+          this.controllers.expansion.watchElement(this.collapsingPanel);
       });
     }
     makeCollapsible(entryId: string, root: HTMLElement) {

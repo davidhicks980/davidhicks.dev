@@ -4,7 +4,7 @@ import { filter, map } from 'rxjs/operators';
 
 const observers = new Map() as Map<string, IntersectionObserver>;
 
-type IntersectionObserverRecord = {
+export type IntersectionObserverRecord = {
   id: string;
   entries: IntersectionObserverEntry[];
 };
@@ -12,6 +12,12 @@ type IntersectionObserverRecord = {
 const undefinedID = Error(
   'An ID has not been defined for your intersection observer'
 );
+export enum IntersectionObserverType {
+  ENTRY = 'entry',
+  INTERSECTING = 'intersecting',
+  NOT_INTERSECTING = 'not-intersecting',
+}
+
 export class IntersectionController implements ReactiveController {
   host: ReactiveControllerHost;
   _handlerKey: string;
@@ -44,10 +50,7 @@ export class IntersectionController implements ReactiveController {
     this._emitEntries.next({ id, entries });
     return this;
   }
-  on(
-    observerType: 'entry' | 'intersecting' | 'not-intersecting',
-    activeId?: string
-  ) {
+  on(observerType: IntersectionObserverType, activeId?: string) {
     const id = this._getObserverId(activeId);
     if (id) {
       const obs = this._entryStream$.pipe(

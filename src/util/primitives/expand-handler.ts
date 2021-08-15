@@ -139,33 +139,32 @@ export class ExpansionHandler {
     return this._animations.get(this._accessKey(element));
   }
 
-  toggle(element: HTMLElement, collapsed: boolean) {
+  toggle(element: HTMLElement, isCollapsed: boolean) {
     let { frames, key } = this._getAnimation(element);
     let animations = frames
       .filter((frame) => this._inViewport.has(frame.element))
       .map(({ animations }) =>
-        collapsed ? animations.expand : animations.collapse
+        isCollapsed ? animations.expand : animations.collapse
       );
 
     if (animations.length === 0) {
       animations = frames
         .filter((el) => el.element.clientTop < 3000)
         .map(({ animations }) =>
-          collapsed ? animations.expand : animations.collapse
+          isCollapsed ? animations.expand : animations.collapse
         );
     }
     let state = 'STARTED' as 'STARTED' | 'FINISHED';
-    this._animationSubject.next({ key, state, collapsed });
+    this._animationSubject.next({ key, state, collapsed: isCollapsed });
 
     animations.forEach((a) => {
-      a.onfinish = ({ target }) => {
-        console.log(target);
+      a.onfinish = () => {
         state = 'FINISHED';
-        collapsed = !collapsed;
+        isCollapsed = !isCollapsed;
         this._animationSubject.next({
           key,
           state,
-          collapsed,
+          collapsed: isCollapsed,
         });
       };
 

@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from 'lit';
+import { LitElement, html } from 'lit';
 import { query, state, property } from 'lit/decorators.js';
 import anime from 'animejs';
 import { style } from './header.css';
@@ -7,7 +7,10 @@ import { classMap } from 'lit/directives/class-map.js';
 import { removeUnderscores } from '../../util/directives/remove-underscore.directive';
 import { interval } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IntersectionController } from '../../util/controllers/intersection.controller';
+import {
+  IntersectionController,
+  IntersectionObserverType,
+} from '../../util/controllers/intersection.controller';
 
 export class HicksHeader extends LitElement {
   @query('.header__grid', true)
@@ -71,9 +74,7 @@ export class HicksHeader extends LitElement {
         duration: 1000,
       })
       .add({ targets: this.titleWrapper });
-    this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
-      this[id] = matches;
-    });
+
     const seekSVGAnimation = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         let { intersectionRatio: ratio, target } = entry;
@@ -102,7 +103,7 @@ export class HicksHeader extends LitElement {
         { top: '-20px', right: '0px', left: '0px', bottom: '0px' }
       )
       .observe([this.upper, this.toolbar])
-      .on('entry')
+      .on(IntersectionObserverType.ENTRY)
       .subscribe(seekSVGAnimation);
   }
 
@@ -126,11 +127,10 @@ export class HicksHeader extends LitElement {
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = html`<span class="divider"></span
-    ><slot
-      name="header-toolbar-toggle"
-      class="header__toolbar__toggle"
-    ></slot>`;
+  navToggle = html` <span class="header__toolbar__toggle__container"
+    ><span class="divider"></span
+    ><slot name="header-toolbar-toggle" class="header__toolbar__toggle"></slot
+  ></span>`;
   toolbarPath = html`<svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -183,7 +183,7 @@ export class HicksHeader extends LitElement {
               <h3>${removeUnderscores(this.sectionTitle)}</h3>
             </div>
             <div class="header__toolbar__content__links">
-              ${this.social} ${this.mobile ? this.navToggle : ''}
+              ${this.social} ${this.navToggle}
             </div>
           </div>
           ${this.toolbarPath}

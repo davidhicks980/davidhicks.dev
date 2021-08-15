@@ -7,6 +7,7 @@ import { FormHandler } from '../../../firebase.functions';
 //import { classMap } from 'lit/directives/class-map.js'
 import { RESUME_ENCRYPTION_KEY } from '../../../../private/resume-key';
 import { state } from '../../../util/primitives/store';
+import { ContentModification } from '../../content/content.component';
 enum UnlockStatus {
   NOT_SUBMITTED,
   UNSUCCESSFUL,
@@ -32,12 +33,13 @@ export class UnlockResumeElement extends LitElement {
     if (this.status >= UnlockStatus.SUBMITTED) return;
     this.status = UnlockStatus.SUBMITTED;
     let key = new FormData(this.form).get('unlock-resume-token').toString();
-    this.formHandler.unlockResume(key).then((res) => {
-      if (res) {
+    this.formHandler.unlockResume(key).then((resume) => {
+      if (resume) {
         state.update({
           sectionAdditions: {
-            template: res,
+            template: resume,
             position: 2,
+            change: ContentModification.REPLACE,
           },
         });
         this.status = UnlockStatus.SUCCESSFUL;

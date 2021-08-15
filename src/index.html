@@ -8,7 +8,7 @@
     <link
       media="print"
       onload="this.media='all'"
-      href="https://fonts.googleapis.com/css2?family=Arimo&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=Roboto:ital,wght@0,400;0,500;1,400&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Arimo&family=DM+Mono:wght@400;500&family=Gowun+Dodum&family=Roboto:ital,wght@0,400;0,500;1,400&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Lato&family=Atkinson+Hyperlegible&display=swap"
       rel="stylesheet"
     />
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
@@ -28,7 +28,6 @@
   </script>
   <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
-
     <hicks-header>
       <div slot="header-brand">
         <brand-component></brand-component>
@@ -43,17 +42,35 @@
       <div slot="header-social">
         <hicks-nav style="--nav--gap: 1rem; --nav--height: 2.25rem">
           <hicks-nav-item>
-            <img class="icon--social" src="./icons/logo-google.svg" />
+            <a
+              href="mailto:david@davidhicks.dev?subject=Howdy David, I'm reaching out to discuss your website."
+            >
+              <img
+                class="icon--social"
+                src="./icons/logo-google.svg"
+                alt="Gmail"
+              />
+            </a>
           </hicks-nav-item>
           <hicks-nav-item>
-            <img class="icon--social" src="./icons/logo-github.svg" />
+            <a href="https://github.com/davidhicks980"
+              ><img
+                class="icon--social"
+                src="./icons/logo-github.svg"
+                alt="Github"
+            /></a>
           </hicks-nav-item>
           <hicks-nav-item>
-            <img class="icon--social" src="./icons/logo-linkedin.svg" />
+            <a
+              ><img
+                class="icon--social"
+                src="./icons/logo-linkedin.svg"
+                alt="LinkedIn"
+            /></a>
           </hicks-nav-item>
         </hicks-nav>
       </div>
-      <div slot="header-toolbar-toggle">
+      <div class="header__toggle-anchor" slot="header-toolbar-toggle">
         <hicks-menu-toggle id="menu-toggle">
           <svg
             class="menu-icon"
@@ -102,13 +119,10 @@
       </hicks-nav>
     </hicks-header>
     <main class="layout">
-      <div class="left"></div>
       <content-tree class="center"></content-tree>
-      <div class="right">
-        <hicks-toc
-          id="table-of-contents"
-          style="--body--font: 'Arimo'"
-          expandIconSrc="./icons/close.svg"
+      <div class="navigation">
+        <hicks-toc id="table-of-contents" style="--body--font: 'Arimo'">
+          <span class="toc__toggle-anchor" slot="toggle"></span
         ></hicks-toc>
       </div>
     </main>

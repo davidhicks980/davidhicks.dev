@@ -7,28 +7,23 @@ import {
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
 export const resumeEntryObserver = {
-  stream: state.filteredStream([
+  stream: state.filteredChanges([
     'active-entry',
     'show-resume-entries',
   ]) as Observable<Record<string, unknown>>,
   actions: [
     {
-      prop: 'active-entry',
+      property: 'active-entry',
       componentHandler(this: HicksResumeEntry, propValue) {
         this.isActive = propValue === this.entryId;
       },
     },
     {
-      prop: 'show-resume-entries',
+      property: 'show-resume-entries',
       componentHandler(this: HicksResumeEntry, propValue) {
-        if (
-          propValue === true &&
-          this.dataset.collapsed != (null || undefined)
-        ) {
-          this.toggleAttribute('data-collapsed', false);
-        } else if (propValue === false && !this.dataset.collapsed) {
-          this.toggleAttribute('data-collapsed', true);
-        }
+        propValue
+          ? this.controllers.expansion.collapse()
+          : this.controllers.expansion.expand();
       },
     },
   ] as ObservedStateAction[],

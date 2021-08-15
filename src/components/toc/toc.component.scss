@@ -1,38 +1,37 @@
-@use 'mixins' as *;
 @use 'styles/mixins/button' as button;
 @use 'styles/mixins/shadow-root' as root;
 
 :host {
   --font-size: 10pt;
-  --item--font-weight: 400;
-  --item--font: var(--item--font-weight) var(--font-size);
+  --list-item--font-weight: 400;
+  --list-item--font: var(--list-item--font-weight) var(--font-size);
   //Item variables
-  // --item--margin: calc(var(--font-size) * 0.825); // Padding around the item
-  --item--height: calc(var(--font-size) * 2);
-  --item--transition--timing: 0.5s;
-  --item--font-color: var(--gray-11); //Dimensions
-  --item--line-color: var(--gray-4); //Dimensions
+  // --list-item--margin: calc(var(--font-size) * 0.825); // Padding around the item
+  --list-item--height: calc(var(--font-size) * 2);
+  --list-item--font-color: var(--gray-11); //Dimensions
+  --list-item--font-family: var(--body-font); //Dimensions
+  --list-item--line-color: var(--gray-4); //Dimensions
 
   //List variables
   --head--margin: calc(var(--font-size) * 1.75);
   --list--item-count: 0;
-  --list--header-font: bold calc(var(--font-size) * 1.25) var(--body-font),
+  --list--header-font: bold calc(var(--font-size) * 1.25) var(--body-font)
     sans-serif;
   --list--top: 90px;
   //Track variables
   --track--height: calc(
-    var(--item--height) + var(--head--margin) / var(--list--item-count)
+    var(--list-item--height) + var(--head--margin) / var(--list--item-count)
   );
   --track--scale: scaleY(var(--list--item-count));
   --track--width: 2rem;
   //Host variables
   --host--height: calc(
-    (var(--item--height) * var(--list--item-count)) + var(--head--margin) + 3rem
+    (var(--list-item--height) * var(--list--item-count)) + var(--head--margin) +
+      3rem
   );
-  --host--width: calc(var(--font-size) * 12);
+  --host--width: 95%;
   --host--position: sticky;
-  --host--top: calc(var(--toolbar-height, 20vh) + 5vh);
-  --host--padding-top: 0px;
+  //  --host--top: calc(var(--toolbar-height, 20vh) + 5vh);
   --list--width: inherit;
 }
 
@@ -58,25 +57,31 @@
   display: flex;
   flex-direction: column;
   height: var(--host--height);
-  background: var(--host--background);
-  padding-top: var(--host--padding-top);
   @include root.state('[mobile]') {
     --host--width: 100vw;
-    --host--top: calc(var(--toolbar-height) - 1rem);
+    //  --host--top: 0px;
     --host--height: 100vh;
     --host--position: fixed;
-    --host--background: var(--primary-12);
     --font-size: 1.25rem;
-    --item--font-color: white;
+    --list-item--font-color: white;
+
+    padding: 1rem 1rem;
     align-items: center;
-    clip-path: circle(0% at 90% -10%);
-    transition-property: background-color clip-path;
-    transition: clip-path 1s cubic-bezier(0.25, 1, 0.3, 1),
-      background-color 2s cubic-bezier(0.25, 1, 0.3, 1);
-    --host--padding-top: 3rem;
-    @include mix-append-host-state('[open]') {
-      clip-path: circle(125%);
-      --host--background: var(--gray-12);
+    & hicks-list-item {
+      transform: scale(0.5) translateX(10rem);
+      transition: 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
+      opacity: 0;
+      transform-origin: center center;
+      transition-delay: 0s;
+      z-index: 2;
+    }
+
+    @include root.state('[open]') {
+      & hicks-list-item {
+        transform: scale(1) translateX(0rem);
+        opacity: 1;
+        transition-delay: 500ms;
+      }
     }
   }
 }
@@ -122,32 +127,13 @@
     //Transforms
     transform: scaleY(var(--list--item-count));
     will-change: transform;
-    transition: transform var(--item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
+    transition: transform var(--list-item--transition--timing) cubic-bezier(0.075, 0.82, 0.165, 1);
     transform-origin: top left;
     //Misc
     border: solid var(--primary-7);
     border-width: 0 0 0 2px;
 }
 */
-
-.list {
-  padding: 0px;
-  margin: 0px;
-  list-style-type: none;
-  :host {
-    @include root.state('[mobile]') {
-      @include mix-reset-list;
-      --list--width: 75vw;
-    }
-  }
-}
-.link-text {
-  color: var(--item--font-color);
-  @include mix-text-ellipsis;
-  & :hover {
-    color: var(--primary-8);
-  }
-}
 
 .expand-button {
   @include button.button(1.5rem, 15ch, 1rem);
@@ -156,4 +142,28 @@
 .button__wrapper {
   display: flex;
   align-self: flex-end;
+  padding-right: 18px;
+  height: 50px;
+  .background {
+    right: 1rem;
+    padding-right: 18px;
+    clip-path: circle(20px at 50% 50%);
+    height: 50px;
+    width: 50px;
+    background-color: rgb(31, 31, 31);
+    position: fixed;
+    top: 6px;
+    z-index: 0;
+    transform: scale(1);
+    transform-origin: 70% 30%;
+    transition-property: opacity transform;
+    transition-duration: 500ms;
+    transition-timing-function: ease-in;
+    overflow: visible;
+    pointer-events: none;
+    :host([open]) & {
+      transform: scale(30);
+      pointer-events: all;
+    }
+  }
 }

@@ -5,32 +5,40 @@ import {
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
 import { mix } from '../../util/mixins/mix.with';
-import { ContentTree } from './content.component';
+import { ContentModification, ContentTree } from './content.component';
 import { PageSection } from './PageSection';
+import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
+import { prefix, observedProperties } from './content.properties';
 export const resumeEntryObserver = {
-  stream: state.filteredStream([
-    'pageOutline',
-    'sectionAdditions',
-  ]) as Observable<Record<string, unknown>>,
+  stream: state.filteredChanges(['sectionAdditions']) as Observable<
+    Record<string, unknown>
+  >,
   actions: [
     {
-      prop: 'pageOutline',
-      componentHandler(this: ContentTree, propValue: PageSection[]) {
-        this.load(propValue);
-      },
-    },
-    {
-      prop: 'sectionAdditions',
+      property: 'sectionAdditions',
       componentHandler(
         this: ContentTree,
-        propValue: { position: number; template: PageSection[] }
+        propValue: {
+          position: number;
+          template: PageSection;
+          change: ContentModification;
+        }
       ) {
-        this.updateSection(propValue.position, propValue.template);
+        const { position, template, change } = propValue;
+        this.changeSections(position, change, template);
       },
     },
   ] as ObservedStateAction[],
 };
 
-const e = mix(ContentTree).with(ObserveStateMixin(resumeEntryObserver));
+const emitSectionChange = {
+  propertyChangeHandler: state.hookPropertyUpdates(),
+  observedProperties,
+  prefix,
+};
+const e = mix(ContentTree).with(
+  ObserveStateMixin(resumeEntryObserver),
+  EmitStateMixin(emitSectionChange)
+);
 
 customElements.define('content-tree', e);

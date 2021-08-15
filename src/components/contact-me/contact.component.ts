@@ -1,4 +1,4 @@
-import { LitElement, html, css, CSSResultGroup, TemplateResult } from 'lit';
+import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { style } from './contact.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';

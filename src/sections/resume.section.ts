@@ -1,4 +1,7 @@
 import { html, TemplateResult } from 'lit';
+import { fromEvent } from 'rxjs';
+import { ContentModification } from '../components/content/content.component';
+import { state } from '../util/primitives/store';
 interface ResumeEntry {
   section: string;
   startDate: string;
@@ -18,11 +21,17 @@ export class Resume {
   get title(){
     return this._title;
   }
-  get content(){
+  get lock(){
+    return html`
+    <hicks-unlock-resume>
+    </hicks-unlock-resume>
+    `
+  }
+  get buttons(){
     return  html`
-  <hicks-unlock-resume>
-  </hicks-unlock-resume>
+      <div class="resume-buttons__container"> 
         <button
+
           id="view-resume-cv"
           aria-label="Choose whether to view my CV or my resume"
           role="switch"
@@ -39,7 +48,9 @@ export class Resume {
           data-secondary-button
         >
           Expand Details
-        </button> `
+        </button> 
+      </div>
+       `
   }
   get subcontent(){
     return this._subcontent
@@ -47,14 +58,15 @@ export class Resume {
   get template() {
     return {
       title: this._title,
-      content: this.content,
+      content: this.buttons,
       subcontent: this._subcontent,
     };
   }
   constructor(entries: ResumeEntry[]) {
     this._arrayMap = this._sortEntriesByDate(entries as ResumeEntry[]);
-      this._subcontent = this._getGroupedArrayMap(this._arrayMap, 'section');
+      this._subcontent = this._getSectionTemplates(this._arrayMap, 'section');
       this._title = 'Resume'
+   
   }
   private _sortEntriesByDate(entries: ResumeEntry[]) {
     let pred = (a, b) => Date.parse(a.startDate) - Date.parse(b.startDate);
@@ -75,46 +87,48 @@ export class Resume {
       year: 'numeric',
     });
   }
-  private _getEntryTemplate(entries: ResumeEntry) {
-    return Object.entries(entries).map(([key, value]) => {
-      let content;
-      switch (key) {
-        case 'detail':
-          content = this._getDetail(value);
-          break;
-        case 'startDate':
-        case 'endDate':
-          content = this._getEntryDate(value);
-          break;
-        default:
-          content = value;
-          break;
-      }
-      return html`<span slot="${key}">${content}</span> `;
-    });
+  private _formatFieldContent(key: string, value: any) {
+    switch (key) {
+      case 'detail':
+        return this._getDetail(value);
+      case 'startDate':
+      case 'endDate':
+        return this._getEntryDate(value);
+      default:
+        return value;
+    }
   }
-  private _getGroupedArrayMap(entryList: ResumeEntry[], groupBy: string) {
+
+  private _getSectionTemplates(entryList: ResumeEntry[], groupBy: string) {
     let map = new Map() as Map<string, TemplateResult<1>[]>;
     let entries = entryList.slice();
     let length = entries.length;
     while (entries.length) {
       let entry = entries.pop() as ResumeEntry;
-      let key = entry[groupBy];
+      let sectionName = entry[groupBy];
+      const fields = Object.entries(entry)
+      let hasEndDate = fields.some(([key, value])=>key==='endDate')
       let content = html`
-        <hicks-resume-entry index="${length - entries.length}">
-          ${this._getEntryTemplate(entry)}
+        <hicks-resume-entry ?end-date="${hasEndDate}" index="${length - entries.length}">
+          ${fields.map(([field, content]) => {
+            return html`<span slot="${field}">${this._formatFieldContent(field, content)}</span> `;
+          })}
           <button slot="expand-button"></button>
         </hicks-resume-entry>
       `;
 
-      if (key) {
-        map.has(key) ? map.get(key).push(content) : map.set(key, [content]);
+      if (sectionName) {
+        map.has(sectionName) ? map.get(sectionName).push(content) : map.set(sectionName, [content]);
       }
     }
-    return Array.from(map.entries()).map(([title, section]) => {
+    const section = Array.from(map.entries())
+    return section.map(([title, section]) => {
       return {
         title,
-        content: html`<div class="resume__grid">${section}</div>`,
+        content: html`
+        <div class="resume__grid">
+          ${section}
+        </div>`,
       };
     });
   }
@@ -129,3 +143,4 @@ export const resumeSection = {
     <hicks-unlock-resume></hicks-unlock-resume>
     `
 };
+state.update({sectionAdditions: { position: 2, template: resumeSection, change: ContentModification.INSERT }})

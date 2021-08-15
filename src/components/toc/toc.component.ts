@@ -1,4 +1,4 @@
-import { html, LitElement, TemplateResult, svg } from 'lit';
+import { html, LitElement, TemplateResult } from 'lit';
 import {
   property,
   query,
@@ -11,21 +11,24 @@ import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
 import { tocTemplates as templates } from './toc.templates';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
-import { IntersectionController } from '../../util/controllers/intersection.controller';
+import {
+  IntersectionController,
+  IntersectionObserverType,
+} from '../../util/controllers/intersection.controller';
 import { ListItemController } from '../../util/controllers/item.controller';
 import { fastHash } from '../../util/primitives/salt-id';
-import { filter, mapTo } from 'rxjs/operators';
+import { debounceTime, filter, mapTo } from 'rxjs/operators';
 
 import { fromEvent } from 'rxjs';
 import { getHeadingDepth, queryHeader } from '../../util/functions/headers';
 import { queryAnchor } from '../../util/functions/anchors';
+import { MutationController } from '../../util/controllers/mutation.controller';
 
 /**
  * Element that renders table of contents.
  * @extends {BaseStateElement}
  * @final
  */
-
 export class TableOfContents extends LitElement {
   static styles = [style];
   static shadowRootOptions = {
@@ -57,6 +60,7 @@ export class TableOfContents extends LitElement {
     breakpoint: BreakpointController;
     // focus: FocusController;
     item: ListItemController;
+    mutation: MutationController;
   };
   //Templates
   list: TemplateResult[];
@@ -81,6 +85,7 @@ export class TableOfContents extends LitElement {
 
   constructor() {
     super();
+    this.open = false;
     this.activeLink = '';
     this.positions = new Map();
 
@@ -90,20 +95,35 @@ export class TableOfContents extends LitElement {
       breakpoint: new BreakpointController(this),
       //focus: new FocusController(this),
       item: new ListItemController(this),
+      mutation: new MutationController(this),
     };
-    this.controllers.breakpoint.observe('mobile').subscribe(([id, matches]) => {
-      this[id] = matches;
-    });
+    this.controllers.breakpoint
+      .observeArea(['mobile', 'tablet'])
+      .pipe(debounceTime(30))
+      .subscribe((matches: boolean) => {
+        this.mobile = matches;
+      });
     this.controllers.item
       .createHandler('hicks-toc')
       .observe.all()
       .pipe(mapTo(true))
       .subscribe((_) => {
-        window.requestAnimationFrame(() => this.updateItemOffsets());
+        //[EXPANDED] window.requestAnimationFrame(() => this.updateItemOffsets());
+      });
+    this.controllers.mutation
+      .initiate('table-of-contents')
+      .observe([this.closest('main').querySelector('content-tree')])
+      .on('childList')
+      .subscribe((change) => {
+        this.list = this.refreshLinks(this.sections);
+        this.controllers.intersection.observe(this.sections);
+        this.requestUpdate();
       });
     fromEvent(document, 'keydown')
       .pipe(filter((ev) => this.mobile && this.open && ev.key === 'Escape'))
-      .subscribe(() => (this.open = false));
+      .subscribe(() => {
+        this.open = false;
+      });
   }
 
   get sections(): HTMLElement[] {
@@ -112,11 +132,11 @@ export class TableOfContents extends LitElement {
 
   firstUpdated(changedProperties) {
     super.firstUpdated(changedProperties);
-    this.open = true;
 
     //Build the toc
     this.list = this.refreshLinks(this.sections);
     this.initIntersectionObserver();
+
     this.itemsLoaded.then(() => {
       this.loaded = true;
     });
@@ -128,7 +148,7 @@ export class TableOfContents extends LitElement {
     this.controllers.intersection
       .initiate('hicks-toc', null, threshold, margin)
       .observe(this.sections)
-      .on('entry')
+      .on(IntersectionObserverType.ENTRY)
       .subscribe(boundScroll);
   }
 
@@ -138,14 +158,15 @@ export class TableOfContents extends LitElement {
    * @param {HTMLElement[]} sections
    * @memberof TableOfContents
    */
-  refreshLinks = (sections: HTMLElement[]) => {
+  refreshLinks(sections: HTMLElement[]): TemplateResult<1>[] {
     this.positions.clear();
     let childLists = new Map() as Map<string, ListChild[]>;
-    const attributes = this.getSectionAttributes(sections, this.headingLevel);
-    attributes.sort((a, b) => b.sortOrder - a.sortOrder);
-    this.hash.section = fastHash(
-      attributes.map((item) => item.href).join('--')
-    );
+    const attributes = this.getSectionAttributes(sections, this.headingLevel),
+      sortAttributes = (a, b) => {
+        return b.sortOrder - a.sortOrder;
+      };
+    attributes.sort(sortAttributes);
+    this.hash.section = fastHash(attributes.map((item) => item.href).join(''));
     return attributes.reduce((tree, heading) => {
       //prettier-ignore
       const { title, position: {root, index, path}, href, marker } = heading,
@@ -168,7 +189,7 @@ export class TableOfContents extends LitElement {
 
       return tree;
     }, []);
-  };
+  }
 
   private addItemToSubList(
     item: ListChild,
@@ -183,14 +204,17 @@ export class TableOfContents extends LitElement {
   private getSectionAttributes(sections: HTMLElement[], headingLevel: number) {
     let rootArray = [],
       rootIndex = 0,
-      previous = { depth: 0, index: 0 },
+      previousDepth = 0,
+      previousIndex = 0,
       index = 0;
     return sections.map((section) => {
       const header = queryHeader(section),
         link = queryAnchor(section),
         depth = getHeadingDepth(header),
         topLevel = depth === headingLevel,
-        sameLevel = depth === previous.depth;
+        sameLevel = depth === previousDepth,
+        higherLevel = depth < previousDepth;
+
       //if at level = 0
       if (topLevel) {
         rootIndex++;
@@ -199,16 +223,23 @@ export class TableOfContents extends LitElement {
         //if on same level as last el
       } else if (sameLevel) {
         index++;
-        //if at deeper level
-      } else {
+      } else if (higherLevel) {
+        const level = depth - headingLevel;
+        rootArray = rootArray.slice(0, level + 1);
+        index = rootArray.pop();
+        index++;
+      }
+      //if at deeper level
+      else {
         index = 1;
-        rootArray.push(previous.index);
+        rootArray.push(previousIndex);
       }
       const root = rootArray.join('.');
       const path = topLevel ? `${rootIndex}` : root + `.${index}`,
         sortOrder = depth * 1000 + 100 - index,
         position = { root, index, path };
-      previous = { depth, index };
+      previousDepth = depth;
+      previousIndex = index;
       return {
         title: header.innerText,
         href: link.getAttribute('href'),
@@ -221,9 +252,11 @@ export class TableOfContents extends LitElement {
   update(_changedProperties) {
     super.update(_changedProperties);
 
-    this.visibleItems = Array.from(this.listItems)?.filter(
+    this.visibleItems = Array.from(
+      this.listItems
+    ); /*[EXPANSION] Array.from(this.listItems)?.filter(
       (item) => !item.hidden
-    );
+    );*/
     if (_changedProperties.has('activeId')) {
       this.activeSection = this.positions.get(this.activeLink).title || '';
     }
@@ -235,9 +268,6 @@ export class TableOfContents extends LitElement {
       _changedProperties.has('mobile') ||
       _changedProperties.has(_changedProperties.has('open'))
     ) {
-      if (!this.mobile) {
-        this.open === true;
-      }
       if (this.mobile && this.open) {
         this.itemsLoaded.then(() => {
           //      this.controllers.focus.trapFocus(
@@ -269,16 +299,17 @@ export class TableOfContents extends LitElement {
       if (this.listItems.length > 0) {
         this.collapseLists(Array.from(this.listItems).map((el) => el.path));
       }
-      console.log(this.activeLink);
       this.controllers.item.activate(this._getActivePath() ?? '');
 
-      this.updateItemOffsets();
+      //[EXPANSION] this.updateItemOffsets();
     }
   }
 
   private _getActivePath() {
     if (this.positions.has(this.activeLink)) {
       return this.positions.get(this.activeLink).path;
+    } else {
+      throw Error('Active link does not exist');
     }
   }
   expandLists(paths: string | string[]) {
@@ -291,7 +322,7 @@ export class TableOfContents extends LitElement {
   get closedLists() {
     return Array.from(this.listItems).filter((sl) => !sl.expanded);
   }
-  private updateItemOffsets() {
+  /* [EXPANDED] private updateItemOffsets() {
     if (this.visibleItems) {
       Array.from(this.visibleItems).map((el: HicksListItem, i) => {
         let prevEl = el.previousElementSibling as HicksListItem;
@@ -309,7 +340,7 @@ export class TableOfContents extends LitElement {
         }
       });
     }
-  }
+  }*/
 
   toggleAll() {
     this.allExpanded
@@ -322,9 +353,10 @@ export class TableOfContents extends LitElement {
       this.template = templates.list(this.list);
       this.hash.template = this.hash.section;
     }
+
     return html`
-      <div class="button__wrapper">
-        <button
+      <!--  <div class="button__wrapper">
+     <button
           @click=${this.toggleAll}
           type="button"
           class="expand-button button button--secondary"
@@ -332,6 +364,10 @@ export class TableOfContents extends LitElement {
         >
           Expand All <span>+</span>
         </button>
+      </div>-->
+      <div class="button__wrapper">
+        <div class="background"></div>
+        <slot name="toggle"></slot>
       </div>
       ${this.template}
     `;

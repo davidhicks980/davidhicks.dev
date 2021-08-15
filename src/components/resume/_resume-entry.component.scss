@@ -3,7 +3,7 @@
 @use 'mixins/responsive' as *;
 :host {
   --timeline--marker-size: 0.6rem;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: var(--body-font);
 }
 h2,
 h3,
@@ -177,5 +177,12 @@ h5 {
   }
   :host(.is-expanding) & {
     transform: rotate(0deg);
+  }
+}
+
+.mobile {
+  display: none;
+  @include media-size('zero', 'small') {
+    display: inline;
   }
 }

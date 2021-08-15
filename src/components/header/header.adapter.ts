@@ -6,15 +6,15 @@ import {
   ObservedStateAction,
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
-import { TOCProperties } from '../toc/TableOfContentsProperties.enum';
+import { TOCProperties } from '../toc/toc.properties';
 
 const changeSectionTitle = {
-  stream: state.filteredStream([TOCProperties.ACTIVE_SECTION]) as Observable<
+  stream: state.filteredChanges([TOCProperties.ACTIVE_SECTION]) as Observable<
     Record<string, unknown>
   >,
   actions: [
     {
-      prop: TOCProperties.ACTIVE_SECTION,
+      property: TOCProperties.ACTIVE_SECTION,
       componentHandler(this: HicksHeader, propValue: string) {
         this.sectionTitle = propValue;
       },

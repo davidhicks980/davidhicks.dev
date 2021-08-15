@@ -2,32 +2,38 @@ import { fastHash } from '../../util/primitives/salt-id';
 import { state as stateStore } from '../../util/primitives/store';
 import { CollapseController } from '../../util/controllers/expansion.controller';
 import { LitElement, html, CSSResultGroup, TemplateResult, svg } from 'lit';
-import { property, query, state } from 'lit/decorators.js';
-import { BreakpointController } from '../../util/controllers/breakpoint.controller';
-import { IntersectionController } from '../../util/controllers/intersection.controller';
+import { property, query, queryAsync } from 'lit/decorators.js';
+import {
+  IntersectionController,
+  IntersectionObserverType,
+} from '../../util/controllers/intersection.controller';
 import { style } from './resume-entry.css';
 
 export class HicksResumeEntry extends LitElement {
-  @property({ type: Boolean })
+  @property({ attribute: 'on-resume', type: Boolean })
   onResume: boolean;
   @property({ type: Boolean })
   open: boolean;
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive: boolean = false;
+  @property({ attribute: 'end-date', type: Boolean })
+  hasEndDate: boolean = false;
   @property({ attribute: 'entry-id', type: Number })
   entryId: number = 0;
-  @property({ type: Boolean })
-  collapsed;
-  @state()
+  @property({ type: Boolean, reflect: true })
+  collapsed: boolean;
+  @property({ type: Boolean, reflect: true })
   mobile: boolean;
+  @queryAsync('.entry__expansion')
+  onPanelLoad: Promise<HTMLElement>;
   @query('.entry__expansion', true)
   collapsingPanel: HTMLElement;
 
   declare controllers: {
     intersection: IntersectionController;
-    breakpoint: BreakpointController;
     expansion: CollapseController;
   };
+  panelLoaded: boolean = false;
 
   constructor() {
     super();
@@ -39,10 +45,8 @@ export class HicksResumeEntry extends LitElement {
     this.collapsed = true;
     let root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
 
-    console.log(this.shadowRoot.querySelector('.entry__expansion'));
     this.controllers = {
       intersection: new IntersectionController(this),
-      breakpoint: new BreakpointController(this),
       expansion: new CollapseController(
         this,
         'resume-entries',
@@ -50,34 +54,42 @@ export class HicksResumeEntry extends LitElement {
         this.collapsingPanel
       ),
     };
-    this.controllers.breakpoint
-      .observe('mobile')
-      .subscribe(([id, matches]) => (this[id] = matches ?? false));
+
     this.watchScroll();
+    this.onPanelLoad.then((panel) => {
+      let height = panel.offsetHeight;
+      this.style.marginBottom = -1 * height + 'px';
+      this.controllers.expansion.collapsed = true;
+    });
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.dispatchEvent(
+      new CustomEvent('resumeload', { bubbles: true, composed: true })
+    );
+  }
   watchScroll() {
     let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
       threshold = [0];
     const observe = this.controllers.intersection
       .initiate('resume-entry', null, threshold, margin)
       .observe([this as HTMLElement]);
-    observe.on('entry').subscribe((entries: IntersectionObserverEntry[]) => {
-      let entry = entries.filter((e) => e.isIntersecting)[0]
-        ?.target as HicksResumeEntry;
-      let id = entry?.entryId;
-      if (id) {
-        stateStore.update({ 'active-entry': id });
-      }
-    });
+    observe
+      .on(IntersectionObserverType.INTERSECTING)
+      .subscribe((entries: IntersectionObserverEntry[]) => {
+        let entry = entries[0]?.target as HicksResumeEntry;
+        let id = entry?.entryId;
+        if (id) {
+          stateStore.update({ 'active-entry': id });
+        }
+      });
   }
 
-  expandIcon(collapsed) {
-    return svg`<svg class="expand" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/> 
+  expandIcon = svg`<svg class="expand" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/> 
     <rect class="expand__v"  y='4' x="11.075" width="1.85" height="16" />
     <rect class="expand__h"  y='11.075' x="4" width="16" height="1.85" />
 </svg>`;
-  }
 
   updateOffset() {
     this.controllers.expansion.updateOffset();
@@ -85,12 +97,21 @@ export class HicksResumeEntry extends LitElement {
   toggle() {
     this.controllers.expansion.toggle();
   }
+  expand() {
+    this.controllers.expansion.expand();
+  }
+  collapse() {
+    this.controllers.expansion.collapse();
+  }
   render(): TemplateResult {
     return html`
       <div class="entry">
         <div class="entry__left">
           <div class="entry__date">
-            <slot name="startDate"></slot> <slot name="endDate"></slot>
+            <slot name="startDate"></slot> ${this.hasEndDate
+              ? html`<span class="mobile">to</span>`
+              : ''}
+            <slot name="endDate"></slot>
           </div>
         </div>
         <div class="entry__timeline"></div>
@@ -127,7 +148,7 @@ export class HicksResumeEntry extends LitElement {
             title="Expand"
             class="entry__expand__button"
           >
-            ${this.expandIcon(!this.collapsed)}
+            ${this.expandIcon}
           </hicks-expansion-toggle>
         </div>
       </div>

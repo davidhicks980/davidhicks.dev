@@ -46,7 +46,7 @@ function forEach(array, iteratee) {
 }
 
 // core function
-export function clone(target, map = new WeakMap()) {
+export function clone<Type>(target: Type, map = new WeakMap()): Type {
   // clone primitive types
   if (typeof target != 'object' || target == null) {
     return target;

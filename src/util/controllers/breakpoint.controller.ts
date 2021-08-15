@@ -1,5 +1,5 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { documentBreakpoints } from '../primitives/breakpoint-emitter.component';
 
 export class BreakpointController implements ReactiveController {
@@ -17,8 +17,21 @@ export class BreakpointController implements ReactiveController {
    */
   observe(breakpointIds: string | string[]) {
     let ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
-    return documentBreakpoints.observer.pipe(
+    return documentBreakpoints.observer$.pipe(
       filter(([id, matches]) => ids.includes(id))
+    );
+  }
+  /**
+   * Will emit true if any of the provided breakpoints are inhabited, false otherwise
+   *
+   * @param {(string | string[])} breakpointIds
+   * @returns {*}
+   * @memberof BreakpointController
+   */
+  observeArea(breakpointIds: string | string[]) {
+    let ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
+    return documentBreakpoints.observeAllMatches$.pipe(
+      map((queries) => ids.some((bp) => queries.get(bp) === true))
     );
   }
 

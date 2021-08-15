@@ -1,6 +1,8 @@
+import { timeStamp } from 'console';
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Observable } from 'rxjs';
 import { filter, take, tap } from 'rxjs/operators';
+import { debounce } from '../functions/debounce';
 
 import { ExpansionHandler as CollapseHandler } from '../primitives/expand-handler';
 
@@ -42,7 +44,7 @@ export class CollapseController implements ReactiveController {
     this._root = value;
   }
   collapsingPanel: HTMLElement;
-  panelHeight: number;
+  panelHeight: number = 0;
   collapsed: boolean;
   observers: {
     resize: ResizeObserver;
@@ -75,12 +77,20 @@ export class CollapseController implements ReactiveController {
   toggle(element?: HTMLElement) {
     const target = element ?? this.collapsingPanel;
     if (target) {
-      this._initToggle(target, this.collapsed);
+      this._beginToggleAnimation(target, this.collapsed);
     } else {
-      defineElementError;
+      throw defineElementError;
     }
   }
-  private _initToggle(element, currentlyCollapsed: boolean) {
+  collapse() {
+    this.collapsed = true;
+    this._displaceElement();
+  }
+  expand() {
+    this.collapsed = false;
+    this._displaceElement();
+  }
+  private _beginToggleAnimation(element, currentlyCollapsed: boolean) {
     const listener = this.elementListeners.get(element);
     if (listener) {
       listener
@@ -89,8 +99,7 @@ export class CollapseController implements ReactiveController {
           take(1)
         )
         .subscribe(() => {
-          this.host.toggleAttribute('collapsed', this.collapsed);
-          this._displaceElement(this.collapsed);
+          this._displaceElement();
         });
       this.handler.toggle(element, currentlyCollapsed);
     } else {
@@ -106,18 +115,22 @@ export class CollapseController implements ReactiveController {
       throw defineElementError;
     }
   }
-  updateOffset() {
+  updateOffset(): number {
     window.requestAnimationFrame(() => {
       let height = this.collapsingPanel.offsetHeight;
       if (height > 0) {
         this.panelHeight = height;
         this.watchElement(this.collapsingPanel);
+        this._displaceElement();
+        return this.panelHeight;
       } else {
-        throw Error('Panel height is zero: no expansion animation will occur');
+        console.info('Panel height is zero: no expansion animation will occur');
       }
     });
+    return this.panelHeight;
   }
-  private _displaceElement(force: boolean) {
+  private _displaceElement() {
+    this.host.toggleAttribute('collapsed', this.collapsed);
     this.host.style.marginBottom = this.collapsed
       ? -1 * this.panelHeight + 'px'
       : '0px';
@@ -132,9 +145,9 @@ export class CollapseController implements ReactiveController {
     this.elementListeners.set(element, listener);
     if (!this.observers?.resize) {
       this.observers = {
-        resize: new ResizeObserver(() => this.updateOffset()),
+        resize: new ResizeObserver(debounce(50, this.updateOffset.bind(this))),
       };
-      this.observers.resize.observe(this.host);
+      this.observers.resize.observe(this.collapsingPanel);
     }
   }
   constructor(
@@ -150,6 +163,7 @@ export class CollapseController implements ReactiveController {
       handlers.set(this._handlerKey, new CollapseHandler(this._root));
     }
     this.collapsingPanel = collapsingPanel;
+    this.collapsed = true;
   }
   hostConnected() {
     this.host.requestUpdate();

@@ -5,7 +5,7 @@
     border-radius: 3px;
     font-weight: 500;
     cursor: pointer;
-    font-family: system-ui, sans-serif;
+    font-family: var(--body-font);
     font-size: calc(#{$height} * 0.5);
     height: $height;
     transition: all 250ms;

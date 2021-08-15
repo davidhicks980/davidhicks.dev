@@ -6,7 +6,7 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 type LitProto = Constructor<LitElement>;
 
 export type ObservedStateAction = {
-  prop: string;
+  property: string;
   componentHandler: (...args) => unknown;
 };
 
@@ -21,7 +21,7 @@ export function ObserveStateMixin(handler: {
         super();
         const { actions, stream } = handler;
         this.actionsMap = new Map();
-        actions.map(({ prop: prop, componentHandler }) => {
+        actions.map(({ property: prop, componentHandler }) => {
           const handler = componentHandler.bind(this);
           this.actionsMap.set(prop, handler);
         });

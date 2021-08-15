@@ -1,6 +1,8 @@
 // Wait a minute...that’s a weird mix?
 
 import { html } from 'lit';
+import { state } from '../util/primitives/store';
+import { ContentModification } from '../components/content/content.component';
 
 export const aboutSection = {
   title: 'About',
@@ -42,3 +44,5 @@ export const aboutSection = {
     
   ],
 };
+
+state.update({sectionAdditions: { position: 0, template: aboutSection, change: ContentModification.INSERT }})

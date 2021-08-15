@@ -1,12 +1,12 @@
-import { html, LitElement, Template, TemplateResult } from 'lit';
-import { property, state } from 'lit/decorators.js';
+import { html, LitElement, TemplateResult } from 'lit';
+import { state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { literal, html as staticHTML } from 'lit/static-html.js';
+import { timer } from 'rxjs';
 import { fastHash } from '../../util/primitives/salt-id';
 import { clone } from './deep-clone';
 import { PageSection } from './PageSection';
 export class Tree {
-  private _cachedTree: PageSection[];
   constructor() {}
   private _linkIcon = html`<svg
     xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +25,6 @@ export class Tree {
     header: TemplateResult,
     content: TemplateResult,
     children: TemplateResult,
-    position: string,
     marker = ''
   ) {
     return html`<section data-toc-marker="${marker}">
@@ -39,52 +38,29 @@ export class Tree {
    * @param {PageSection} tree
    * @memberof Tree
    */
-  loadTree(tree: PageSection[], cache = false) {
-    if (cache) {
-      this._cachedTree = tree;
-    }
+  loadTree(tree: PageSection[]) {
     return this._buildTree(tree, 1);
-  }
-
-  insertContent(position: number[], content: PageSection | PageSection[]) {
-    let clonedTree = clone(this._cachedTree),
-      branch = clonedTree;
-    while (position.length) {
-      branch = branch[position.shift()];
-      branch.subcontent = branch?.subcontent ?? [];
-      branch = branch.subcontent;
-    }
-    if (Array.isArray(content)) {
-      content.forEach((el) => branch.push(el));
-    } else {
-      branch.push(content);
-    }
-    return clonedTree;
-  }
-  update(position: number, content: PageSection) {
-    let clonedTree = clone(this._cachedTree) as PageSection[];
-    clonedTree.splice(position, 1, content);
-    return clonedTree;
   }
 
   _buildTree(section: PageSection[], depth: number) {
     let root = section.slice();
     let contentTree = [];
-
+    let item = 0;
     if (Array.isArray(section)) {
       while (root.length) {
         const { title, content, subcontent, marker } = root.shift();
+        if (depth === 1) {
+          item += 1;
+        }
         if (!title) {
-          throw TypeError(
-            '[content.component.tree]Content title cannot be undefined.'
-          );
+          throw TypeError('Content title cannot be undefined.');
         }
         const href = `${title}`.replace(/[^\w\d.-]/g, '_');
-        const hasChildren = Array.isArray(subcontent) && subcontent.length;
+        const childCount = Array.isArray(subcontent) && subcontent.length;
         let children = html``,
           childHash = 0;
 
-        if (hasChildren) {
+        if (childCount > 0) {
           const childArray = this._buildTree(subcontent, depth + 1);
           const compareKey = (template) => template.key;
           const getTemplate = (template) => template.template;
@@ -94,23 +70,27 @@ export class Tree {
         }
         const link = this._getHeaderLink(href);
         const heading = this._getHeader(depth, html`${title}${link}`);
+
         const template = this._compose(
           heading,
           content ?? html``,
           children,
-          href,
           marker
         );
 
         contentTree.push({
           template: template,
           key: href + childHash + depth,
+          item,
         });
       }
+    } else {
+      throw TypeError('Sections must be provided as arrays');
     }
     return contentTree as {
       template: TemplateResult<any>;
       key: string;
+      item: number;
     }[];
   }
 
@@ -129,7 +109,7 @@ export class Tree {
       literal`h6`,
     ];
     if (level < 1) {
-      throw TypeError('[Tree._getHeader] Header depth must be between 1 and 6');
+      throw TypeError('Header depth must be between 1 and 6');
     } else if (level > 6) {
       level = 6;
     }
@@ -142,37 +122,103 @@ type TemplateTuple = [string, TemplateResult<1>];
 
 type KeyedTemplate = Map<string, TemplateResult<1>>;
 
+export enum ContentModification {
+  INSERT = 'insert',
+  DELETE = 'delete',
+  REPLACE = 'replace',
+}
+
+const contentUndefined = TypeError(
+  'In order to replace or insert sections, you must define the entries you want to insert'
+);
 export class ContentTree extends LitElement {
   tree: Tree;
   content: KeyedTemplate;
+  _cache: (PageSection | true)[];
+
   @state()
   template: TemplateTuple[];
-
+  loading: boolean = true;
+  sectionsToSplice = new Map();
   createRenderRoot() {
     // Disable shadow DOM.
     // Instead templates will be rendered in the light DOM.
     return this;
   }
-  load(sections: PageSection[]) {
-    this.tree.loadTree(sections, true).forEach((e) => {
-      this.content.set(e.key, e.template);
-    });
-    this.refreshTemplate(this.content);
-  }
-  updateSection(position: number, entries: PageSection) {
-    let update = this.tree.update(position, entries);
-    this.tree.loadTree(update, true).forEach(({ template, key }) => {
+  async load(sections: PageSection[]) {
+    this.content.clear();
+    const order = this.tree.loadTree(sections).map((section) => {
+      let { key, template, item } = section;
       this.content.set(key, template);
+      return [key, item] as [string, number];
     });
-    this.refreshTemplate(this.content);
+    this.refreshTemplate(this.content, new Map(order));
+    return;
+  }
+  changeSections(
+    position: number,
+    change: ContentModification,
+    entry?: PageSection
+  ) {
+    let splicedSections = (clone(this._cache) || []) as (PageSection | true)[];
+    //If the position already exists, you can write to spliced sections
+    if (splicedSections[position]) {
+      switch (change) {
+        case ContentModification.DELETE:
+          splicedSections.splice(position, 1);
+          break;
+        case ContentModification.INSERT:
+          if (entry && splicedSections[position] === true) {
+            splicedSections.splice(position, 1, entry);
+          } else if (entry) {
+            splicedSections.splice(position, 0, entry);
+          } else {
+            throw contentUndefined;
+          }
+          break;
+        case ContentModification.REPLACE:
+          if (entry) {
+            splicedSections.splice(position, 1, entry);
+          } else {
+            throw contentUndefined;
+          }
+          break;
+      }
+    } else {
+      while (splicedSections.length < position + 1) {
+        splicedSections.push(true);
+      }
+      splicedSections[position] = entry;
+    }
+    this._cache = splicedSections;
+    this.batchLoad();
+  }
+  batchLoad() {
+    timer(250).subscribe(() => {
+      const sections = this._cache.filter(
+        (item) => typeof item != 'boolean'
+      ) as PageSection[];
+      this.load(sections).then((res) => {
+        this.updateComplete.then(() => {
+          this.loading = false;
+        });
+      });
+    });
   }
 
-  refreshTemplate(content: KeyedTemplate) {
-    this.template = this._getContentArray(content);
+  refreshTemplate(content: KeyedTemplate, order: Map<string, number>) {
+    this.template = this._getContentArray(content).sort((a, b) => {
+      return order.get(a[0]) - order.get(b[0]);
+    });
     this.requestUpdate();
   }
+  updated(_changedProperties) {
+    super.updated(_changedProperties);
+  }
+
   constructor() {
     super();
+    this._cache = [];
     this.tree = new Tree() as Tree;
     this.content = new Map();
   }
@@ -182,6 +228,9 @@ export class ContentTree extends LitElement {
 
   private _getContentArray = (content): TemplateTuple[] => Array.from(content);
   render() {
+    if (this.loading || !this.template) {
+      return;
+    }
     return repeat(this.template, this._getContentKey, this._getContentTemplate);
   }
 }

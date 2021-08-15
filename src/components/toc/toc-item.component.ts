@@ -5,12 +5,11 @@ import {
   queryAssignedNodes,
   state,
 } from 'lit/decorators.js';
-import { style } from './tocitem.css';
+import { style } from './toc-item.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { literal, html } from 'lit/static-html.js';
 
 import { ListItemController } from '../../util/controllers/item.controller';
-import { classMap } from 'lit/directives/class-map.js';
 import { fromEvent } from 'rxjs';
 import { ARROW_KEYS } from '../radio-group/keys.constants';
 import { filter } from 'rxjs/operators';
@@ -37,7 +36,6 @@ export class HicksListItem extends LitElement {
   childSlot: NodeListOf<HicksListItem>;
   @property({ type: Number, reflect: true })
   listChildren: number = 0;
-
   @property({ type: Boolean, reflect: true })
   active: boolean = false;
   @property({ type: Boolean, reflect: true })
@@ -117,8 +115,8 @@ export class HicksListItem extends LitElement {
     this.controllers = {} as any;
     this.controllers.breakpoint = new BreakpointController(this);
     this.controllers.breakpoint
-      .observe('mobile')
-      .subscribe(([id, matches]) => (this[id] = matches ?? false));
+      .observeArea(['mobile', 'tablet'])
+      .subscribe((matches) => (this.mobile = matches));
     this.controllers.item = new ListItemController(this, 'hicks-toc', '');
     this.controllers.item.observe.all().subscribe(([expanded, active]) => {
       this.expanded = expanded.has(this.path) || expanded.has('*');
@@ -126,7 +124,9 @@ export class HicksListItem extends LitElement {
         expanded.has(this.root) || !this.root.length || expanded.has('*')
           ? false
           : true;
-      this.active = this.path === active;
+      if (active.trim().length > 0) {
+        this.active = this._path === active;
+      }
     });
     fromEvent(this, 'keydown')
       .pipe(filter((ev: KeyboardEvent) => ARROW_KEYS.includes(ev.key)))
@@ -139,7 +139,7 @@ export class HicksListItem extends LitElement {
           case 'Down': // IE/Edge specific value
           case 'ArrowDown':
             // Do something for "down arrow" key press.
-            if (this.hasListChildren && this.expanded) {
+            if (this.hasListChildren /*&& this.expanded*/) {
               this.childSlot[0].focus();
             } else if (this.nextElementSibling) {
               focus(this.nextElementSibling);
@@ -173,12 +173,12 @@ export class HicksListItem extends LitElement {
             break;
           case 'Left': // IE/Edge specific value
           case 'ArrowLeft':
-            this.controllers.item.collapse(this.path);
+            //[EXPANDED] this.controllers.item.collapse(this.path);
             break;
           case 'Right': // IE/Edge specific value
           case 'ArrowRight':
           case 'Enter':
-            this.controllers.item.expand(this.path);
+            //[EXPANDED]  this.controllers.item.expand(this.path);
             break;
           default:
             return; // Quit when this doesn't handle the key event.
@@ -189,14 +189,14 @@ export class HicksListItem extends LitElement {
       });
   }
   updateSlots() {
-    const show = this.hasListChildren;
+    /*[EXPANDED] const show = this.hasListChildren;*/
     const slots = {
-      suffix: show ? this.createSlot('suffix') : nothing,
+      suffix: false ? this.createSlot('suffix') : nothing,
       prefix: this.createSlot('prefix'),
       link: this.createSlot('link'),
     };
     const tags = {
-      ul: show
+      ul: true
         ? [literal`<ul class="sublist" role="group">`, literal`</ul>`]
         : [nothing, nothing],
     };
@@ -210,9 +210,9 @@ export class HicksListItem extends LitElement {
   }
   willUpdate(_changedProperties: Map<string, unknown>) {
     super.willUpdate(_changedProperties);
-    if (_changedProperties.has('hidden')) {
+    /*[EXPANDED] if (_changedProperties.has('hidden')) {
       this.tabIndex = this.hidden ? -1 : 0;
-    }
+    }*/
 
     if (_changedProperties.has('listChildren')) {
       this.updateSlots();
@@ -220,26 +220,24 @@ export class HicksListItem extends LitElement {
   }
   updated(_changedProperties: Map<string | number | symbol, unknown>) {
     super.updated(_changedProperties);
-    if (_changedProperties.has('offset')) {
+    /*[EXPANDED] if (_changedProperties.has('offset')) {
       this.setCSSVar('--item--offset', this.offset);
-    }
+    }*/
   }
-
   setCSSVar(name: string, value: string | number) {
     this.style.setProperty(name, String(value));
   }
-
   handleToggle(e: { target: { toggled: boolean } }) {
     this.expanded
       ? this.controllers.item.collapse([this.path])
       : this.controllers.item.expand([this.path]);
   }
   render(): TemplateResult {
-    let fadeIn = { 'transition--fade-in': !this.hidden };
+    /*[EXPANDED]   let fadeIn = { 'transition--fade-in': !this.hidden };
+      aria-expanded="${this.hasListChildren ? this.expanded : 'undefined'}"*/
     return html`<li
       role="${this.hasListChildren ? 'treeitem' : 'none'}"
-      aria-expanded="${this.hasListChildren ? this.expanded : 'undefined'}"
-      class="item ${classMap(fadeIn)}"
+      class="item"
     >
       <div class="item__content" @toggle="${this.handleToggle}">
         ${this.templates.slots.prefix}

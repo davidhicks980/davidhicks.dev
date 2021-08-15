@@ -18,6 +18,13 @@ $trees: header($tree-front, $tree-rear);
     display: flex;
     justify-content: center;
     overflow: hidden;
+    &__toggle {
+      &__container {
+        @include media-size('medium') {
+          display: none;
+        }
+      }
+    }
     &__svg {
       position: absolute;
       width: 1920px;
@@ -36,7 +43,7 @@ $trees: header($tree-front, $tree-rear);
       flex-wrap: nowrap;
       flex-direction: row;
       justify-content: space-between;
-      z-index: 200;
+      z-index: 5;
       align-content: center;
       align-items: center;
       &__links {
@@ -52,7 +59,7 @@ $trees: header($tree-front, $tree-rear);
   &__grid {
     position: sticky;
     top: calc(var(--upper-height) * -1 - 1px);
-    z-index: 10000;
+    z-index: 10;
   }
   &__upper {
     height: var(--upper-height);

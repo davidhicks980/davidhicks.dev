@@ -1,44 +1,45 @@
 import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
-import { customElement, property, queryAssignedNodes } from 'lit/decorators.js';
+import { property, queryAssignedNodes } from 'lit/decorators.js';
 import { style } from './toggle.css';
 
-export enum ToggleProperties {
-  TOGGLED = 'toggled',
-}
-
 export class HicksToggle extends LitElement {
-  @property({ type: Boolean, reflect: true }) toggled: boolean = false;
+  @property({ type: Boolean, reflect: true }) toggled: boolean;
   @property({ type: String }) height: string = '2rem';
   @property({ type: String }) width: string = '2rem';
 
   @queryAssignedNodes('', true, 'svg')
   slottedIcon: NodeListOf<SVGElement>;
 
-  private _toggleEvent: CustomEvent;
-
   constructor() {
     super();
-    this._toggleEvent = new CustomEvent('toggle', {
-      detail: { isToggled: this.toggled },
-      bubbles: true,
-      composed: true,
-    });
+    this.toggled = false;
   }
-  handleClick(event: PointerEvent) {
+  handleClick(e: PointerEvent) {
     this.toggled = this.toggled ? false : true;
-    this.dispatchEvent(this._toggleEvent);
+    this.dispatchEvent(
+      new CustomEvent('toggle', {
+        detail: { isToggled: this.toggled },
+        bubbles: true,
+        composed: true,
+      })
+    );
     if (this.slottedIcon) {
       this.toggleIconClass();
     }
   }
   toggleIconClass() {
-    this.toggled
-      ? this.slottedIcon[0].classList.add('toggled')
-      : this.slottedIcon[0].classList.remove('toggled');
+    this.slottedIcon[0].classList.toggle('toggled', this.toggled);
+  }
+  update(_changedProperties) {
+    super.update(_changedProperties);
+    if (_changedProperties.has('toggled')) {
+      this.toggleIconClass();
+    }
   }
 
   updated(_changedProperties) {
     super.updated(_changedProperties);
+
     if (_changedProperties.has('height') || _changedProperties.has('width')) {
       this.style.height = this.height;
       this.style.width = this.width;

@@ -1,6 +1,12 @@
-import produce from 'immer';
+import produce, {
+  enableMapSet,
+  enablePatches,
+  produceWithPatches,
+} from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { clone } from '../../components/content/deep-clone';
+import { documentBreakpoints } from './breakpoint-emitter.component';
 const validateObj = (o: Object) => {
   if (typeof o === 'object' && o !== null) {
     return true;
@@ -10,23 +16,30 @@ const validateObj = (o: Object) => {
     );
   }
 };
+enablePatches();
+enableMapSet();
 class StateStore {
-  store: BehaviorSubject<{ [key: string]: unknown }>;
-  changes: BehaviorSubject<{}>;
+  private _changes: BehaviorSubject<{ [key: string]: unknown }>;
+  private _store: BehaviorSubject<{ [key: string]: unknown }>;
 
-  get stream() {
-    return this.store.asObservable();
+  get changes() {
+    return this._changes.asObservable();
+  }
+  get store() {
+    return this._store.asObservable();
   }
   constructor() {
-    this.store = new BehaviorSubject({});
-    this.changes = new BehaviorSubject({});
+    this._changes = new BehaviorSubject({});
+    this._store = new BehaviorSubject({});
   }
   hookPropertyUpdates() {
     return this.update.bind(this);
   }
-  filteredStream(filter: string[]): Observable<Record<string, unknown>> {
-    //Probably not super scalable, but this function will not be used a lot
-    return this.stream.pipe(
+  private _filterSubject(
+    property: string,
+    filter: string[]
+  ): Observable<Record<string, unknown>> {
+    return this[property].pipe(
       map((state) => {
         return Object.entries(state)
           .filter(([key]) => filter.includes(key))
@@ -37,16 +50,28 @@ class StateStore {
       })
     );
   }
-  update(newState: { [key: string]: any }) {
-    if (validateObj(newState)) {
-      Object.keys(newState);
-      const value = this.store.value;
-      let update = produce(value, (draft: {}) => {
-        return Object.assign(draft, newState);
+  filteredChanges(filter: string[]): Observable<Record<string, unknown>> {
+    return this._filterSubject('_changes', filter);
+  }
+  filteredStore(filter: string[]): Observable<Record<string, unknown>> {
+    return this._filterSubject('_store', filter);
+  }
+  update(stateUpdate: { [key: string]: any }) {
+    if (validateObj(stateUpdate)) {
+      const value = this._store.value;
+      const [nextState, patches, _] = produceWithPatches(value, (draft: {}) => {
+        Object.assign(draft, stateUpdate);
       });
-      this.store.next(update);
+      if (patches.length) {
+        this._store.next(nextState);
+        this._changes.next(clone(stateUpdate));
+      }
     }
   }
 }
 
 export const state = new StateStore();
+export const storeKeys = { BREAKPOINTS: 'store$breakpointMatches' };
+documentBreakpoints.observeAllMatches$.subscribe((matches) => {
+  state.update({ store$breakpointMatches: matches });
+});

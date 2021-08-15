@@ -27,9 +27,10 @@ a.hidden {
 html,
 body {
   box-sizing: border-box;
-  @include media-size(zero, small) {
+  @include media-size(zero, medium) {
     .has-open-menu {
       overflow: hidden;
+      padding-right: 18px;
     }
   }
 }
@@ -57,7 +58,12 @@ background-animation {
   --background-color: var(--primary-9);
 }
 section {
-  background: white;
+  @include media-size('zero', 'small') {
+    margin: 0px 1rem;
+  }
+  @include media-size('small', 'medium') {
+    margin: 0px 2rem;
+  }
 }
 
 .layout {
@@ -67,7 +73,7 @@ section {
   max-width: calc(100vw - 1rem);
   margin-left: 1rem;
   justify-content: center;
-  @include media-size('zero', 'small') {
+  @include media-size('zero', 'medium') {
     display: block;
     margin: 0px;
     max-width: 100vw;
@@ -84,29 +90,40 @@ section {
 
     @include hoverable-shadow(3);
     @include shadow(3);
-    @include media-size('zero', 'small') {
+    @include media-size('zero', 'medium') {
+      grid-column: none;
+      display: block;
+      padding: 2rem;
       &::after {
         box-shadow: none;
       }
     }
   }
-  & .right {
+  & .navigation {
     grid-column: 2 / 3;
-
-    @include media-size('small', 'large') {
+    @include media-size('medium', 'large') {
       display: flex;
       justify-content: center;
     }
-    @include media-size('zero', 'small') {
+    @include media-size('zero', 'medium') {
+      visibility: hidden;
+      position: fixed;
       grid-column: none;
-      position: absolute;
+      top: 0px;
+      height: 100vh;
+      width: 100vw;
+      .has-open-menu & {
+        display: flex;
+        z-index: 100;
+        visibility: visible;
+      }
     }
   }
   &.is-mobile {
     grid-template-columns: 1fr;
   }
-  @include media-size('small', 'large') {
-    grid-template-columns: 1fr var(--sidebar-width);
+  @include media-size('medium') {
+    grid-template-columns: auto var(--sidebar-width);
   }
 }
 

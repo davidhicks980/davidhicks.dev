@@ -1,6 +1,7 @@
 import { css } from 'lit';
 
- export const style = css`:root {
+ export const style = css`@charset "UTF-8";
+:root {
   --header-font: "PT Sans", sans-serif;
   --body-font: "Arimo", sans-serif;
 }
@@ -61,35 +62,32 @@ h6 {
     opacity: 1;
   }
 }
+/*
 .transition--fade-in {
-  -webkit-animation-name: fade-in;
-          animation-name: fade-in;
-  -webkit-animation-timing-function: cubic-bezier(0.43, 0.04, 1, -0.1);
-          animation-timing-function: cubic-bezier(0.43, 0.04, 1, -0.1);
-  -webkit-animation-duration: calc(var(--item--index) * 75ms);
-          animation-duration: calc(var(--item--index) * 75ms);
-  -webkit-animation-iteration-count: 1;
-          animation-iteration-count: 1;
-}
-
+  animation-name: fade-in;
+  animation-timing-function: cubic-bezier(0.43, 0.04, 1, -0.1);
+  animation-duration: calc(var(--list-item--index) * 75ms);
+  animation-iteration-count: 1;
+}*/
 :host {
   width: inherit;
   display: list-item;
   padding-left: 0.5em;
-  will-change: transform;
-  -webkit-transition: 0.3s ease-in-out 0s;
-  transition: 0.3s ease-in-out 0s;
-  -webkit-transform: translateY(calc(-1 * (0 * 0)));
-          transform: translateY(calc(-1 * (0 * 0)));
-  -webkit-transform: translateY(calc(-1 * (var(--item--offset, 0) * var(--item--height, 0))));
-          transform: translateY(calc(-1 * (var(--item--offset, 0) * var(--item--height, 0))));
-  -webkit-transition-property: -webkit-transform opacity;
-  transition-property: -webkit-transform opacity;
-  transition-property: transform opacity;
-  transition-property: transform opacity, -webkit-transform opacity;
-  font: var(--item--font);
+  list-style-type: none;
+  font: var(--list-item--font);
   min-width: 15ch;
   outline: none;
+  color: var(--list-item--font-color);
+  /* will-change: transform;
+  transition: 0.3s ease-in-out 0s;
+  transform: translateY(
+    calc(-1 * (var(--list-item--offset, 0) * var(--list-item--height, 0)))
+  );
+  transition-property: transform opacity;
+  @include root.state('[hidden]') {
+    will-change: transform;
+    transform: translateY(calc(-1 * (var(--list-item--offset, 0))));
+  }*/
 }
 @media (prefers-reduced-motion) {
   :host {
@@ -100,36 +98,34 @@ h6 {
     opacity: 1;
   }
 }
-@media ( min-width: 0px) and ( max-width: 599.99px) {
+@media ( min-width: 0px) and ( max-width: 899.99px) {
   :host {
     width: inherit;
+    display: none;
+  }
+  :host([top-level]) {
+    display: block;
+    font-size: 2rem;
+    padding: 1rem;
   }
 }
-:host([hidden]) {
-  will-change: transform;
-  -webkit-transform: translateY(calc(-1 * (0)));
-          transform: translateY(calc(-1 * (0)));
-  -webkit-transform: translateY(calc(-1 * (var(--item--offset, 0))));
-          transform: translateY(calc(-1 * (var(--item--offset, 0))));
-}
-
 :host .sublist {
-  visibility: hidden;
-  opacity: 0;
   margin: 0px;
   padding: 0px 0px 0px 1rem;
-  list-style-type: none;
-}
-@media (prefers-reduced-motion) {
-  :host .sublist {
+  /* visibility: hidden;
+   opacity: 0;*/
+  /* @media (prefers-reduced-motion) {
     visibility: visible;
   }
-}
-:host([expanded]) .sublist {
-  visibility: visible;
-  opacity: 1;
+  @include root.state('[expanded]') {
+    visibility: visible;
+    opacity: 1;
+  }*/
 }
 
+.item {
+  margin: 0.25rem 0rem;
+}
 .item__content {
   display: grid;
   grid-template-areas: "icon link button";
@@ -137,10 +133,12 @@ h6 {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  height: var(--item--height);
 }
 .item__content__prefix {
   grid-area: icon;
+}
+.item__content__prefix :host([active]:not([top-level])) {
+  content: "◆";
 }
 @media ( min-width: 0px) and ( max-width: 599.99px) {
   .item__content {
@@ -152,18 +150,17 @@ h6 {
   grid-area: link;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-:host([active]) .item__content__a ::slotted(*) {
-  color: var(--primary-8);
 }
 .item__content__link {
-  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: var(--list-item--font-color);
+  font-family: var(--list-item--font-family);
+}
+:host([active]) .item__content__link {
+  color: var(--primary-10);
+  font-weight: 500;
 }
 .item__content__suffix {
-  width: var(--item--height);
+  width: var(--list-item--height);
   grid-area: button;
 }
 :host([top-level]) .item__content__link {
