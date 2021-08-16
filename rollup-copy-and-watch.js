@@ -2,10 +2,8 @@ const fs = require('fs');
 
 export default function litScssToCss(fileIn, fileOut) {
   return {
-    name: 'litScssToCss',
-    async buildStart() {
-      this.lit - s(fileIn);
-    },
+    name: 'buildStart',
+    async buildStart() {},
     async generateBundle() {
       this.emitFile({
         type: 'asset',

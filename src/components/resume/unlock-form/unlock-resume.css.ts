@@ -1,6 +1,10 @@
 import { css } from 'lit';
 
- export const style = css`input {
+ export const style = css`.unlock-resume__input-wrapper {
+  padding: 0.7rem 0px;
+}
+
+input {
   padding: 0.5em;
   font-size: 12pt;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
@@ -40,16 +44,14 @@ input:hover {
   color: var(--gray-11);
 }
 .unlock-resume__hint--emphasis {
-  text-decoration: underline;
   font-style: normal;
-  text-underline-position: from-font;
 }
 
 button.button, button.button--secondary, button.button--primary {
   border-radius: 3px;
   font-weight: 500;
   cursor: pointer;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  font-family: var(--body-font);
   font-size: calc(2em * 0.5);
   height: 2em;
   -webkit-transition: all 250ms;
@@ -141,7 +143,7 @@ button.button--secondary:active::after {
 }
 
 label {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  font-family: var(--body-font);
   font-weight: 500;
   display: block;
 }

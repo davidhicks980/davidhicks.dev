@@ -3,7 +3,7 @@
 
 .unlock-resume {
   &__input-wrapper {
-    padding: 0px 0.4rem;
+    padding: 0.7rem 0px;
   }
 }
 input {
@@ -36,9 +36,7 @@ input {
   font-size: 9pt;
   color: var(--gray-11);
   &--emphasis {
-    text-decoration: underline;
     font-style: normal;
-    text-underline-position: from-font;
   }
 }
 

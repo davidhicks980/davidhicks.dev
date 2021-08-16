@@ -7,7 +7,6 @@ import copy from 'rollup-plugin-copy';
 import watchAssets from 'rollup-plugin-watch-assets';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import serve from 'rollup-plugin-serve';
-import json from '@rollup/plugin-json';
 
 const copyConfig = {
   targets: [
@@ -38,7 +37,6 @@ export default {
   preserveEntrySignatures: true,
   plugins: [
     // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
-    json(),
     typescript(),
     copy(copyConfig),
     commonjs(),

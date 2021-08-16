@@ -7,9 +7,7 @@ const options = {
 
 const inst = chokidar.watch('**/*.component.scss', options);
 inst.on('change', (path) => {
-  console.log(path);
   sassRender(path).catch((err) => {
     // eslint-disable-next-line no-console
-    console.error(err);
   });
 });

@@ -7,20 +7,17 @@ import { ContentModification } from '../components/content/content.component';
 export const portfolioSection = {
   title: 'Portfolio',
   marker: '🎨',
-  subcontent: [
-    {
-      title: 'Section 2.1',
-      content: html`
+ content: html`
       <style>
         #kinetics-card  {
-          --panel--image:  url("${kineticsDataURI('#87b1de')}");
+          --panel--image:  url("${kineticsDataURI('#b5c0e8')}");
            
           --panel--image--size: 90%;
           --panel--icon--size: 105%
         }
         
         #elder-drug-card  {
-          --panel--image:  url("${elderDrugDataURI('#87b1de')}");
+          --panel--image:  url("${elderDrugDataURI('#b5c0e8')}");
           --panel--image--size: 80%;
           --panel--icon--size: 65%
         }
@@ -137,9 +134,8 @@ export const portfolioSection = {
         </hicks-expansion>
          
         
-        `,
         
-    },
-  ],
+        
+    `
 };
 state.update({sectionAdditions: { position: 1, template: portfolioSection , change: ContentModification.INSERT}})

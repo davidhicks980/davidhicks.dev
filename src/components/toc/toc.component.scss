@@ -8,9 +8,8 @@
   //Item variables
   // --list-item--margin: calc(var(--font-size) * 0.825); // Padding around the item
   --list-item--height: calc(var(--font-size) * 2);
-  --list-item--font-color: var(--gray-11); //Dimensions
+  --list-item--font-color: var(--gray-9); //Dimensions
   --list-item--font-family: var(--body-font); //Dimensions
-  --list-item--line-color: var(--gray-4); //Dimensions
 
   //List variables
   --head--margin: calc(var(--font-size) * 1.75);
@@ -60,12 +59,12 @@
   top: var(--toolbar-height);
   @include root.state('[mobile]') {
     --host--width: 100vw;
-    //  --host--top: 0px;
     --host--height: 100vh;
     --host--position: fixed;
     --font-size: 1.25rem;
     --list-item--font-color: white;
 
+    top: 0px;
     padding: 1rem 1rem;
     align-items: center;
     & hicks-list-item {
@@ -154,17 +153,19 @@
     background-color: rgb(31, 31, 31);
     position: fixed;
     top: 6px;
-    z-index: 0;
+    z-index: 2;
     transform: scale(1);
     transform-origin: 70% 30%;
-    transition-property: opacity transform;
+    transition-property: transform;
     transition-duration: 500ms;
     transition-timing-function: ease-in;
+    animation-fill-mode: forwards;
     overflow: visible;
     pointer-events: none;
     :host([open]) & {
       transform: scale(30);
       pointer-events: all;
+      z-index: 0;
     }
   }
 }

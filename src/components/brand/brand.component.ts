@@ -36,20 +36,10 @@ export class BrandComponent extends LitElement {
         </div> `
       : nothing;
 
-  subtitleTemplate = (shown) =>
-    shown
-      ? html` <div class="brand-grid__subtitle">
-          <subtitle-component></subtitle-component>
-        </div>`
-      : nothing;
-
   render(): TemplateResult {
     return html`<div class="brand-grid">
-      <div class="brand-grid__logo">
-        <logo-component></logo-component>
-      </div>
-      ${this.titleTemplate(!this.mobile)} ${this.subtitleTemplate(!this.mobile)}
-    </div>`;
+      ${this.titleTemplate(!this.mobile)}
+    </div> `;
   }
   static get styles(): CSSResultGroup[] {
     return [style];

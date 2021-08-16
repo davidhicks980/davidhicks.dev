@@ -1,12 +1,13 @@
-@use './header-trees' as *;
 @use 'mixins/color-variables' as *;
 @use 'mixins/responsive' as *;
 @use 'mixins/shadows' as *;
 @use 'sass:color';
 @use 'sass:string';
+/*
 $tree-front: string.slice(#{$primary-12}, 2, 10);
 $tree-rear: string.slice(#{$primary-11}, 2, 10);
 $trees: header($tree-front, $tree-rear);
+*/
 .header {
   &__toolbar {
     position: sticky;
@@ -30,7 +31,7 @@ $trees: header($tree-front, $tree-rear);
       width: 1920px;
       height: inherit;
       &__path {
-        fill: var(--primary-12);
+        fill: var(--primary-11);
       }
     }
     &__content {
@@ -67,34 +68,17 @@ $trees: header($tree-front, $tree-rear);
     box-sizing: border-box;
     place-content: space-between;
     max-height: var(--upper-height);
-    background-image: linear-gradient(
-      0deg,
-      rgba(255, 189, 173, 1) 2.36%,
-      rgba(253, 194, 180, 1) 11.84%,
-      rgba(247, 208, 198, 1) 25.1%,
-      rgba(243, 219, 212, 1) 33.05%,
-      rgba(222, 214, 218, 1) 43.11%,
-      rgba(198, 208, 225, 1) 57.61%,
-      rgba(183, 204, 229, 1) 71.03%,
-      rgba(178, 203, 230, 1) 82.2%,
-      rgba(175, 202, 231, 1) 99.71%
+    background-image: radial-gradient(
+      at -50% -2%,
+      var(--primary-10) 31%,
+      var(--primary-11) 74%
     );
-    padding-top: 20vh;
+    padding-bottom: 20vh;
+    align-items: center;
     > * {
       padding: 0vw 5vw;
     }
-    &::before {
-      content: '';
-      background-image: url($trees);
-      background-position: center center;
-      background-repeat: no-repeat;
-      width: 100%;
-      height: 310px;
-      position: absolute;
-      bottom: var(--toolbar-height);
-      overflow: hidden;
-      background-size: 1920px;
-    }
+
     &::after {
       content: '';
       height: 100%;
@@ -105,7 +89,7 @@ $trees: header($tree-front, $tree-rear);
       bottom: 0px;
       position: absolute;
       background-image: url('./icons/noise-reducedsmall.png');
-      opacity: 0.3;
+      opacity: 0.2;
       mask-image: linear-gradient(
         to top,
         rgba(0, 0, 0, 0) 10%,
@@ -115,13 +99,9 @@ $trees: header($tree-front, $tree-rear);
     }
     &__nav {
       ::slotted(hicks-nav) {
-        --nav--item--font-color: var(--gray-12);
-        --nav--item--hover--font-color: var(--gray-13, slategray);
-        --nav--item--selected--font-color: var(--primary-10);
-        --nav--item--hover--text-decoration: underline;
-        --nav--item--padding: 0.5rem;
-        --nav--item--border: 2px solid black;
-        --nav--item--radius: 1rem;
+        --nav-item--font-color: white;
+        --nav-item--hover--font-color: var(--secondary-3);
+        --nav-item--selected--font-color: var(--secondary-8);
       }
     }
     @include media-size(zero, medium) {
@@ -133,7 +113,7 @@ $trees: header($tree-front, $tree-rear);
       }
     }
     @include media-size(small, medium) {
-      gap: 5vh;
+      gap: 10vh;
       &__background {
         position: absolute;
         > svg {
@@ -144,10 +124,11 @@ $trees: header($tree-front, $tree-rear);
       &__nav {
         grid-area: nav;
         ::slotted(hicks-nav) {
-          --nav--item--hover--opacity: 1;
-          --nav--item--hover--background-color: transparent;
-          --nav--item--font-color: var(--gray-12);
-          --nav--item--font: 500 1rem/1.5rem var(--body-font), sans-serif;
+          --nav-item--hover--opacity: 1;
+          --nav-item--hover--background-color: transparent;
+          --nav-item--font-color: var(--primary-2);
+          --nav-item--font-weight: 300;
+          --nav-item--font-family: var(--body-font);
         }
       }
       &__title {
@@ -166,16 +147,13 @@ $trees: header($tree-front, $tree-rear);
         ::slotted(hicks-nav) {
           --nav--direction: column;
           --nav--justify-content: start;
-          --nav--item--hover--text-transform: uppercase;
-          --nav--item--padding: 0.2em 0.75em;
-          --nav--item--background-color: var(--primary-11);
-          --nav--item--font-color: white;
-          --nav--item--hover--font-color: white;
-          --nav--item--hover--opacity: 1;
-          --nav--item--border: 2px solid var(--secondary-4);
-          //  --nav--item--radius: 1em;
-          border-left: 5px solid darkseagreen;
-          --nav--item--transition: background-color 500ms ease-in;
+          --nav-item--hover--text-transform: uppercase;
+          --nav-item--padding: 0.2em 0.75em;
+          --nav-item--font--color: white;
+          --nav-item--hover--font-color: white;
+          --nav-item--hover--opacity: 1;
+          --nav-item--border: 2px solid var(--secondary-4);
+          --nav-item--radius: 1em;
           @include hoverable-shadow(3);
         }
       }
@@ -204,26 +182,6 @@ $trees: header($tree-front, $tree-rear);
 
 hicks-nav {
   --nav--base-color: var(--gray-12);
-}
-
-.gradientstop-1 {
-  stop-color: var(--background-color);
-}
-
-.gradientstop-2 {
-  stop-color: var(--background-color);
-}
-
-.gradientstop-3 {
-  stop-color: var(--background-color);
-}
-
-.gradientstop-4 {
-  stop-color: white;
-}
-
-.gradientstop-5 {
-  stop-color: white;
 }
 
 .is-hidden {

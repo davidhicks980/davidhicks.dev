@@ -6,13 +6,15 @@
   --nav--direction-breakpoint: 600px;
   --nav--height: 2.25rem;
   //////////////////
-  --nav--item--background-color: transparent;
-  --nav--item--font-color: black;
-  --nav--item--font-size: 1em;
-  --nav--item--border: none;
-  --nav--item--font-weight: 500;
-  --nav--item--hover--opacity: 0.8;
-  --nav--item--selected--font-color: black;
+  --nav-item--background-color: transparent;
+  --nav-item--font-color: white;
+  --nav-item--font-size: 1.5em;
+  --nav-item--font-weight: 300;
+  --nav-item--font-family: sans-serif;
+
+  --nav-item--border: none;
+  --nav-item--hover--opacity: 0.8;
+  --nav-item--selected--font-color: var(--secondary-8);
 }
 
 .navigation {
@@ -28,7 +30,7 @@
 }
 
 :host(:hover) ::slotted(hicks-nav-item) {
-  opacity: var(--nav--item--hover--opacity);
+  opacity: var(--nav-item--hover--opacity);
 }
 
 :host(:hover) ::slotted(hicks-nav-item:hover) {
