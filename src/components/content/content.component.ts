@@ -13,7 +13,8 @@ export class Tree {
     height="24px"
     viewBox="0 0 24 24"
     width="24px"
-    fill="gray"
+    fill="var(--gray-8)"
+    role="presentation"
   >
     <path d="M0 0h24v24H0V0z" fill="none" />
     <path
@@ -55,7 +56,7 @@ export class Tree {
         if (!title) {
           throw TypeError('Content title cannot be undefined.');
         }
-        const href = `${title}`.replace(/[^\w\d.-]/g, '_');
+        const href = `${title}`.replace(/[^\w\d.-]/g, '_').toLowerCase();
         const childCount = Array.isArray(subcontent) && subcontent.length;
         let children = html``,
           childHash = 0;
@@ -69,7 +70,7 @@ export class Tree {
           children = html`${repeat(childArray, compareKey, getTemplate)} `;
         }
         const link = this._getHeaderLink(href);
-        const heading = this._getHeader(depth, html`${title}${link}`);
+        const heading = this._getHeader(depth, html`${title}${link}`, href);
 
         const template = this._compose(
           heading,
@@ -95,11 +96,14 @@ export class Tree {
   }
 
   _getHeaderLink(href: string) {
-    return html`<a href="#${href}" class="content__header__link"
+    return html`<a
+      href="#${href}"
+      style="position: absolute; margin-left: 0.5rem"
+      class="content__header__link"
       >${this._linkIcon}</a
     >`;
   }
-  _getHeader(level: number, content: TemplateResult<1>) {
+  _getHeader(level: number, content: TemplateResult<1>, href: string) {
     const h = [
       literal`h1`,
       literal`h2`,
@@ -114,7 +118,7 @@ export class Tree {
       level = 6;
     }
     const tag = h[level];
-    return staticHTML`<${tag}>${content}</${tag}>`;
+    return staticHTML`<${tag} id="${href}">${content}</${tag}>`;
   }
 }
 

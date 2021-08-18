@@ -30,6 +30,8 @@
   min-width: 15ch;
   outline: none;
   color: var(--list-item--font-color);
+  pointer-events: none;
+
   @media (prefers-reduced-motion) {
     transition: none;
     transform: none;
@@ -60,6 +62,7 @@
   .sublist {
     margin: 0px;
     padding: 0px 0px 0px 1rem;
+    pointer-events: none;
     /* visibility: hidden;
      opacity: 0;*/
     /* @media (prefers-reduced-motion) {
@@ -73,7 +76,7 @@
 }
 
 .item {
-  margin: 0.25rem 0rem;
+  margin: 0.5rem 0rem;
   &__content {
     display: grid;
     grid-template-areas: 'icon link button';
@@ -83,6 +86,9 @@
 
     &__prefix {
       grid-area: icon;
+      :host(:not([top-level])) & {
+        padding-right: 1rem;
+      }
 
       @include media-size(zero, medium) {
         display: none;
@@ -96,15 +102,16 @@
       text-decoration: none;
       grid-area: link;
       box-sizing: border-box;
+      pointer-events: all;
+      z-index: 5;
     }
     &__link {
       color: var(--list-item--font-color);
       :host([active]) & {
         color: var(--primary-10);
-        font-weight: 500;
       }
       :host(:hover) & {
-        color: var(--primry-8);
+        color: var(--primary-8);
       }
       font-family: var(--list-item--font-family);
     }

@@ -3,7 +3,6 @@ import { css } from 'lit';
  export const style = css`:host {
   --primary--light: var(--primary-5);
   --primary: var(--primary-7);
-  --primary--light--transparent: var(--primary-2);
   --font: sans-serif;
   --font-color: var(--gray-6);
 }
@@ -51,8 +50,8 @@ import { css } from 'lit';
   background-image: linear-gradient(#dfdfdf, #e9e9e9);
 }
 .range::-webkit-slider-thumb:hover {
-  -webkit-box-shadow: 0 0 0 3px var(--primary--light--transparent);
-          box-shadow: 0 0 0 3px var(--primary--light--transparent);
+  -webkit-box-shadow: 0 0 0 2px rgba(23, 34, 129, 0.24);
+          box-shadow: 0 0 0 2px rgba(23, 34, 129, 0.24);
 }
 .range::-moz-slider-thumb {
   -moz-appearance: none;
@@ -70,7 +69,7 @@ import { css } from 'lit';
   background-image: linear-gradient(#dfdfdf, #e9e9e9);
 }
 .range::-moz-slider-thumb:hover {
-  box-shadow: 0 0 0 3px var(--primary--light--transparent);
+  box-shadow: 0 0 0 2px rgba(23, 34, 129, 0.24);
 }
 .range::-ms-thumb {
   appearance: none;
@@ -85,7 +84,7 @@ import { css } from 'lit';
   background-image: linear-gradient(#dfdfdf, #e9e9e9);
 }
 .range::-ms-thumb:hover {
-  box-shadow: 0 0 0 3px var(--primary--light--transparent);
+  box-shadow: 0 0 0 2px rgba(23, 34, 129, 0.24);
 }
 
 .range::-ms-track {

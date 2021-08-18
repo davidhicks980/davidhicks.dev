@@ -4,7 +4,7 @@ import { state } from "../util/primitives/store";
 
 export const contact = {
   title: 'Contact',
-  marker: '',
+  marker: '💌',
     content: html`
     <hicks-contact></hicks-contact>
     `,

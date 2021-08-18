@@ -3,22 +3,25 @@
 
 .unlock-resume {
   &__input-wrapper {
-    padding: 0.7rem 0px;
+    padding: 1.5rem 0px;
   }
+}
+:host {
+  @include hoverable-shadow(3);
 }
 input {
   padding: 0.5em;
   font-size: 12pt;
-  font-family: system-ui;
+  font-family: var(--body-font);
   border-radius: 3px;
   box-sizing: border-box;
   border: 1px solid var(--gray-9);
+  width: 100%;
 
   &[type='text'] {
     font-size: 12pt;
-    max-width: 30ch;
+    width: 100%;
     caret-color: var(--primary-9);
-    grid-column: 3 / 4;
     -webkit-text-security: disc;
   }
 
@@ -41,21 +44,75 @@ input {
 }
 
 button {
-  @include button();
+  @include button(2rem);
+}
+
+.button[type='submit'] {
+  width: 100%;
 }
 label {
   font-family: var(--body-font);
   font-weight: 500;
-  display: block;
+}
+form {
+  display: flex;
+  justify-content: center;
 }
 
-.form-field__padding {
-  padding: 0.4em 0px 0.6em 0px;
-}
 fieldset {
   background: white;
   border-radius: 5px;
-  padding: 1rem;
-  border: 1px solid rgb(207, 201, 201);
-  @include shadow(3);
+  border: 1px solid var(--gray-3);
+  max-width: 400px;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1rem 2.5rem 2rem 2rem;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+@keyframes rotate-el {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotate-el-parent {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-parent {
+  animation: 1s ease-in-out infinite running rotate-el-parent;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+.loading {
+  animation: 3s ease-in-out 0s infinite normal none running rotate-el;
+  transform-origin: center;
+  fill: var(--secondary-8);
+}
+
+.loading-reverse {
+  animation: 2s linear 0s infinite none running rotate-el;
+  transform-origin: center;
+  fill: var(--primary-8);
+}
+
+.unlock-resume__message {
+  color: var(--primary-10);
+  font-weight: 500;
+  font-family: var(--title-font);
+  font-size: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
 }

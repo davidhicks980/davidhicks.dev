@@ -138,7 +138,7 @@ export class Resume {
 
 export const resumeSection = {
   title: 'Resume',
-  marker: '',
+  marker: '📜',
   content: html`
     <hicks-unlock-resume></hicks-unlock-resume>
     `

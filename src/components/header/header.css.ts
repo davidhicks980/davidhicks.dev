@@ -1,11 +1,6 @@
 import { css } from 'lit';
 
- export const style = css`/*
-$tree-front: string.slice(#183758, 2, 10);
-$tree-rear: string.slice(#245181, 2, 10);
-$trees: header($tree-front, $tree-rear);
-*/
-.header__toolbar {
+ export const style = css`.header__toolbar {
   position: sticky;
   height: var(--toolbar-height);
   border-bottom: 1px solid;
@@ -29,6 +24,7 @@ $trees: header($tree-front, $tree-rear);
   position: absolute;
   width: 1920px;
   height: inherit;
+  overflow: hidden;
 }
 .header__toolbar__svg__path {
   fill: var(--primary-11);
@@ -37,8 +33,9 @@ $trees: header($tree-front, $tree-rear);
   position: absolute;
   height: 90%;
   top: 0px;
-  right: 3%;
-  left: 3%;
+  right: 0px;
+  left: 0px;
+  padding: 0px 3%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -79,12 +76,12 @@ $trees: header($tree-front, $tree-rear);
   display: flex;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  -ms-flex-line-pack: justify;
-      align-content: space-between;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  place-content: space-between;
+  -ms-flex-line-pack: space-evenly;
+      align-content: space-evenly;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  place-content: space-evenly;
   max-height: var(--upper-height);
   background-image: radial-gradient(at -50%, at -2%, var(--primary-10) 31%, var(--primary-11) 74%);
   background-image: radial-gradient(at -50% -2%, var(--primary-10) 31%, var(--primary-11) 74%);
@@ -92,9 +89,6 @@ $trees: header($tree-front, $tree-rear);
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-}
-.header__upper > * {
-  padding: 0vw 5vw;
 }
 .header__upper::after {
   content: "";
@@ -114,9 +108,10 @@ $trees: header($tree-front, $tree-rear);
   pointer-events: none;
 }
 .header__upper__nav ::slotted(hicks-nav) {
+  --nav-item--font-weight: 300;
   --nav-item--font-color: white;
   --nav-item--hover--font-color: var(--secondary-3);
-  --nav-item--selected--font-color: var(--secondary-8);
+  --nav-item--selected--font-color: var(--complement-5);
 }
 @media ( min-width: 0px) and ( max-width: 899.99px) {
   .header__upper {
@@ -149,13 +144,6 @@ $trees: header($tree-front, $tree-rear);
   .header__upper__nav {
     grid-area: nav;
   }
-  .header__upper__nav ::slotted(hicks-nav) {
-    --nav-item--hover--opacity: 1;
-    --nav-item--hover--background-color: transparent;
-    --nav-item--font-color: var(--primary-2);
-    --nav-item--font-weight: 300;
-    --nav-item--font-family: var(--body-font);
-  }
   .header__upper__title {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -183,33 +171,7 @@ $trees: header($tree-front, $tree-rear);
   .header__upper__nav ::slotted(hicks-nav) {
     --nav--direction: column;
     --nav--justify-content: start;
-    --nav-item--hover--text-transform: uppercase;
-    --nav-item--padding: 0.2em 0.75em;
-    --nav-item--font--color: white;
-    --nav-item--hover--font-color: white;
-    --nav-item--hover--opacity: 1;
-    --nav-item--border: 2px solid var(--secondary-4);
-    --nav-item--radius: 1em;
-  }
-  .header__upper__nav ::slotted(hicks-nav):hover::after {
-    opacity: 0.8;
-  }
-  .header__upper__nav ::slotted(hicks-nav)::after {
-    content: "";
-    position: absolute;
-    z-index: 0;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    border-radius: inherit;
-    -webkit-transition: opacity 0.3s ease-in-out;
-    transition: opacity 0.3s ease-in-out;
-    pointer-events: none;
-    margin: 0px;
-    -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
-            box-shadow: 0 3px 6px rgb(87 107 138/36%);
+    --nav--gap: 1rem;
   }
 }
 

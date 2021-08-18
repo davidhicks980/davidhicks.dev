@@ -1,13 +1,9 @@
-@use 'mixins/color-variables' as *;
-@use 'mixins/responsive' as *;
-@use 'mixins/shadows' as *;
 @use 'sass:color';
 @use 'sass:string';
-/*
-$tree-front: string.slice(#{$primary-12}, 2, 10);
-$tree-rear: string.slice(#{$primary-11}, 2, 10);
-$trees: header($tree-front, $tree-rear);
-*/
+@use 'mixins/responsive' as *;
+@use 'mixins/shadows' as *;
+
+$shadow: generate-shadow(3, 2px);
 .header {
   &__toolbar {
     position: sticky;
@@ -30,6 +26,7 @@ $trees: header($tree-front, $tree-rear);
       position: absolute;
       width: 1920px;
       height: inherit;
+      overflow: hidden;
       &__path {
         fill: var(--primary-11);
       }
@@ -38,8 +35,9 @@ $trees: header($tree-front, $tree-rear);
       position: absolute;
       height: 90%;
       top: 0px;
-      right: 3%;
-      left: 3%;
+      right: 0px;
+      left: 0px;
+      padding: 0px 3%;
       display: flex;
       flex-wrap: nowrap;
       flex-direction: row;
@@ -66,7 +64,7 @@ $trees: header($tree-front, $tree-rear);
     height: var(--upper-height);
     display: flex;
     box-sizing: border-box;
-    place-content: space-between;
+    place-content: space-evenly;
     max-height: var(--upper-height);
     background-image: radial-gradient(
       at -50% -2%,
@@ -75,10 +73,6 @@ $trees: header($tree-front, $tree-rear);
     );
     padding-bottom: 20vh;
     align-items: center;
-    > * {
-      padding: 0vw 5vw;
-    }
-
     &::after {
       content: '';
       height: 100%;
@@ -99,9 +93,10 @@ $trees: header($tree-front, $tree-rear);
     }
     &__nav {
       ::slotted(hicks-nav) {
+        --nav-item--font-weight: 300;
         --nav-item--font-color: white;
         --nav-item--hover--font-color: var(--secondary-3);
-        --nav-item--selected--font-color: var(--secondary-8);
+        --nav-item--selected--font-color: var(--complement-5);
       }
     }
     @include media-size(zero, medium) {
@@ -123,13 +118,6 @@ $trees: header($tree-front, $tree-rear);
       }
       &__nav {
         grid-area: nav;
-        ::slotted(hicks-nav) {
-          --nav-item--hover--opacity: 1;
-          --nav-item--hover--background-color: transparent;
-          --nav-item--font-color: var(--primary-2);
-          --nav-item--font-weight: 300;
-          --nav-item--font-family: var(--body-font);
-        }
       }
       &__title {
         display: flex;
@@ -147,14 +135,7 @@ $trees: header($tree-front, $tree-rear);
         ::slotted(hicks-nav) {
           --nav--direction: column;
           --nav--justify-content: start;
-          --nav-item--hover--text-transform: uppercase;
-          --nav-item--padding: 0.2em 0.75em;
-          --nav-item--font--color: white;
-          --nav-item--hover--font-color: white;
-          --nav-item--hover--opacity: 1;
-          --nav-item--border: 2px solid var(--secondary-4);
-          --nav-item--radius: 1em;
-          @include hoverable-shadow(3);
+          --nav--gap: 1rem;
         }
       }
     }

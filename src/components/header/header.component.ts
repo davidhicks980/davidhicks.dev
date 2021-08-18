@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit';
-import { query, state, property } from 'lit/decorators.js';
+import { query, state, property, queryAssignedNodes } from 'lit/decorators.js';
 import anime from 'animejs';
 import { style } from './header.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
@@ -31,8 +31,8 @@ export class HicksHeader extends LitElement {
   toolbar: HTMLDivElement;
   @query('.header__toolbar__svg__path', true)
   curvedToolbar: SVGPathElement;
-
-  breakpointControl: BreakpointController;
+  @queryAssignedNodes('navigation-toggle', true)
+  slottedToggle: HTMLElement;
   @state()
   isCurved = true;
   @property({ type: Boolean, reflect: true })
@@ -46,6 +46,12 @@ export class HicksHeader extends LitElement {
     breakpoint: BreakpointController;
     intersection: IntersectionController;
   };
+  @property({ type: Object })
+  get slotNames() {
+    return {
+      toggle: 'navigation-toggle',
+    };
+  }
 
   constructor() {
     super();
@@ -121,15 +127,23 @@ export class HicksHeader extends LitElement {
     el.classList.remove(oldClass);
   };
 
+  handleToggleSlot(ev) {
+    console.log((this.slottedToggle[0] as HTMLElement).firstElementChild);
+  }
   logo = html`<slot name="header-logo"></slot>`;
   nav = html`<slot name="header-navigation"></slot>`;
   social = html`<slot
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = html` <span class="header__toolbar__toggle__container"
-    ><span class="divider"></span
-    ><slot name="header-toolbar-toggle" class="header__toolbar__toggle"></slot
+  navToggle = html`<span class="header__toolbar__toggle__container"
+    ><span class="divider"> </span>
+    <slot
+      @slotchange="${this.handleToggleSlot}"
+      name="${this.slotNames.toggle}"
+      class="header__toolbar__toggle"
+    >
+    </slot
   ></span>`;
   toolbarPath = html`<svg
     xmlns="http://www.w3.org/2000/svg"

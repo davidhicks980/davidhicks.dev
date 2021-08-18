@@ -14,32 +14,13 @@ export class BrandComponent extends LitElement {
   constructor() {
     super();
   }
-  firstUpdated(_changedProperties) {
-    const onResize = (setToProp: string) => {
-      return (e: MediaQueryList | MediaQueryListEvent) => {
-        this[setToProp] = e.matches;
-      };
-    };
-    const matchMobile = window.matchMedia('screen and (max-width: 599.99px)');
-    const matchTablet = window.matchMedia(
-      'screen and (min-width: 600px) and (max-width: 899.99px)'
-    );
-    matchTablet.addEventListener('change', onResize('tablet'));
-    matchMobile.addEventListener('change', onResize('mobile'));
-    onResize('tablet')(matchTablet);
-    onResize('mobile')(matchMobile);
-  }
-  titleTemplate = (shown: boolean) =>
-    shown
-      ? html`<div class="brand-grid__title">
-          <title-component></title-component>
-        </div> `
-      : nothing;
+
+  titleTemplate = html`<div class="brand-grid__title">
+    <title-component></title-component>
+  </div> `;
 
   render(): TemplateResult {
-    return html`<div class="brand-grid">
-      ${this.titleTemplate(!this.mobile)}
-    </div> `;
+    return html`<div class="brand-grid">${this.titleTemplate}</div> `;
   }
   static get styles(): CSSResultGroup[] {
     return [style];

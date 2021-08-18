@@ -63,6 +63,7 @@ import { css } from 'lit';
           flex-direction: column;
   height: var(--host--height);
   top: var(--toolbar-height);
+  pointer-events: none;
 }
 :host([mobile]) {
   --host--width: 100vw;
@@ -109,6 +110,10 @@ import { css } from 'lit';
   width: var(--list--width);
   grid-area: content;
   display: block;
+}
+.toc__list * {
+  pointer-events: none;
+  padding-left: 0px;
 }
 .toc__list__link-icon {
   vertical-align: middle;
@@ -253,6 +258,7 @@ import { css } from 'lit';
       align-self: flex-end;
   padding-right: 18px;
   height: 50px;
+  pointer-events: all;
 }
 .button__wrapper .background {
   right: 1rem;
@@ -280,7 +286,6 @@ import { css } from 'lit';
   -webkit-animation-fill-mode: forwards;
           animation-fill-mode: forwards;
   overflow: visible;
-  pointer-events: none;
 }
 :host([open]) .button__wrapper .background {
   -webkit-transform: scale(30);

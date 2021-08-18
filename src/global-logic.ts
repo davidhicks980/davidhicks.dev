@@ -3,34 +3,47 @@ import { combineLatest, fromEvent, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/primitives/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu-toggle.properties';
+import { HicksHeader } from './components/header/header.component';
+import { TableOfContents } from './components/toc/toc.component';
 
+const elementById = (id) => document.getElementById(id);
 fromEvent(window, 'load')
   .pipe(take(1))
   .subscribe((ev) => {
-    let app = document.getElementById('app');
-    let toggleBtn = document.getElementById('menu-toggle');
-    let headerAnchor = () => document.querySelector('.header__toggle-anchor');
-    let tocAnchor = () => document.querySelector('.toc__toggle-anchor');
-    let TOGGLED = ToggleProperties.TOGGLED;
-    let toggled$ = state.filteredStore([TOGGLED]);
+    const app = elementById('app'),
+      toggle = elementById('menu-toggle'),
+      header = elementById('header'),
+      toc = elementById('table-of-contents');
+    const TOGGLED = ToggleProperties.TOGGLED,
+      toggled$ = state.filteredStore([TOGGLED]);
     combineLatest([toggled$, documentBreakpoints.observeAllMatches$]).subscribe(
       ([menuToggle, breakpoint]) => {
         let open = menuToggle[TOGGLED] || false;
         let smallScreen = breakpoint.get('mobile') || breakpoint.get('tablet');
         if (smallScreen && open) {
           app.classList.add('has-open-menu');
-          tocAnchor().appendChild(toggleBtn);
+          toggle.slot = TableOfContents.prototype.slotNames.toggle;
+          toc.appendChild(toggle);
         } else {
           app.classList.remove('has-open-menu');
-          headerAnchor().appendChild(toggleBtn);
+          toggle.slot = HicksHeader.prototype.slotNames.toggle;
+          header.appendChild(toggle);
         }
       }
     );
+    fromEvent(window, 'hashchange').subscribe((change) => {
+      if (app.classList.contains('has-open-menu')) {
+        app.classList.remove('has-open-menu');
+        toggle.slot = HicksHeader.prototype.slotNames.toggle;
+        header.appendChild(toggle);
+        toggle.toggled = false;
+      }
+    });
     fromEvent(document, 'resumeload')
       .pipe(take(1))
       .subscribe(() => {
-        const showDetailsToggle = document.getElementById('show-hide-details');
-        const resumeToggle = document.getElementById('view-resume-cv');
+        const showDetailsToggle = elementById('show-hide-details');
+        const resumeToggle = elementById('view-resume-cv');
         if (showDetailsToggle) {
           fromEvent(showDetailsToggle, 'click').subscribe(function (
             this: HTMLElement,

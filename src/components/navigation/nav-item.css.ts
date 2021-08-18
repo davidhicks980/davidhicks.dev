@@ -12,8 +12,6 @@ import { css } from 'lit';
           clip-path: var(--nav-item--clip-path);
   -webkit-text-decoration: var(--nav-item--text-decoration);
           text-decoration: var(--nav-item--text-decoration);
-  -webkit-box-shadow: var(--nav-item--hover--box-shadow);
-          box-shadow: var(--nav-item--hover--box-shadow);
   -webkit-transition: var(--nav-item--transition);
   transition: var(--nav-item--transition);
   color: var(--nav-item--font-color);

@@ -36,6 +36,7 @@ import { css } from 'lit';
   min-width: 15ch;
   outline: none;
   color: var(--list-item--font-color);
+  pointer-events: none;
   /* will-change: transform;
   transition: 0.3s ease-in-out 0s;
   transform: translateY(
@@ -70,6 +71,7 @@ import { css } from 'lit';
 :host .sublist {
   margin: 0px;
   padding: 0px 0px 0px 1rem;
+  pointer-events: none;
   /* visibility: hidden;
    opacity: 0;*/
   /* @media (prefers-reduced-motion) {
@@ -82,7 +84,7 @@ import { css } from 'lit';
 }
 
 .item {
-  margin: 0.25rem 0rem;
+  margin: 0.5rem 0rem;
 }
 .item__content {
   display: grid;
@@ -94,6 +96,9 @@ import { css } from 'lit';
 }
 .item__content__prefix {
   grid-area: icon;
+}
+:host(:not([top-level])) .item__content__prefix {
+  padding-right: 1rem;
 }
 @media ( min-width: 0px) and ( max-width: 899.99px) {
   .item__content__prefix {
@@ -110,6 +115,8 @@ import { css } from 'lit';
   grid-area: link;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
+  pointer-events: all;
+  z-index: 5;
 }
 .item__content__link {
   color: var(--list-item--font-color);
@@ -117,10 +124,9 @@ import { css } from 'lit';
 }
 :host([active]) .item__content__link {
   color: var(--primary-10);
-  font-weight: 500;
 }
 :host(:hover) .item__content__link {
-  color: var(--primry-8);
+  color: var(--primary-8);
 }
 .item__content__suffix {
   width: var(--list-item--height);

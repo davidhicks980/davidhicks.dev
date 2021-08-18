@@ -52,17 +52,28 @@ export class UnlockResumeElement extends LitElement {
     super();
     this.formHandler = new FormHandler();
   }
-  getStatus(status: UnlockStatus) {
+  getFeedback(status: UnlockStatus) {
     let template = (message: string) =>
       html`<span class="unlock-resume__message">${message} </span>`;
     switch (status) {
       case UnlockStatus.NOT_SUBMITTED:
         return '';
       case UnlockStatus.SUBMITTED:
-        return template('Recruiter token submitted');
+        return html`<div class="unlock-resume__message">
+          LOADING
+          <svg
+            class="loading-parent"
+            viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle class="loading" cx="60" cy="60" r="10" />
+            <circle class="loading-reverse" cx="25" cy="25" r="12.5" />
+          </svg>
+        </div> `;
       case UnlockStatus.UNSUCCESSFUL:
-        return template(`Recruiter token unsuccessful. David must've message something
-        up.`);
+        return template(
+          `The recruiter token you entered does not seem to be working. Perhaps you are playing around with the search form, in which case have at it! Otherwise, I may have messed something up. Feel free to email me at david@davidhicks.dev if this is the case.`
+        );
       case UnlockStatus.SUCCESSFUL:
         return template(`Recruiter token successful. Unlocking...`);
     }
@@ -70,9 +81,9 @@ export class UnlockResumeElement extends LitElement {
 
   render(): TemplateResult | Symbol | string {
     let disabled = this.status > UnlockStatus.UNSUCCESSFUL;
-    let status = this.getStatus(this.status);
+    let feedbackTemplate = this.getFeedback(this.status);
     if (this.status === UnlockStatus.SUCCESSFUL) {
-      return status;
+      return feedbackTemplate;
     }
     return html`
       <button
@@ -82,31 +93,29 @@ export class UnlockResumeElement extends LitElement {
       >
         Test button
       </button>
-      ${status}
+      ${feedbackTemplate}
       <form @submit=${this.attemptUnlock}>
         <fieldset>
-          <label for="unlock-resume-input">
-            Enter your recruiter token below
-          </label>
-          <div class="unlock-resume__input-wrapper">
-            <input
-              autocomplete="off"
-              name="unlock-resume-token"
-              type="password"
-              id="unlock-resume-input"
-              ?disabled="${disabled}"
-            />
-          </div>
-
-          <div class="unlock-resume__hint">
+          <label for="unlock-resume-input"> RECRUITER TOKEN: </label>
+          <input
+            minlength="32"
+            maxlength="32"
+            required
+            autocomplete="off"
+            name="unlock-resume-token"
+            type="password"
+            id="unlock-resume-input"
+            ?disabled="${disabled}"
+          />
+          <span class="unlock-resume__hint">
             <b>Note:</b>
             <em class="unlock-resume__hint--emphasis">
-              Your access will not be tracked.
+              This section is password protected to keep people from scraping my
+              information. Your access will not be recorded.
             </em>
             🔐
-          </div>
+          </span>
 
-          <hr />
           <button class="button--primary" ?disabled="${disabled}" type="submit">
             Unlock
           </button>

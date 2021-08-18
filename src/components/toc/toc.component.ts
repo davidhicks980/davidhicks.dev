@@ -51,6 +51,12 @@ export class TableOfContents extends LitElement {
   mobile = true;
   @property({ type: Boolean })
   loaded = false;
+  @property({ type: Object })
+  get slotNames() {
+    return {
+      toggle: 'navigation-toggle',
+    };
+  }
   //Internal States
   @state()
   activeLink: string = '';
@@ -124,6 +130,11 @@ export class TableOfContents extends LitElement {
       .subscribe(() => {
         this.open = false;
       });
+    fromEvent(window, 'hashchange').subscribe((change) => {
+      if (this.open) {
+        this.open = false;
+      }
+    });
   }
 
   get sections(): HTMLElement[] {
@@ -142,7 +153,7 @@ export class TableOfContents extends LitElement {
     });
   }
   initIntersectionObserver() {
-    let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
+    let margin = { top: '-49%', bottom: '-50%', left: '0px', right: '0px' },
       threshold = [0];
     const boundScroll = this.scrollSpy.bind(this);
     this.controllers.intersection
@@ -367,7 +378,7 @@ export class TableOfContents extends LitElement {
       </div>-->
       <div class="button__wrapper">
         <div class="background"></div>
-        <slot name="toggle"></slot>
+        <slot name="${this.slotNames.toggle}"></slot>
       </div>
       ${this.template}
     `;

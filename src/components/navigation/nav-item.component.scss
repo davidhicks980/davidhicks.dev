@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use 'sass:selector';
+@use 'mixins/shadows' as *;
 .link {
   text-decoration: none;
   position: relative;
@@ -10,7 +11,6 @@
   border: var(--nav-item--border);
   clip-path: var(--nav-item--clip-path);
   text-decoration: var(--nav-item--text-decoration);
-  box-shadow: var(--nav-item--hover--box-shadow);
   transition: var(--nav-item--transition);
   color: var(--nav-item--font-color);
   font-family: var(--body-font);

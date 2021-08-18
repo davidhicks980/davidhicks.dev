@@ -77,10 +77,8 @@ p ::slotted([slot=description]) {
   text-align: left;
   grid-gap: 1em;
   gap: 1em;
-  -webkit-box-shadow: 0 0 0 1px var(--gray-5);
-          box-shadow: 0 0 0 1px var(--gray-5);
-  border: var(--panel--border);
-  cursor: pointer;
+  -webkit-box-shadow: 0 0 0 1px var(--gray-2);
+          box-shadow: 0 0 0 1px var(--gray-2);
   border-radius: 7px;
   -webkit-filter: brightness(1);
           filter: brightness(1);
@@ -109,8 +107,12 @@ p ::slotted([slot=description]) {
   transition: opacity 0.3s ease-in-out;
   pointer-events: none;
   margin: 0px;
-  -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
-          box-shadow: 0 3px 6px rgb(87 107 138/36%);
+  -webkit-box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07),0px 0px 8px 8px  rgba(55, 64, 71, 0.07);
+          box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07),0px 0px 8px 8px  rgba(55, 64, 71, 0.07);
+}
+:host(:hover) .expansion {
+  -webkit-box-shadow: 0 0 0 1px var(--gray-1);
+          box-shadow: 0 0 0 1px var(--gray-1);
 }
 :host:not([collapsed]) .expansion {
   border-bottom-right-radius: 0px;

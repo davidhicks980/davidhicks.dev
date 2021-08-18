@@ -49,7 +49,6 @@ export class HicksListItem extends LitElement {
   controllers: { item: ListItemController; breakpoint: BreakpointController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
   topLevel: boolean;
-  tabIndex = 0;
   refreshChildren() {
     this.listChildren = this.childSlot.length;
     if (this.listChildren === 0) {
@@ -111,7 +110,6 @@ export class HicksListItem extends LitElement {
 
   constructor() {
     super();
-    this.tabIndex = 0;
     this.controllers = {} as any;
     this.controllers.breakpoint = new BreakpointController(this);
     this.controllers.breakpoint
@@ -240,12 +238,14 @@ export class HicksListItem extends LitElement {
       class="item"
     >
       <div class="item__content" @toggle="${this.handleToggle}">
-        ${this.templates.slots.prefix}
+        ${this.active && !this.topLevel
+          ? html`<span style="padding-left: 0.4rem">◆</span>`
+          : this.templates.slots.prefix}
         <a
           tabindex="0"
           role="treeitem"
           class="item__content__a"
-          href="#${this.link}"
+          href="${this.link}"
         >
           ${this.templates.slots.link}
         </a>

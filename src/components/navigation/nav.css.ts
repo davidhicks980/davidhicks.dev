@@ -12,7 +12,7 @@ import { css } from 'lit';
   --nav-item--font-weight: 300;
   --nav-item--font-family: sans-serif;
   --nav-item--border: none;
-  --nav-item--hover--opacity: 0.8;
+  --nav-item--hover--opacity: 0.7;
   --nav-item--selected--font-color: var(--secondary-8);
 }
 

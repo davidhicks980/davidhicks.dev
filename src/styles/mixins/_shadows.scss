@@ -1,8 +1,22 @@
-@mixin shadow($depth) {
-  box-shadow: 0 1px * $depth 2px * $depth rgb(87 107 138 / #{12% * $depth});
+@use 'sass:color';
+@use 'sass:math';
+@function generate-shadow($depth, $offset: 0px) {
+  $shadow: '';
+  @for $_ from 1 through $depth {
+    $shadow: $shadow +
+      '0px #{$offset} #{math.pow(2, $_)}px #{math.pow(2, $_)}px  #{rgba(55, 64, 71, 0.07)}';
+    @if $_ != $depth {
+      $shadow: $shadow + ',';
+    }
+  }
+  @return unquote($shadow);
 }
 
-@mixin hoverable-shadow($depth) {
+@mixin shadow($depth, $offset: 0px) {
+  box-shadow: generate-shadow($depth, $offset);
+}
+
+@mixin hoverable-shadow($depth, $offset: 0px) {
   &:hover::after {
     opacity: 0.8;
   }
@@ -19,7 +33,7 @@
     transition: opacity 0.3s ease-in-out;
     pointer-events: none;
     margin: 0px;
-    @include shadow($depth);
+    @include shadow($depth, $offset);
   }
 }
 @mixin button-shadow($depth, $border: none) {

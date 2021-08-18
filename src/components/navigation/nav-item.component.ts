@@ -21,7 +21,6 @@ export class NavItemComponent extends LitElement {
 
   constructor() {
     super();
-    this.tabIndex = 0;
   }
   emitNavigation() {
     this.dispatchEvent(new CustomEvent('navigate', { bubbles: true }));

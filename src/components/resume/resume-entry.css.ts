@@ -2,7 +2,7 @@ import { css } from 'lit';
 
  export const style = css`:host {
   --timeline--marker-size: 0.6rem;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: var(--body-font);
 }
 
 h2,
@@ -195,4 +195,13 @@ h5 {
 :host(.is-expanding) .expand {
   -webkit-transform: rotate(0deg);
           transform: rotate(0deg);
+}
+
+.mobile {
+  display: none;
+}
+@media ( min-width: 0px) and ( max-width: 599.99px) {
+  .mobile {
+    display: inline;
+  }
 }`;

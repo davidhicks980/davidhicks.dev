@@ -22,95 +22,90 @@
   </script>
 
   <script>
-    document.addEventListener('keydown', (e) =>
-      e.key === 'Tab' ? console.log(document.activeElement) : null
+    document.addEventListener('click', (e) =>
+      console.log(document.activeElement)
     );
   </script>
   <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
-    <hicks-header>
-      <div slot="header-brand">
-        <brand-component></brand-component>
-      </div>
-      <div
-        style="height: 3rem; width: 4.5rem"
-        class="header__logo-wrapper"
+    <hicks-header id="header">
+      <brand-component slot="header-brand"></brand-component>
+      <logo-component
         slot="header-logo"
+        style="height: 2.2rem; width: 3.6rem"
+      ></logo-component>
+      <hicks-nav
+        id="toolbar-navigation"
+        style="--nav--gap: 1rem; --nav--height: 2.25rem"
+        slot="header-social"
       >
-        <logo-component></logo-component>
-      </div>
-      <div slot="header-social">
-        <hicks-nav style="--nav--gap: 1rem; --nav--height: 2.25rem">
-          <hicks-nav-item>
-            <a
-              href="mailto:david@davidhicks.dev?subject=Howdy David, I'm reaching out to discuss your website."
-            >
-              <img
-                class="icon--social"
-                src="./icons/logo-google.svg"
-                alt="Gmail"
-              />
-            </a>
-          </hicks-nav-item>
-          <hicks-nav-item>
-            <a href="https://github.com/davidhicks980"
-              ><img
-                class="icon--social"
-                src="./icons/logo-github.svg"
-                alt="Github"
-            /></a>
-          </hicks-nav-item>
-          <hicks-nav-item>
-            <a
-              ><img
-                class="icon--social"
-                src="./icons/logo-linkedin.svg"
-                alt="LinkedIn"
-            /></a>
-          </hicks-nav-item>
-        </hicks-nav>
-      </div>
-      <div class="header__toggle-anchor" slot="header-toolbar-toggle">
-        <hicks-menu-toggle id="menu-toggle">
-          <svg
-            class="menu-icon"
-            style="transform: scale(1.1)"
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 0 24 24"
-            width="24px"
-            fill="white"
+        <hicks-nav-item>
+          <a
+            href="mailto:david@davidhicks.dev?subject=Howdy David, I'm reaching out to discuss your website."
           >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <rect
-              class="top-bun"
-              fill="white"
-              x="12.5%"
-              y="25%"
-              width="75%"
-              height="8.25%"
-            ></rect>
+            <img
+              class="icon--social"
+              src="./icons/logo-google.svg"
+              alt="Gmail"
+            />
+          </a>
+        </hicks-nav-item>
+        <hicks-nav-item>
+          <a href="https://github.com/davidhicks980"
+            ><img
+              class="icon--social"
+              src="./icons/logo-github.svg"
+              alt="Github"
+          /></a>
+        </hicks-nav-item>
+        <hicks-nav-item>
+          <a
+            ><img
+              class="icon--social"
+              src="./icons/logo-linkedin.svg"
+              alt="LinkedIn"
+          /></a>
+        </hicks-nav-item>
+      </hicks-nav>
+      <hicks-menu-toggle id="menu-toggle">
+        <svg
+          class="menu-icon"
+          style="transform: scale(1.1)"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="white"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <rect
+            class="top-bun"
+            fill="white"
+            x="12.5%"
+            y="25%"
+            width="75%"
+            height="8.25%"
+          ></rect>
 
-            <rect
-              class="middle-bun"
-              fill="white"
-              x="12.5%"
-              y="45.875%"
-              width="75%"
-              height="8.25%"
-            ></rect>
+          <rect
+            class="middle-bun"
+            fill="white"
+            x="12.5%"
+            y="45.875%"
+            width="75%"
+            height="8.25%"
+          ></rect>
 
-            <rect
-              class="bottom-bun"
-              fill="white"
-              x="12.5%"
-              y="66.666%"
-              width="75%"
-              height="8.25%"
-            ></rect>
-          </svg>
-        </hicks-menu-toggle>
-      </div>
+          <rect
+            class="bottom-bun"
+            fill="white"
+            x="12.5%"
+            y="66.666%"
+            width="75%"
+            height="8.25%"
+          ></rect>
+        </svg>
+      </hicks-menu-toggle>
       <hicks-nav slot="header-navigation">
         <hicks-nav-item>About</hicks-nav-item>
         <hicks-nav-item>Portfolio</hicks-nav-item>

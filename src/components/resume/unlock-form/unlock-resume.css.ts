@@ -1,23 +1,44 @@
 import { css } from 'lit';
 
  export const style = css`.unlock-resume__input-wrapper {
-  padding: 0.7rem 0px;
+  padding: 1.5rem 0px;
+}
+
+:host:hover::after {
+  opacity: 0.8;
+}
+:host::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  border-radius: inherit;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none;
+  margin: 0px;
+  -webkit-box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07),0px 0px 8px 8px  rgba(55, 64, 71, 0.07);
+          box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07),0px 0px 8px 8px  rgba(55, 64, 71, 0.07);
 }
 
 input {
   padding: 0.5em;
   font-size: 12pt;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  font-family: var(--body-font);
   border-radius: 3px;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
   border: 1px solid var(--gray-9);
+  width: 100%;
 }
 input[type=text] {
   font-size: 12pt;
-  max-width: 30ch;
+  width: 100%;
   caret-color: var(--primary-9);
-  grid-column: 3/4;
   -webkit-text-security: disc;
 }
 input::-webkit-input-placeholder {
@@ -52,8 +73,8 @@ button.button, button.button--secondary, button.button--primary {
   font-weight: 500;
   cursor: pointer;
   font-family: var(--body-font);
-  font-size: calc(2em * 0.5);
-  height: 2em;
+  font-size: calc(2rem * 0.5);
+  height: 2rem;
   -webkit-transition: all 250ms;
   transition: all 250ms;
   -ms-touch-action: manipulation;
@@ -87,8 +108,8 @@ button.button--primary::after {
   transition: opacity 0.3s ease-in-out;
   pointer-events: none;
   margin: 0px;
-  -webkit-box-shadow: 0 2px 4px rgb(87 107 138/24%);
-          box-shadow: 0 2px 4px rgb(87 107 138/24%);
+  -webkit-box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07);
+          box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07);
 }
 button.button--primary:hover {
   -webkit-filter: brightness(1.1);
@@ -125,8 +146,8 @@ button.button--secondary::after {
   transition: opacity 0.3s ease-in-out;
   pointer-events: none;
   margin: 0px;
-  -webkit-box-shadow: 0 2px 4px rgb(87 107 138/24%);
-          box-shadow: 0 2px 4px rgb(87 107 138/24%);
+  -webkit-box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07);
+          box-shadow: 0px 0px 2px 2px  rgba(55, 64, 71, 0.07),0px 0px 4px 4px  rgba(55, 64, 71, 0.07);
 }
 button.button--secondary:hover {
   -webkit-filter: brightness(0.975);
@@ -142,21 +163,112 @@ button.button--secondary:active::after {
   opacity: 1;
 }
 
+.button[type=submit], button[type=submit].button--primary, button[type=submit].button--secondary {
+  width: 100%;
+}
+
 label {
   font-family: var(--body-font);
   font-weight: 500;
-  display: block;
 }
 
-.form-field__padding {
-  padding: 0.4em 0px 0.6em 0px;
+form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 fieldset {
   background: white;
   border-radius: 5px;
-  padding: 1rem;
-  border: 1px solid #cfc9c9;
-  -webkit-box-shadow: 0 3px 6px rgb(87 107 138/36%);
-          box-shadow: 0 3px 6px rgb(87 107 138/36%);
+  border: 1px solid var(--gray-3);
+  max-width: 400px;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1rem 2.5rem 2rem 2rem;
+  grid-gap: 1rem;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+@-webkit-keyframes rotate-el {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate-el {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes rotate-el-parent {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@keyframes rotate-el-parent {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+.loading-parent {
+  -webkit-animation: 1s ease-in-out infinite running rotate-el-parent;
+          animation: 1s ease-in-out infinite running rotate-el-parent;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.loading {
+  -webkit-animation: 3s ease-in-out 0s infinite normal none running rotate-el;
+          animation: 3s ease-in-out 0s infinite normal none running rotate-el;
+  -webkit-transform-origin: center;
+          transform-origin: center;
+  fill: var(--secondary-8);
+}
+
+.loading-reverse {
+  -webkit-animation: 2s linear 0s infinite none running rotate-el;
+          animation: 2s linear 0s infinite none running rotate-el;
+  -webkit-transform-origin: center;
+          transform-origin: center;
+  fill: var(--primary-8);
+}
+
+.unlock-resume__message {
+  color: var(--primary-10);
+  font-weight: 500;
+  font-family: var(--title-font);
+  font-size: 1.5rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  justify-items: center;
 }`;
