@@ -1,0 +1,248 @@
+{
+  "resumeEntries": [
+    {
+      "section": "Professional Experience",
+      "startDate": "2016-05-01T04:00:00.000Z",
+      "endDate": "2017-05-01T04:00:00.000Z",
+      "title": "Lab Manager",
+      "organization": "UNC Lineberger Cancer Center",
+      "locale": "Chapel Hill, NC",
+      "supervisor": "Dirk Dittmer, PhD Microbiology and Immunology",
+      "detail": [
+        "Managed $1 million in annual finances and built a digital ordering system using the Google Visualization API Query Language, MySQL, Google Sheets, and AutoHotkey.",
+        "Maintained, monitored, and inventoried more than $3 million of lab equipment and samples.",
+        "Performed 1000+ Maxi and Mini preps to preserve a library of 3000 plasmids related to KSHV."
+      ]
+    },
+    {
+      "section": "Professional Experience",
+      "startDate": "2015-04-01T04:00:00.000Z",
+      "endDate": "2016-04-01T04:00:00.000Z",
+      "title": "Wait Staff",
+      "organization": "SANDWHICH",
+      "locale": "Chapel Hill, NC",
+      "supervisor": "Jheria Garcias",
+      "detail": "Responsible for front-end operations including order placement, sanitation, and end-of-shift accounting."
+    },
+    {
+      "section": "Education",
+      "startDate": "2017-07-01T04:00:00.000Z",
+      "endDate": "2021-05-01T04:00:00.000Z",
+      "title": "PharmD",
+      "organization": "UNC Eshelman School of Pharmacy",
+      "locale": "Chapel Hill, NC",
+      "detail": ["Four year program", "GPA 3.6/4.0"]
+    },
+    {
+      "section": "Education",
+      "startDate": "2014-08-01T04:00:00.000Z",
+      "endDate": "2016-07-01T04:00:00.000Z",
+      "title": "PharmD Pre-requisites",
+      "organization": "UNC Chapel Hill",
+      "locale": "Chapel Hill, NC",
+      "detail": [
+        "Completed pharmacy school pre-requisites over two years and subsequently worked for one year",
+        "GPA 3.6/4.0"
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2021-04-01T04:00:00.000Z",
+      "title": "Community Pharmacy",
+      "organization": "CVS",
+      "locale": "Asheville, NC",
+      "supervisor": "Ting Ren Otto, PharmD",
+      "detail": [
+        "Assisted patients with patients about the COVID-19 pandemic",
+        "Counseled patients on taking prescription and OTC medications.",
+        "Familiarized self with the CVS EHR system."
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2021-03-01T05:00:00.000Z",
+      "title": "Amcare",
+      "organization": "The Family Health Centers",
+      "locale": "Asheville, NC",
+      "supervisor": "Allison E. Fay, PharmD\r\nBCACP, BC-ADM, CPP",
+      "detail": [
+        "Motivated patients to take their diabetes and anticoagulation medications properly",
+        "Counseled on proper medication administration techniques"
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2021-02-01T05:00:00.000Z",
+      "title": "Advanced Hospital III",
+      "organization": "Mission Health",
+      "locale": "Asheville, NC",
+      "supervisor": "Aubrey Rafferty, PharmD",
+      "detail": "Monitored factors affected by social determinates of health, such as medication cost and adherence, access to providers, and follow-up time."
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2021-01-01T05:00:00.000Z",
+      "title": "Advanced Hospital II",
+      "organization": "Atrium Health",
+      "locale": "Morganton, NC",
+      "supervisor": "Heather Taylor, PharmD",
+      "detail": [
+        "Dosed and monitored patients' response to antibiotic therapies.",
+        "Practiced antibiotic stewardship and learned about commonly overused medications"
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2020-11-01T04:00:00.000Z",
+      "title": "Internal Medicine",
+      "organization": "Mission Health",
+      "locale": "Asheville, NC",
+      "supervisor": "Scott Wilkie, PharmD, BCPS",
+      "detail": [
+        "Worked alongside a 3rd year pharmacy students to address Vigilanz alerts and answer nurse inquiries for a 35-bed hospital floor.",
+        "Attended daily clinical meetings with resident MDs",
+        "Followed 5 patients on an interprofessional med-teaching service.",
+        "Gained Cerner proficiency"
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2020-10-01T04:00:00.000Z",
+      "title": "Advanced Hospital I",
+      "organization": "Rutherfordton Regional Hospital",
+      "locale": "Rutherfordton, NC",
+      "supervisor": "Susan Hoy, RPh",
+      "detail": "Worked closely with CRNAs at Rutherfordton and spent two weeks researching anesthesia MOAs, paradigms, and kinetics."
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2020-09-01T04:00:00.000Z",
+      "title": "Psychiatric Pharmacy",
+      "organization": "Vaya Health",
+      "locale": "Asheville, NC",
+      "supervisor": "Heather Cree, PharmD",
+      "detail": "Drafted and presented legislative talking points regarding injectable antipsychotics to a team of stakeholders invested in advancing pharmacy practice."
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2020-08-01T04:00:00.000Z",
+      "title": "Informatics",
+      "organization": "Omnicell",
+      "locale": "Raleigh, NC",
+      "supervisor": "Bryce Platt, PharmD, BCPS; Youn Chu, PharmD",
+      "detail": [
+        "Researched and presented on HEDIS, Star Ratings, Pharmacy Scope of Practice, and Point-of-care testing.",
+        "Provided UI/UX feedback and custom CSS for a chatbot that was implemented in production.",
+        "Analyzed and compiled HL7 immunization requirements and barriers to normalization throughout each US state."
+      ]
+    },
+    {
+      "section": "Advanced Practice Experiences",
+      "startDate": "2020-05-01T04:00:00.000Z",
+      "title": "Academic",
+      "organization": "UNC Eshelman School of Pharmacy",
+      "locale": "Asheville, NC",
+      "supervisor": "Amanda Savage, PharmD",
+      "detail": [
+        "Collaborated in an interprofessional team of physicians, pharmacists, and social workers to present an analysis of COVID-19’s effects on prison populations.",
+        "Used Python to scrape the ASHP database for 1800 residency salaries for a faculty project."
+      ]
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2021-02-01T05:00:00.000Z",
+      "title": "Hypertriglyceridemia: The bad kind of high score",
+      "organization": "The Family Health Centers",
+      "locale": "Asheville, NC",
+      "detail": [
+        "Explore how the pathophysiology of hypertriglyceridemia influences therapeutic targets\npredispose patients to developing HTG",
+        "Discuss when long-term fibrate therapy and omega-3 fatty acids are appropriate to use"
+      ],
+      "type": "Clinical Meeting"
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2021-01-01T05:00:00.000Z",
+      "title": "Remdesivir: The best, worst option",
+      "organization": "Atrium Health",
+      "locale": "Morganton, NC",
+      "detail": [
+        "Discuss when the CDC suggests using D-dimers for COVID-19 thromboprophylaxis",
+        "Examine the guideline-directed usage of remdesivir, an RNA polymerase inhibitor, using two major, contradictory trials."
+      ],
+      "type": "Clinical Meeting"
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2020-11-01T04:00:00.000Z",
+      "title": "The ART of HIV Prevention",
+      "organization": "UNC Eshelman School of Pharmacy",
+      "locale": "Chapel Hill, NC",
+      "detail": "Viewed evidence supporting the efficacy of prep in the prevention of HIV",
+      "type": "Journal Club"
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2020-10-01T04:00:00.000Z",
+      "title": "General Anesthesiology",
+      "organization": "Rutherfordton Regional Hospital",
+      "locale": "Rutherfordton, NC",
+      "detail": "Explored amnesia, analgesia, and akinesia in relation to pharmacotherapeutic products, with a focus on how different treatments react to affect each of these properties.",
+      "type": "Topic Discussion"
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2020-09-01T04:00:00.000Z",
+      "title": "Expanding Access to Long-Acting Injectable Antipsychotics",
+      "organization": "Vaya Health",
+      "locale": "Asheville, NC",
+      "detail": "Discussed the benefits of allowing pharmacists to provide long-acting antipsychotic injections by looking at cost savings and access to care in NC",
+      "type": "Topic Discussion"
+    },
+    {
+      "section": "Presentations",
+      "startDate": "2020-08-01T04:00:00.000Z",
+      "title": "It Takes a Disaster: Regulatory Changes to Medicare in Response to COVID-19",
+      "organization": "Omnicell",
+      "locale": "Raleigh, NC",
+      "detail": "Examined healthcare regulatory changes that arose from COVID-19, particularly with regard to pharmacy practice expansion and reimbursement for services.",
+      "type": "Journal Club"
+    },
+    {
+      "section": "Volunteering",
+      "startDate": "2017-08-01T04:00:00.000Z",
+      "endDate": "2021-05-01T04:00:00.000Z",
+      "title": "Graphic Design",
+      "organization": "The Asheville Summit",
+      "locale": "Asheville, NC",
+      "description": "Student-run Pharmacy Conference",
+      "detail": [
+        "Designed Save-the-Dates and event banners using Photoshop and Illustrator.",
+        "Wrote and proofread event materials."
+      ]
+    },
+    {
+      "section": "Volunteering",
+      "startDate": "2017-08-01T04:00:00.000Z",
+      "endDate": "2021-05-01T04:00:00.000Z",
+      "title": "Wait Staff",
+      "organization": "Veterans Restoration Quarters",
+      "locale": "Asheville, NC",
+      "description": "Community Center for Disadvantaged Veterans",
+      "detail": [
+        "Learn about challenges Veterans face after returning home.",
+        "Cooked and served food to disadvantaged veterans"
+      ]
+    },
+    {
+      "section": "Volunteering",
+      "startDate": "2018-01-01T05:00:00.000Z",
+      "endDate": "Present",
+      "title": "Builder",
+      "organization": "Habitat for Humanity",
+      "locale": "Asheville, NC",
+      "description": "Non-profit Construction Organization",
+      "detail": "Work alongside underserved populations to construct housing."
+    }
+  ]
+}

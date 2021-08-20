@@ -4,7 +4,7 @@
 @use 'styles/mixins/palette' as *;
 @use 'styles/mixins/variables' as *;
 
-@import 'util/styles/normalize';
+@import 'styles/normalize';
 .hidden {
   padding: 8px;
   position: absolute;
@@ -53,8 +53,12 @@ h4 {
 }
 h2,
 h3,
-h4 {
+h4,
+h5,
+h6 {
   font-family: var(--title-font);
+  margin-top: 5px;
+  padding: 1em 0em 0.4em 0em;
 }
 html {
   height: 100%;
@@ -72,6 +76,7 @@ background-animation {
   --background-color: var(--primary-9);
 }
 section {
+  background-color: white;
   @include media-size('zero', 'small') {
     margin: 0px 1rem;
   }
@@ -93,7 +98,7 @@ section {
     margin: 0px;
     max-width: 100vw;
   }
-  & .center {
+  & .content {
     grid-column: 1 / 2;
     height: 100%;
     max-width: 800px;
@@ -109,6 +114,7 @@ section {
       grid-column: none;
       display: block;
       padding: 2rem;
+      max-width: 100%;
       &::after {
         box-shadow: none;
       }

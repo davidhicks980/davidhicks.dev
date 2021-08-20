@@ -1,26 +1,29 @@
 import { LitElement, html } from 'lit';
 import { customElement, queryAssignedNodes, property } from 'lit/decorators.js';
-import { isFilledArray } from '../../util/func';
+import { isFilledArray } from '../../util/primitives/is-filled-array';
 import { style } from './nav-item.css';
-@customElement('hicks-nav-item')
+
+export const NAV_ITEM_TAG_NAME = 'hicks-nav-item';
+
+@customElement(NAV_ITEM_TAG_NAME)
 export class NavItemComponent extends LitElement {
+  static shadowRootOptions = {
+    ...LitElement.shadowRootOptions,
+    delegatesFocus: true,
+  };
   @queryAssignedNodes('', true)
   slotButton;
-  @property({ reflect: true })
-  link = '';
   @property({ type: Boolean, reflect: true })
   selected = false;
   @property({ type: String, reflect: true })
-  icon = '';
+  href = '';
   slotChangedCallback(e) {
-    this.link = isFilledArray(this.slotButton)
-      ? this.slotButton[0].wholeText.toLowerCase()
-      : '';
-    this.requestUpdate();
-  }
-
-  constructor() {
-    super();
+    if (this.href.length === 0) {
+      this.href = isFilledArray(this.slotButton)
+        ? '#' + this.slotButton[0].wholeText.toLowerCase()
+        : '';
+      this.requestUpdate();
+    }
   }
   emitNavigation() {
     this.dispatchEvent(new CustomEvent('navigate', { bubbles: true }));
@@ -28,17 +31,11 @@ export class NavItemComponent extends LitElement {
 
   render() {
     return html`
-        <a
-          @click="${this.emitNavigation}"
-          class="link"
-          href="#${this.link}"
-        >
-          <span class="link__content">
-           <slot @slotchange="${this.slotChangedCallback}"> </slot
-            >
-            </span>
-        </a>
-      </li>
+      <a @click="${this.emitNavigation}" class="link" href="${this.href}">
+        <span class="link__content">
+          <slot @slotchange="${this.slotChangedCallback}"> </slot>
+        </span>
+      </a>
     `;
   }
   static get styles() {

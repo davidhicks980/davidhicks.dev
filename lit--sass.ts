@@ -16,7 +16,7 @@ import postcssNesting = require('postcss-nesting');
 export const sassToCss = (sassFile) => {
   const renderOptions = {
     file: sassFile,
-    outputStyle: 'expanded',
+    outputStyle: 'compressed',
     includePaths: ['src', 'src/styles'],
   };
   let stringifiedCss = function (resolve, reject) {

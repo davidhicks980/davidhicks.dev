@@ -1,5 +1,5 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
-import { ObservableSet } from '../primitives/list-expansion';
+import { ObservableSet } from '../primitives/observable-set';
 import { BehaviorSubject } from 'rxjs';
 import { combineLatestWith } from 'rxjs/operators';
 

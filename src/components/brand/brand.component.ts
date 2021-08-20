@@ -1,8 +1,6 @@
 import { LitElement, html, CSSResultGroup, TemplateResult, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import './subtitle/subtitle.component';
 import './title/title.component';
-import './logo/logo.component';
 import { style } from './brand.css';
 @customElement('brand-component')
 export class BrandComponent extends LitElement {

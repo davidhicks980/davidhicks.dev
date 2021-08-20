@@ -9,9 +9,9 @@ import {
 import { html, LitElement } from 'lit';
 
 import { plotOptions } from './plot-options.config';
-import { VariableSet } from './VariableSet.type';
-import { PlotParameters } from './PlotPage';
-import { Variable } from './Variable';
+import { VariableSet } from './types/VariableSet';
+import { PlotParameters } from './types/PlotPage';
+import { Variable } from './types/Variable';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './plot.css';
 

@@ -1,7 +1,7 @@
 import { html, TemplateResult } from 'lit';
-import { fromEvent } from 'rxjs';
 import { ContentModification } from '../components/content/content.component';
 import { state } from '../util/primitives/store';
+import { RESUME_SORT_ORDER } from './resume-sort-order';
 interface ResumeEntry {
   section: string;
   startDate: string;
@@ -21,7 +21,7 @@ export class Resume {
   get title(){
     return this._title;
   }
-  get lock(){
+  get unlockTemplate(){
     return html`
     <hicks-unlock-resume>
     </hicks-unlock-resume>
@@ -59,6 +59,7 @@ export class Resume {
     return {
       title: this._title,
       content: this.buttons,
+      marker: '📜',
       subcontent: this._subcontent,
     };
   }
@@ -79,9 +80,12 @@ export class Resume {
     } else {
       details = detail as string[];
     }
-    return details.map((detail) => html`<li>${detail}</li>`);
+    return details.map((detail: string) => html`<li>${detail}</li>`);
   }
-  private _getEntryDate(date) {
+  private _getEntryDate(date: string) {
+    if(date.toLowerCase() ==='present'){
+      return date;
+    }
     return new Date(date).toLocaleDateString('default', {
       month: 'short',
       year: 'numeric',
@@ -102,14 +106,13 @@ export class Resume {
   private _getSectionTemplates(entryList: ResumeEntry[], groupBy: string) {
     let map = new Map() as Map<string, TemplateResult<1>[]>;
     let entries = entryList.slice();
-    let length = entries.length;
     while (entries.length) {
       let entry = entries.pop() as ResumeEntry;
       let sectionName = entry[groupBy];
       const fields = Object.entries(entry)
-      let hasEndDate = fields.some(([key, value])=>key==='endDate')
+      console.log(fields)
       let content = html`
-        <hicks-resume-entry ?end-date="${hasEndDate}" index="${length - entries.length}">
+        <hicks-resume-entry>
           ${fields.map(([field, content]) => {
             return html`<span slot="${field}">${this._formatFieldContent(field, content)}</span> `;
           })}
@@ -121,10 +124,15 @@ export class Resume {
         map.has(sectionName) ? map.get(sectionName).push(content) : map.set(sectionName, [content]);
       }
     }
-    const section = Array.from(map.entries())
-    return section.map(([title, section]) => {
+    const sections = Array.from(map)
+    sections.sort((a,b)=>{
+      let comparison =  RESUME_SORT_ORDER.indexOf(a[0]) - RESUME_SORT_ORDER.indexOf( b[0]);
+      return  Math.sign(comparison);
+    })
+    return sections.map(([title, section]) => {
       return {
         title,
+        
         content: html`
         <div class="resume__grid">
           ${section}

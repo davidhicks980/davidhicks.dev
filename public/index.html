@@ -1,65 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/8.7.1/firebase-app.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/8.7.1/firebase-auth.js"></script>
-    <script defer src="/__/firebase/8.7.1/firebase-database.js"></script>
-    <script defer src="/__/firebase/8.7.1/firebase-messaging.js"></script>
-    <script defer src="/__/firebase/8.7.1/firebase-storage.js"></script>
-    <!-- initialize the SDK after all desired features are loaded -->
-    <script defer src="/__/firebase/init.js"></script>
-
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
+    <meta charset="utf-8" name="viewport" content="width=device-width" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      media="print"
+      onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/combine/npm/@webcomponents/webcomponentsjs@2.6.0/custom-elements-es5-adapter.min.js,npm/@webcomponents/webcomponentsjs@2.6.0"></script>
+    <link rel="stylesheet" href="./main.prod.css" />
+    <script type="module" src="./components.js"></script>
+    <title>The Developer Site for David Hicks</title>
   </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+  <body id="app">
+    <a tabindex="0" class="hidden" href="#">Skip to content</a>
+    <hicks-header id="header">
+      <brand-component slot="header-brand"></brand-component>
+      <logo-component
+        slot="header-logo"
+        style="height: 2.2rem; width: 3.6rem"
+      ></logo-component>
+      <hicks-nav
+        style="--nav-item--font-size: 1.25rem"
+        slot="header-navigation"
+      >
+        <hicks-nav-item>About</hicks-nav-item>
+        <hicks-nav-item>Portfolio</hicks-nav-item>
+        <hicks-nav-item>Resume</hicks-nav-item>
+        <hicks-nav-item>Contact</hicks-nav-item>
+      </hicks-nav>
+      <hicks-nav
+        id="toolbar-navigation"
+        style="--nav--gap: 1rem; --nav--height: 2.25rem"
+        slot="header-social"
+      >
+        <hicks-nav-item
+          class="toolbar-item"
+          href="mailto:david@davidhicks.dev?subject=Howdy David, I'm reaching out to discuss your website."
+        >
+          <img class="icon--social" src="./icons/logo-google.svg" alt="Gmail" />
+        </hicks-nav-item>
+        <hicks-nav-item
+          class="toolbar-item"
+          href="https://github.com/davidhicks980"
+        >
+          <img
+            class="icon--social"
+            src="./icons/logo-github.svg"
+            alt="Github"
+          />
+        </hicks-nav-item>
+        <hicks-nav-item
+          href="https://www.linkedin.com/in/david-hicks-69712414b/"
+          class="toolbar-item"
+        >
+          <img
+            class="icon--social"
+            src="./icons/logo-linkedin.svg"
+            alt="LinkedIn"
+          />
+        </hicks-nav-item>
+      </hicks-nav>
+      <hicks-menu-toggle class="menu-toggle" id="menu-toggle">
+        <svg
+          class="menu-icon"
+          style="transform: scale(1.1)"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="white"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <rect
+            class="top-bun"
+            fill="white"
+            x="12.5%"
+            y="25%"
+            width="75%"
+            height="8.25%"
+          ></rect>
 
-        try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-          document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
+          <rect
+            class="middle-bun"
+            fill="white"
+            x="12.5%"
+            y="45.875%"
+            width="75%"
+            height="8.25%"
+          ></rect>
+
+          <rect
+            class="bottom-bun"
+            fill="white"
+            x="12.5%"
+            y="66.666%"
+            width="75%"
+            height="8.25%"
+          ></rect>
+        </svg>
+      </hicks-menu-toggle>
+    </hicks-header>
+    <main id="main" class="layout">
+      <content-tree class="content"></content-tree>
+      <div class="navigation">
+        <hicks-toc id="table-of-contents" style="--body--font: 'Arimo'">
+          <span class="toc__toggle-anchor" slot="toggle"></span
+        ></hicks-toc>
+      </div>
+    </main>
   </body>
 </html>

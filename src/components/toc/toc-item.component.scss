@@ -1,4 +1,3 @@
-@use 'mixins' as *;
 @use 'styles/mixins/shadow-root' as root;
 
 @use 'styles/mixins/responsive' as *;
@@ -123,4 +122,8 @@
       font-weight: 500;
     }
   }
+}
+
+.toc-container {
+  display: contents;
 }

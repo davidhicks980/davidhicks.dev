@@ -78,29 +78,27 @@ h5 {
   &__date {
     display: block;
     font-size: 9pt;
-    color: var(--gray-13);
+    color: var(--gray-9);
     font-weight: 500;
     text-transform: uppercase;
     padding-top: 0.15rem;
-    & ::slotted(*) {
-      color: var(--gray-11);
-      transition: color 0.3s ease-in;
-    }
-    :host([active]) & ::slotted(*) {
+    text-align: right;
+    color: var(--gray-9);
+    transition: color 0.3s ease-in;
+
+    :host([active]) & {
       color: var(--primary-9);
     }
   }
-  &__title {
+  &__name {
     cursor: pointer;
+    font-size: 12pt;
+    color: var(--gray-13);
     :hover {
       text-decoration: underline;
     }
-    & ::slotted(*) {
-      font-size: 12pt;
-      color: var(--gray-13);
-    }
   }
-  &__logistics ::slotted(*) {
+  &__logistics {
     font-size: 11pt;
     color: var(--gray-12);
     font-weight: 400;
@@ -108,24 +106,18 @@ h5 {
 
   &__supervisor {
     color: var(--gray-11);
-    *::slotted(*) {
-      @extend %minor-text;
-    }
+    @extend %minor-text;
   }
 
   &__description {
     margin: 0px;
-    *::slotted(*) {
-      @extend %minor-text;
-    }
+    @extend %minor-text;
   }
 
   &__detail {
     margin: 0px;
 
-    *::slotted(*) {
-      @extend %minor-text;
-    }
+    @extend %minor-text;
   }
   &__expansion {
     margin: 0px;
@@ -167,6 +159,7 @@ h5 {
   transform-origin: center center;
   transition: transform 0.35s ease-in-out;
   color: var(--gray-7);
+  outline: none;
   cursor: pointer;
   &:hover {
     color: var(--primary-11);
@@ -185,4 +178,8 @@ h5 {
   @include media-size('zero', 'small') {
     display: inline;
   }
+}
+
+.icon-button {
+  outline: none;
 }

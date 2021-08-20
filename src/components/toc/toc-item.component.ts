@@ -10,18 +10,12 @@ import { BreakpointController } from '../../util/controllers/breakpoint.controll
 import { literal, html } from 'lit/static-html.js';
 
 import { ListItemController } from '../../util/controllers/item.controller';
-import { fromEvent } from 'rxjs';
-import { ARROW_KEYS } from '../radio-group/keys.constants';
-import { filter } from 'rxjs/operators';
 /**
  *Allows focusing without having to typecase to an HTMLElement
  *
  * @param {Element} element
  */
-function focus(element: Element): HTMLElement {
-  (element as HTMLElement).focus();
-  return element as HTMLElement;
-}
+
 const TAG_NAME = 'hicks-list-item';
 @customElement(TAG_NAME)
 export class HicksListItem extends LitElement {
@@ -49,14 +43,6 @@ export class HicksListItem extends LitElement {
   controllers: { item: ListItemController; breakpoint: BreakpointController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
   topLevel: boolean;
-  refreshChildren() {
-    this.listChildren = this.childSlot.length;
-    if (this.listChildren === 0) {
-      if (this.expanded) {
-        this.expanded = false;
-      }
-    }
-  }
   @state()
   get position(): number[] {
     return this._position;
@@ -84,6 +70,14 @@ export class HicksListItem extends LitElement {
     return this.listChildren > 0;
   }
 
+  refreshChildren() {
+    this.listChildren = this.childSlot.length;
+    if (this.listChildren === 0) {
+      if (this.expanded) {
+        this.expanded = false;
+      }
+    }
+  }
   /**
    *The number of visible child elements on elements that come before this element and contain the same root
    *
@@ -92,6 +86,7 @@ export class HicksListItem extends LitElement {
    */
   @property({ type: Number, reflect: true })
   offset: number = 0;
+
   templates: {
     tags: {
       ul: unknown[];
@@ -108,6 +103,14 @@ export class HicksListItem extends LitElement {
     </div>
   `;
 
+  handleClick(event: MouseEvent) {
+    console.log(this.link, window.location.hash);
+
+    if (window.location.hash === this.link) {
+      this.focus();
+      event.preventDefault();
+    }
+  }
   constructor() {
     super();
     this.controllers = {} as any;
@@ -126,65 +129,8 @@ export class HicksListItem extends LitElement {
         this.active = this._path === active;
       }
     });
-    fromEvent(this, 'keydown')
-      .pipe(filter((ev: KeyboardEvent) => ARROW_KEYS.includes(ev.key)))
-      .subscribe((ev) => {
-        if (ev.defaultPrevented) {
-          return; // Do nothing if the event was already processed
-        }
-        //Yes, yes. Fallthrough switch bad
-        switch (ev.key) {
-          case 'Down': // IE/Edge specific value
-          case 'ArrowDown':
-            // Do something for "down arrow" key press.
-            if (this.hasListChildren /*&& this.expanded*/) {
-              this.childSlot[0].focus();
-            } else if (this.nextElementSibling) {
-              focus(this.nextElementSibling);
-            } else {
-              let nextParent = this.parentElement?.nextElementSibling;
-              if (nextParent?.tagName === this.tagName) {
-                focus(nextParent.shadowRoot.querySelector('a'));
-              } else {
-                focus(this.parentElement.firstElementChild);
-              }
-            }
-            break;
-          case 'Up': // IE/Edge specific value
-          case 'ArrowUp':
-            // Do something for "down arrow" key press.
-            if (this.previousElementSibling?.tagName === this.tagName) {
-              let el = this.previousElementSibling as HicksListItem;
-              if (el.expanded && el.hasListChildren) {
-                el.childSlot[el.childSlot.length - 1].focus();
-              } else if (el.tagName === this.tagName) {
-                focus(el);
-              }
-            } else {
-              if (this.parentElement.tagName === this.tagName) {
-                this.parentElement.shadowRoot.querySelector('a').focus();
-              } else {
-                focus(this.parentElement.lastElementChild);
-              }
-            }
 
-            break;
-          case 'Left': // IE/Edge specific value
-          case 'ArrowLeft':
-            //[EXPANDED] this.controllers.item.collapse(this.path);
-            break;
-          case 'Right': // IE/Edge specific value
-          case 'ArrowRight':
-          case 'Enter':
-            //[EXPANDED]  this.controllers.item.expand(this.path);
-            break;
-          default:
-            return; // Quit when this doesn't handle the key event.
-        }
-
-        // Cancel the default action to avoid it being handled twice
-        ev.preventDefault();
-      });
+    this.tabIndex = 0;
   }
   updateSlots() {
     /*[EXPANDED] const show = this.hasListChildren;*/
@@ -246,6 +192,7 @@ export class HicksListItem extends LitElement {
           role="treeitem"
           class="item__content__a"
           href="${this.link}"
+          @click="${this.handleClick}"
         >
           ${this.templates.slots.link}
         </a>

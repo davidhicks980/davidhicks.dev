@@ -5,7 +5,7 @@ import { literal, html as staticHTML } from 'lit/static-html.js';
 import { timer } from 'rxjs';
 import { fastHash } from '../../util/primitives/salt-id';
 import { clone } from './deep-clone';
-import { PageSection } from './PageSection';
+import { PageSection } from '../../types/PageSection';
 export class Tree {
   constructor() {}
   private _linkIcon = html`<svg

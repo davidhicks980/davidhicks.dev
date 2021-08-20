@@ -6,7 +6,7 @@ import {
 } from '../../util/mixins/state-observer.mixin';
 import { mix } from '../../util/mixins/mix.with';
 import { ContentModification, ContentTree } from './content.component';
-import { PageSection } from './PageSection';
+import { PageSection } from '../../types/PageSection';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
 import { prefix, observedProperties } from './content.properties';
 export const resumeEntryObserver = {

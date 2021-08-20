@@ -1,5 +1,5 @@
 import { state } from './util/primitives/store';
-import { combineLatest, fromEvent, timer } from 'rxjs';
+import { combineLatest, fromEvent } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/primitives/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu-toggle.properties';
@@ -37,6 +37,19 @@ fromEvent(window, 'load')
         toggle.slot = HicksHeader.prototype.slotNames.toggle;
         header.appendChild(toggle);
         toggle.toggled = false;
+      }
+    });
+    fromEvent(elementById('header'), 'focusin').subscribe((e: FocusEvent) => {
+      let target = e.target as HTMLElement;
+      let isInToolbar =
+        target.classList.contains('toolbar-item') ||
+        target.classList.contains('menu-toggle');
+      if (isInToolbar) {
+        if (window.scrollY < 450)
+          window.scroll({
+            top: 500,
+            left: 0,
+          });
       }
     });
     fromEvent(document, 'resumeload')

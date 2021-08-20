@@ -19,7 +19,8 @@ const emitActiveSection = {
   observedProperties,
   prefix,
 };
-export const action = {
+export const MENU_TOGGLE_TAG_NAME = 'hicks-menu-toggle';
+const action = {
   stream: state.filteredChanges([
     StoreProperties.BREAKPOINTS,
     TOCProperties.ACTIVE_SECTION,
@@ -41,8 +42,8 @@ export const action = {
     },
   ] as ObservedStateAction[],
 };
-const toc = mix(HicksToggle).with(
+export const HicksMenuToggle = mix(HicksToggle).with(
   EmitStateMixin(emitActiveSection),
   ObserveStateMixin(action)
 );
-customElements.define('hicks-menu-toggle', toc);
+customElements.define(MENU_TOGGLE_TAG_NAME, HicksMenuToggle);

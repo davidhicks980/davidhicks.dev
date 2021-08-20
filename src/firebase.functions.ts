@@ -1,14 +1,15 @@
-import { initializeApp } from '../node_modules/firebase/app';
+import { initializeApp } from 'firebase/app';
 import {
   getFunctions,
   httpsCallable,
-} from '../node_modules/firebase/functions';
+  HttpsCallableResult,
+} from 'firebase/functions';
 import 'firebase/app-check';
 import { Resume } from './sections/resume.section';
 const APP_CHECK_PUBLIC_KEY = '6LfNxeMbAAAAAPB86Zh6IGT_n0XJNcDsyDVHAWM3';
 
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-interface HTTPSUnlockResumeResponse {
+interface HTTPSFunctionsResponse {
   data: {
     hasError: false;
     error: '';
@@ -38,36 +39,59 @@ export const appCheck = initializeAppCheck(app, {
   isTokenAutoRefreshEnabled: true,
 });
 
-export class FormHandler {
-  constructor() {}
-  unlockResume(resumeKey: string) {
-    const unlockResume = httpsCallable(functions, 'unlockResume');
-    return unlockResume(resumeKey)
-      .then((res: HTTPSUnlockResumeResponse) => {
-        let { hasError, result } = res.data;
-        if (hasError) {
-          return false;
-        } else {
-          const entries = JSON.parse(result);
-          return new Resume(entries.resumeEntries).template;
-        }
-      })
-      .catch((error) => {
-        var code = error.code;
-        var message = error.message;
-        var details = error.details;
-        console.error(
-          'There was an error when calling the Cloud Function',
-          error
-        );
-        window.alert(
-          'There was an error when calling the Cloud Function:\n\nError Code: ' +
-            code +
-            '\nError Message:' +
-            message +
-            '\nError Details:' +
-            details
-        );
-      });
-  }
-}
+export const unlockResume = (resumeKey: string) => {
+  const unlockResume = httpsCallable(functions, 'unlockResume');
+  return unlockResume(resumeKey)
+    .then((res: HTTPSFunctionsResponse) => {
+      let { hasError, result } = res.data;
+      if (hasError) {
+        return false;
+      } else {
+        const entries = JSON.parse(result);
+        return new Resume(entries.resumeEntries).template;
+      }
+    })
+    .catch((error) => {
+      var code = error.code;
+      var message = error.message;
+      var details = error.details;
+      console.error(
+        'There was an error when calling the Cloud Function',
+        error
+      );
+      window.alert(
+        'There was an error when calling the Cloud Function:\n\nError Code: ' +
+          code +
+          '\nError Message:' +
+          message +
+          '\nError Details:' +
+          details
+      );
+    });
+};
+
+export const contact = (formData: string) => {
+  const contact = httpsCallable(functions, 'contact');
+  return contact(formData)
+    .then((res: HttpsCallableResult<boolean>) => {
+      return res.data;
+    })
+    .catch((error) => {
+      var code = error.code;
+      var message = error.message;
+      var details = error.details;
+      console.error(
+        'There was an error when calling the Cloud Function',
+        error
+      );
+      window.alert(
+        'There was an error when calling the Cloud Function:\n\nError Code: ' +
+          code +
+          '\nError Message:' +
+          message +
+          '\nError Details:' +
+          details
+      );
+      return false;
+    });
+};

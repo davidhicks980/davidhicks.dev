@@ -5,11 +5,11 @@ import { customElement } from 'lit/decorators.js';
 export class TitleComponent extends LitElement {
   render(): TemplateResult {
     return svg`
-    <svg xmlns="http://www.w3.org/2000/svg" alt="David Hicks, pharmacist and developer" viewBox="0 0 326.58 80.49">
+    <svg xmlns="http://www.w3.org/2000/svg" style="overflow: visible" alt="David Hicks, pharmacist and developer" viewBox="0 0 326.58 80.49">
     
   <defs>
         <filter id="shadow">
-          <feDropShadow dx="0.2" dy="0.4" stdDeviation="0.2"/>
+          <feDropShadow flood-opacity="0.5"  dx="0.4" stdDeviation="1.3"/>
         </filter>      
   </defs>
       <g id="subtitle">

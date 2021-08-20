@@ -1,0 +1,112 @@
+@use 'mixins/shadows' as *;
+input,
+textarea {
+  padding: 0.5em;
+  font-size: 12pt;
+  font-family: system-ui;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid var(--gray-9);
+  &[type='text'],
+  &[type='email'] {
+    font-size: 12pt;
+    caret-color: blue;
+    grid-column: 3 / 4;
+  }
+  &[type='checkbox'] {
+    height: 1rem;
+    width: 1rem;
+    grid-column: 3 / 4;
+  }
+  &::-webkit-input-placeholder {
+    color: var(--gray-8);
+  }
+  &::placeholder {
+    color: var(--gray-8);
+  }
+  &:hover {
+    background-color: var(--gray-1);
+  }
+}
+label {
+  width: 20ch;
+}
+textarea {
+  min-height: 200px;
+}
+.full-width {
+  width: 100%;
+  grid-column: 1 / 4;
+}
+button {
+  margin: 1rem 0rem;
+  padding: 0.25em 0.5em;
+  border-radius: 3px;
+}
+
+.form-container {
+  display: grid;
+  grid-template-columns: 20ch auto;
+  row-gap: 1rem;
+  border: none;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  padding: 0px;
+  :host([mobile]) & {
+    grid-template-columns: 100%;
+    width: 100%;
+  }
+}
+
+abbr[title='required'] {
+  all: unset;
+  color: red;
+}
+
+.button-container {
+  width: 100%;
+}
+/* CSS */
+button {
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--body-font);
+  font-size: 1rem;
+  height: 2.5em;
+  transition: all 250ms;
+  touch-action: manipulation;
+  width: 20ch;
+  border: none;
+  position: relative;
+  &.primary {
+    color: white;
+    background-color: var(--primary-9);
+
+    @include hoverable-shadow(3);
+    &:hover {
+      filter: brightness(1.1);
+    }
+    &:active {
+      box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
+    }
+  }
+  &.secondary {
+    background-color: var(--gray-1);
+    color: var(--gray-11);
+    box-shadow: inset 0px 0px 0px 1px var(--gray-6);
+    border: 1px solid gray;
+    @include hoverable-shadow(2);
+
+    &:hover {
+      background-color: var(--gray-2);
+    }
+    &:active {
+      box-shadow: inset 0px 0px 0px 1px blue;
+    }
+  }
+}
+
+.directions {
+  font-weight: 400;
+}

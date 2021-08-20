@@ -52,7 +52,7 @@ var postcssPresetEnv = require("postcss-preset-env");
 var sassToCss = function (sassFile) {
     var renderOptions = {
         file: sassFile,
-        outputStyle: 'expanded',
+        outputStyle: 'compressed',
         includePaths: ['src', 'src/styles']
     };
     var stringifiedCss = function (resolve, reject) {

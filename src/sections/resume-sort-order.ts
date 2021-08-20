@@ -1,0 +1,1 @@
+export const RESUME_SORT_ORDER = ['Education', 'Professional Experience', 'Practice Experience', 'Presentations','Volunteering']

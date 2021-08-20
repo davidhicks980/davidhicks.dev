@@ -16,8 +16,6 @@ export class HicksResumeEntry extends LitElement {
   open: boolean;
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive: boolean = false;
-  @property({ attribute: 'end-date', type: Boolean })
-  hasEndDate: boolean = false;
   @property({ attribute: 'entry-id', type: Number })
   entryId: number = 0;
   @property({ type: Boolean, reflect: true })
@@ -108,16 +106,14 @@ export class HicksResumeEntry extends LitElement {
       <div class="entry">
         <div class="entry__left">
           <div class="entry__date">
-            <slot name="startDate"></slot> ${this.hasEndDate
-              ? html`<span class="mobile">to</span>`
-              : ''}
-            <slot name="endDate"></slot>
+            <div><slot name="endDate"></slot></div>
+            <div><slot name="startDate"></slot></div>
           </div>
         </div>
         <div class="entry__timeline"></div>
         <div class="entry__right">
-          <h4 @click=${this.toggle} class="entry__title">
-            <slot name="title"></slot>
+          <h4 @click=${this.toggle} class="entry__name">
+            <slot name="name"></slot>
           </h4>
           <h5 class="entry__logistics">
             <slot name="organization"></slot>

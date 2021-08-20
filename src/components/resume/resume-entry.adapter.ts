@@ -6,6 +6,7 @@ import {
   ObservedStateAction,
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
+
 export const resumeEntryObserver = {
   stream: state.filteredChanges([
     'active-entry',

@@ -3,7 +3,6 @@
 @use 'mixins/responsive' as *;
 @use 'mixins/shadows' as *;
 
-$shadow: generate-shadow(3, 2px);
 .header {
   &__toolbar {
     position: sticky;
@@ -92,12 +91,10 @@ $shadow: generate-shadow(3, 2px);
       pointer-events: none;
     }
     &__nav {
-      ::slotted(hicks-nav) {
-        --nav-item--font-weight: 300;
-        --nav-item--font-color: white;
-        --nav-item--hover--font-color: var(--secondary-3);
-        --nav-item--selected--font-color: var(--complement-5);
-      }
+      --nav-item--font-weight: 300;
+      --nav-item--font-color: white;
+      --nav-item--hover--font-color: var(--secondary-3);
+      --nav-item--selected--font-color: var(--complement-5);
     }
     @include media-size(zero, medium) {
       flex-direction: column;
@@ -132,11 +129,9 @@ $shadow: generate-shadow(3, 2px);
     @include media-size(zero, small) {
       gap: 25vh;
       &__nav {
-        ::slotted(hicks-nav) {
-          --nav--direction: column;
-          --nav--justify-content: start;
-          --nav--gap: 1rem;
-        }
+        --nav--direction: column;
+        --nav--justify-content: start;
+        --nav--gap: 1rem;
       }
     }
   }
@@ -173,48 +168,4 @@ hicks-nav {
 .is-shown {
   transition: opacity 250ms ease;
   opacity: 1;
-}
-
-@keyframes fadein {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes backgroundin {
-  from {
-    background-color: var(--background-color);
-  }
-  to {
-    background-color: white;
-  }
-}
-
-@keyframes fadeout {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-@keyframes fade-slide-in {
-  to {
-    opacity: 1;
-  }
-  from {
-    opacity: 0;
-  }
-}
-
-.animate-title--in {
-  animation-name: fade-slide-in;
-  animation-iteration-count: 1;
-  animation-direction: forwards;
-  animation-timing-function: ease-in;
-  animation-duration: 500ms;
-  overflow: hidden;
 }

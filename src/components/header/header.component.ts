@@ -1,17 +1,21 @@
 import { LitElement, html } from 'lit';
-import { query, state, property, queryAssignedNodes } from 'lit/decorators.js';
+import {
+  query,
+  state,
+  property,
+  queryAssignedNodes,
+  customElement,
+} from 'lit/decorators.js';
 import anime from 'animejs';
 import { style } from './header.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { classMap } from 'lit/directives/class-map.js';
-import { removeUnderscores } from '../../util/directives/remove-underscore.directive';
-import { interval } from 'rxjs';
-import { take } from 'rxjs/operators';
 import {
   IntersectionController,
   IntersectionObserverType,
 } from '../../util/controllers/intersection.controller';
 
+@customElement('hicks-header')
 export class HicksHeader extends LitElement {
   @query('.header__grid', true)
   container: HTMLElement;
@@ -39,19 +43,18 @@ export class HicksHeader extends LitElement {
   mobile: boolean = false;
   @property({ type: Boolean, reflect: true })
   tablet: boolean;
-  lowerNavNode: Node;
-  @property({ type: String })
-  sectionTitle: string = '';
-  controllers: {
-    breakpoint: BreakpointController;
-    intersection: IntersectionController;
-  };
   @property({ type: Object })
   get slotNames() {
     return {
       toggle: 'navigation-toggle',
     };
   }
+  lowerNavNode: Node;
+
+  controllers: {
+    breakpoint: BreakpointController;
+    intersection: IntersectionController;
+  };
 
   constructor() {
     super();
@@ -127,22 +130,15 @@ export class HicksHeader extends LitElement {
     el.classList.remove(oldClass);
   };
 
-  handleToggleSlot(ev) {
-    console.log((this.slottedToggle[0] as HTMLElement).firstElementChild);
-  }
   logo = html`<slot name="header-logo"></slot>`;
   nav = html`<slot name="header-navigation"></slot>`;
   social = html`<slot
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = html`<span class="header__toolbar__toggle__container"
+  navToggle = html` <span class="header__toolbar__toggle__container"
     ><span class="divider"> </span>
-    <slot
-      @slotchange="${this.handleToggleSlot}"
-      name="${this.slotNames.toggle}"
-      class="header__toolbar__toggle"
-    >
+    <slot name="${this.slotNames.toggle}" class="header__toolbar__toggle">
     </slot
   ></span>`;
   toolbarPath = html`<svg
@@ -159,17 +155,7 @@ export class HicksHeader extends LitElement {
     />
   </svg>`;
 
-  updated(_changedProperties: Map<string, unknown>) {
-    if (_changedProperties.has('sectionTitle')) {
-      this.section.classList.add('animate-title--in');
-
-      interval(500)
-        .pipe(take(1))
-        .subscribe(() => {
-          this.section.classList.remove('animate-title--in');
-        });
-    }
-  }
+  updated(_changedProperties: Map<string, unknown>) {}
 
   render() {
     const upperVisibility = classMap({
@@ -193,9 +179,7 @@ export class HicksHeader extends LitElement {
         <div id="animeHeaderToolbar" class="header__toolbar">
           <div class="header__toolbar__content ${toolbarVisibility}">
             ${this.logo}
-            <div class="header__toolbar__content__section">
-              <h3>${removeUnderscores(this.sectionTitle)}</h3>
-            </div>
+
             <div class="header__toolbar__content__links">
               ${this.social} ${this.navToggle}
             </div>

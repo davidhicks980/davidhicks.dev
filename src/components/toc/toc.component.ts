@@ -20,9 +20,10 @@ import { fastHash } from '../../util/primitives/salt-id';
 import { debounceTime, filter, mapTo } from 'rxjs/operators';
 
 import { fromEvent } from 'rxjs';
-import { getHeadingDepth, queryHeader } from '../../util/functions/headers';
-import { queryAnchor } from '../../util/functions/anchors';
+import { getHeadingDepth, queryHeader } from '../../util/primitives/headers';
+import { queryAnchor } from '../../util/primitives/anchors';
 import { MutationController } from '../../util/controllers/mutation.controller';
+import { queryAssignedNodes } from 'lit/decorators.js';
 
 /**
  * Element that renders table of contents.
@@ -35,6 +36,16 @@ export class TableOfContents extends LitElement {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
   };
+  toggle: any;
+  handleSlotChange(event) {
+    console.log(this.menuToggle[0]);
+  }
+  @property({ type: Object })
+  get slotNames() {
+    return {
+      toggle: 'navigation-toggle',
+    };
+  }
   //Child Queries
   @query('.list', true)
   topLevelList: HTMLUListElement;
@@ -44,6 +55,8 @@ export class TableOfContents extends LitElement {
   listItems: NodeListOf<HicksListItem>;
   @queryAsync('hicks-list-item')
   itemsLoaded: Promise<HicksListItem>;
+  @queryAssignedNodes('navigation-toggle', true)
+  menuToggle: HTMLElement;
   //Public properties
   @property({ type: Boolean, reflect: true })
   open: boolean;
@@ -51,12 +64,6 @@ export class TableOfContents extends LitElement {
   mobile = true;
   @property({ type: Boolean })
   loaded = false;
-  @property({ type: Object })
-  get slotNames() {
-    return {
-      toggle: 'navigation-toggle',
-    };
-  }
   //Internal States
   @state()
   activeLink: string = '';
@@ -64,7 +71,6 @@ export class TableOfContents extends LitElement {
   controllers: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
-    // focus: FocusController;
     item: ListItemController;
     mutation: MutationController;
   };
@@ -99,7 +105,6 @@ export class TableOfContents extends LitElement {
     this.controllers = {
       intersection: new IntersectionController(this),
       breakpoint: new BreakpointController(this),
-      //focus: new FocusController(this),
       item: new ListItemController(this),
       mutation: new MutationController(this),
     };
@@ -126,13 +131,20 @@ export class TableOfContents extends LitElement {
         this.requestUpdate();
       });
     fromEvent(document, 'keydown')
-      .pipe(filter((ev) => this.mobile && this.open && ev.key === 'Escape'))
+      .pipe(
+        filter((ev: KeyboardEvent) => {
+          return this.mobile && this.open && ev.key === 'Escape';
+        })
+      )
       .subscribe(() => {
         this.open = false;
       });
-    fromEvent(window, 'hashchange').subscribe((change) => {
+    fromEvent(window, 'hashchange').subscribe((change: HashChangeEvent) => {
       if (this.open) {
         this.open = false;
+        if (change.newURL.split('#')[1] != change.oldURL.split('#')[1]) {
+          document.getElementById(change.newURL.split('#')[1])?.focus();
+        }
       }
     });
   }
@@ -274,20 +286,12 @@ export class TableOfContents extends LitElement {
   }
   updated(_changedProperties) {
     super.updated(_changedProperties);
-
-    if (
-      _changedProperties.has('mobile') ||
-      _changedProperties.has(_changedProperties.has('open'))
-    ) {
-      if (this.mobile && this.open) {
-        this.itemsLoaded.then(() => {
-          //      this.controllers.focus.trapFocus(
-          //      this.topLevelList,
-          //    this.listItems.item(0)
-          //);
-        });
-      } else {
-        //      this.controllers.focus.releaseFocus();
+    if (_changedProperties.has('open')) {
+      if (this.open && this.mobile) {
+        setTimeout(() => {
+          this.listItems.item(0).focus();
+          this.toggle = this.menuToggle[0];
+        }, 500);
       }
     }
   }
@@ -359,11 +363,13 @@ export class TableOfContents extends LitElement {
       : this.controllers.item.expandAll();
     this.allExpanded = !this.allExpanded;
   }
+
   render() {
     if (this.hash.template != this.hash.section) {
       this.template = templates.list(this.list);
       this.hash.template = this.hash.section;
     }
+    let open = this.mobile && this.open;
 
     return html`
       <!--  <div class="button__wrapper">
@@ -376,11 +382,35 @@ export class TableOfContents extends LitElement {
           Expand All <span>+</span>
         </button>
       </div>-->
+
+      ${open
+        ? html`<div
+            tabindex="0"
+            aria-hidden="true"
+            @focus="${() => {
+              return Array.from(this.listItems)[
+                this.listItems.length - 1
+              ].focus();
+            }}"
+          ></div>`
+        : ''}
       <div class="button__wrapper">
         <div class="background"></div>
-        <slot name="${this.slotNames.toggle}"></slot>
+        <slot
+          @slotchange="${this.handleSlotChange}"
+          name="${this.slotNames.toggle}"
+        ></slot>
       </div>
       ${this.template}
+      ${open
+        ? html`<div
+            tabindex="0"
+            aria-hidden="true"
+            @focusin="${() => {
+              this.menuToggle[0]?.focus();
+            }}"
+          ></div>`
+        : ''}
     `;
   }
 }

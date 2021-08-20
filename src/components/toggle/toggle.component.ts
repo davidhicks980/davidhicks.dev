@@ -3,6 +3,10 @@ import { property, queryAssignedNodes } from 'lit/decorators.js';
 import { style } from './toggle.css';
 
 export class HicksToggle extends LitElement {
+  static shadowRootOptions = {
+    ...LitElement.shadowRootOptions,
+    delegatesFocus: true,
+  };
   @property({ type: Boolean, reflect: true }) toggled: boolean;
   @property({ type: String }) height: string = '2rem';
   @property({ type: String }) width: string = '2rem';
@@ -15,6 +19,9 @@ export class HicksToggle extends LitElement {
     this.toggled = false;
   }
   handleClick(e: PointerEvent) {
+    if (this.toggled) {
+      setTimeout(() => this.focus(), 10);
+    }
     this.toggled = this.toggled ? false : true;
     this.dispatchEvent(
       new CustomEvent('toggle', {
@@ -47,7 +54,7 @@ export class HicksToggle extends LitElement {
   }
   render(): TemplateResult {
     return html`
-      <button @click="${this.handleClick}" class="icon-button">
+      <button tabindex="0" @click="${this.handleClick}" class="icon-button">
         <slot></slot>
       </button>
     `;

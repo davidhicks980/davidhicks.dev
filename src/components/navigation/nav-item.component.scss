@@ -6,19 +6,15 @@
   position: relative;
   display: block;
   padding: var(--nav-item--padding);
-  border-radius: var(--nav-item--radius);
-  background: var(--nav-item--background-color);
-  border: var(--nav-item--border);
-  clip-path: var(--nav-item--clip-path);
-  text-decoration: var(--nav-item--text-decoration);
   transition: var(--nav-item--transition);
-  color: var(--nav-item--font-color);
-  font-family: var(--body-font);
-  font-size: var(--nav-item--font-size);
-  font-weight: var(--nav-item--font-weight);
   &__content {
     min-height: 2rem;
     min-width: 2rem;
+    font-size: var(--nav-item--font-size);
+    font-weight: var(--nav-item--font-weight);
+    text-decoration: var(--nav-item--text-decoration);
+    font-family: var(--body-font);
+    color: var(--nav-item--font-color);
     :host([selected]) & {
       color: var(--nav-item--selected--font-color);
     }
@@ -26,7 +22,6 @@
   &:hover {
     opacity: 1;
     color: var(--nav-item--hover--font-color);
-    background-color: var(--nav-item--hover--background-color);
     box-shadow: var(--nav-item--hover--box-shadow);
     text-decoration: var(--nav-item--hover--text-decoration);
   }

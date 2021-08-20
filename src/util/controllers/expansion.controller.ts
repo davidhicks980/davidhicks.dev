@@ -1,8 +1,7 @@
-import { timeStamp } from 'console';
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Observable } from 'rxjs';
 import { filter, take, tap } from 'rxjs/operators';
-import { debounce } from '../functions/debounce';
+import { debounce } from '../primitives/debounce';
 
 import { ExpansionHandler as CollapseHandler } from '../primitives/expand-handler';
 

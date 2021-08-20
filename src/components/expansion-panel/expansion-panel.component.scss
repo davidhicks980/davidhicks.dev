@@ -212,6 +212,7 @@ p {
   font-weight: 500;
   border-radius: 5px;
   min-width: fit-content;
+  cursor: pointer;
 
   &:hover {
     background-color: var(--primary-4);

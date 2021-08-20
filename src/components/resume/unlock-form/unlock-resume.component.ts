@@ -1,19 +1,10 @@
 import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { style } from './unlock-resume.css';
-import { FormHandler } from '../../../firebase.functions';
-
-//import { styleMap } from 'lit/directives/style-map.js'
-//import { classMap } from 'lit/directives/class-map.js'
-import { RESUME_ENCRYPTION_KEY } from '../../../../private/resume-key';
+import { unlockResume } from '../../../firebase.functions';
 import { state } from '../../../util/primitives/store';
 import { ContentModification } from '../../content/content.component';
-enum UnlockStatus {
-  NOT_SUBMITTED,
-  UNSUCCESSFUL,
-  SUBMITTED,
-  SUCCESSFUL,
-}
+import { Status } from '../../loading/status.component';
 
 interface SubmitEvent extends Event {
   submitter: HTMLElement;
@@ -22,18 +13,17 @@ interface SubmitEvent extends Event {
 export class UnlockResumeElement extends LitElement {
   @property({ type: Boolean, reflect: true }) isUnlocked: boolean = false;
   @property({ type: Number, reflect: true })
-  status: UnlockStatus = UnlockStatus.NOT_SUBMITTED;
+  status: Status = Status.NOT_SUBMITTED;
   @query('form')
   form: HTMLFormElement;
   @query('#unlock-resume-input')
   input;
-  formHandler: FormHandler;
   async attemptUnlock(ev: SubmitEvent) {
     ev.preventDefault();
-    if (this.status >= UnlockStatus.SUBMITTED) return;
-    this.status = UnlockStatus.SUBMITTED;
+    if (this.status >= Status.SUBMITTED) return;
+    this.status = Status.SUBMITTED;
     let key = new FormData(this.form).get('unlock-resume-token').toString();
-    this.formHandler.unlockResume(key).then((resume) => {
+    unlockResume(key).then((resume) => {
       if (resume) {
         state.update({
           sectionAdditions: {
@@ -42,61 +32,36 @@ export class UnlockResumeElement extends LitElement {
             change: ContentModification.REPLACE,
           },
         });
-        this.status = UnlockStatus.SUCCESSFUL;
+        this.status = Status.SUCCESSFUL;
       } else {
-        this.status = UnlockStatus.UNSUCCESSFUL;
+        this.status = Status.UNSUCCESSFUL;
       }
     });
   }
-  constructor() {
-    super();
-    this.formHandler = new FormHandler();
-  }
-  getFeedback(status: UnlockStatus) {
-    let template = (message: string) =>
-      html`<span class="unlock-resume__message">${message} </span>`;
-    switch (status) {
-      case UnlockStatus.NOT_SUBMITTED:
-        return '';
-      case UnlockStatus.SUBMITTED:
-        return html`<div class="unlock-resume__message">
-          LOADING
-          <svg
-            class="loading-parent"
-            viewBox="0 0 100 100"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle class="loading" cx="60" cy="60" r="10" />
-            <circle class="loading-reverse" cx="25" cy="25" r="12.5" />
-          </svg>
-        </div> `;
-      case UnlockStatus.UNSUCCESSFUL:
-        return template(
-          `The recruiter token you entered does not seem to be working. Perhaps you are playing around with the search form, in which case have at it! Otherwise, I may have messed something up. Feel free to email me at david@davidhicks.dev if this is the case.`
-        );
-      case UnlockStatus.SUCCESSFUL:
-        return template(`Recruiter token successful. Unlocking...`);
-    }
-  }
+
+  statusMessages = {
+    [Status.NOT_SUBMITTED]: '',
+    [Status.SUBMITTED]: 'Loading...',
+    [Status.SUCCESSFUL]: `Recruiter token successful. Unlocking...`,
+    [Status.UNSUCCESSFUL]: `The recruiter token you entered does not seem to be working. Perhaps you are playing around with the search form, in which case have at it! Otherwise, I may have messed something up. Feel free to email me at david@davidhicks.dev if this is the case.`,
+  };
+  statusTemplate = (status: Status) => {
+    return html`<hicks-status status="${status}"
+      >${this.statusMessages[status]}</hicks-status
+    >`;
+  };
 
   render(): TemplateResult | Symbol | string {
-    let disabled = this.status > UnlockStatus.UNSUCCESSFUL;
-    let feedbackTemplate = this.getFeedback(this.status);
-    if (this.status === UnlockStatus.SUCCESSFUL) {
-      return feedbackTemplate;
+    let submitted = this.status >= Status.SUBMITTED;
+    let message = this.statusTemplate(this.status);
+    if (this.status === Status.SUCCESSFUL) {
+      return message;
     }
     return html`
-      <button
-        @click="${() => {
-          this.input.value = RESUME_ENCRYPTION_KEY;
-        }}"
-      >
-        Test button
-      </button>
-      ${feedbackTemplate}
+      ${submitted ? message : ''}
       <form @submit=${this.attemptUnlock}>
-        <fieldset>
-          <label for="unlock-resume-input"> RECRUITER TOKEN: </label>
+        <fieldset ?disabled="${submitted}">
+          <label for="unlock-resume-input">ENTER RECRUITER TOKEN: </label>
           <input
             minlength="32"
             maxlength="32"
@@ -105,7 +70,7 @@ export class UnlockResumeElement extends LitElement {
             name="unlock-resume-token"
             type="password"
             id="unlock-resume-input"
-            ?disabled="${disabled}"
+            ?disabled="${submitted}"
           />
           <span class="unlock-resume__hint">
             <b>Note:</b>
@@ -116,7 +81,11 @@ export class UnlockResumeElement extends LitElement {
             🔐
           </span>
 
-          <button class="button--primary" ?disabled="${disabled}" type="submit">
+          <button
+            class="button--primary"
+            ?disabled="${submitted}"
+            type="submit"
+          >
             Unlock
           </button>
         </fieldset>

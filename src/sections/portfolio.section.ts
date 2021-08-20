@@ -11,7 +11,6 @@ export const portfolioSection = {
       <style>
         #kinetics-card  {
           --panel--image:  url("${kineticsDataURI('#b5c0e8')}");
-           
           --panel--image--size: 90%;
           --panel--icon--size: 105%
         }
@@ -53,16 +52,16 @@ export const portfolioSection = {
 
             }
             hicks-expansion h1{
-                  font-size: 18pt;
-    font-weight: 500;
+              font-size: 18pt;
+              font-weight: 500;
             }
             hicks-expansion h2{
-                  font-size: 16pt;
-    font-weight: 500;
+              font-size: 16pt;
+              font-weight: 500;
             }
             hicks-expansion p{
-                  font-size: 12pt;
-                  font-family: var(--body-font)
+              font-size: 12pt;
+              font-family: var(--body-font)
             }
       </style>
        
@@ -90,11 +89,11 @@ export const portfolioSection = {
                 <summary>Multiple Dosing Equations </summary>
                 Multiple dosing equations require a kinetic
                 function to be run for each dose given to a (theoretical) patient. Alongside plot generation, this
-                is computationally intensive when working with larger numbers. To reduce jankiness when interacting with the component, web workers were used to computation on a separate thread, which greatly improved performance on lower-end devices. You can see an earlier version without web workers <a href="https://davidhicks980.github.io">here</a>
+                is computationally intensive when working with larger numbers. To reduce jankiness when interacting with the component, web workers were used to computation on a separate thread, which greatly improved performance on lower-end devices. You can see an earlier version without web workers <a href="https://davidhicks980.github.io">here</a>.
               </details>
               <details>
               <summary>Ease of use</summary>
-              The audience for these components were pharmacy professors. As such, I had to make sure that any setup was intuitive -- in other words, no LaTeX or MathML knowledge should be required to create a chart. MathJax could render ASCII, but was very slow. I decided on KaTeX, which meant I had to transform an ASCII input into LaTeX. Luckily, a library called <a href="https://github.com/christianp/asciimath2tex">ASCIIMath2Tex</a> made KaTeX easy to implement.
+              The audience for these components were pharmacy professors. As such, I had to make sure that any setup was intuitive -- in other words, no LaTeX or MathML knowledge should be required to create a chart. MathJax could render ASCII, but was very slow. I decided on KaTeX, which meant I had to transform an ASCII input into LaTeX. Luckily, a library called <a href="https://github.com/christianp/asciimath2tex">ASCIIMath2Tex</a> made this transformation easy and efficient.
               </details>
             <plot-engine></plot-engine>
           </div>
