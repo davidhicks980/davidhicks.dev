@@ -10,7 +10,10 @@ import {
 export const resumeEntryObserver = {
   stream: state.filteredChanges([
     'active-entry',
-    'show-resume-entries',
+    'app$showcv',
+    'app$expand',
+
+    '',
   ]) as Observable<Record<string, unknown>>,
   actions: [
     {
@@ -20,11 +23,18 @@ export const resumeEntryObserver = {
       },
     },
     {
-      property: 'show-resume-entries',
+      property: 'app$expand',
       componentHandler(this: HicksResumeEntry, propValue) {
         propValue
           ? this.controllers.expansion.collapse()
           : this.controllers.expansion.expand();
+      },
+    },
+    {
+      property: 'app$showcv',
+      componentHandler(this: HicksResumeEntry, propValue) {
+        this.hidden = propValue === false ? !this.onResume : false;
+        if (this.collapsed) this.controllers.expansion.collapse();
       },
     },
   ] as ObservedStateAction[],

@@ -1,4 +1,4 @@
-import './components/header/header.component';
+import './components/header/header.adapter';
 import './components/navigation/nav.component';
 import './components/card/card.component';
 import './components/plot/plot.component';
@@ -7,14 +7,16 @@ import './components/brand/logo/logo.component';
 import './components/navigation/nav-item.component';
 import './components/contact-me/contact.component';
 import './components/expansion-panel/expansion-panel.component';
-import './components/toggle/menu-toggle.adapter';
+import './components/toggle/menu.toggle.adapter';
 import './components/toggle/expansion.toggle.adapter';
 import './components/content/content.adapter';
 import './components/resume/unlock-form/unlock-resume.component';
 import './components/resume/resume-entry.adapter';
 import './components/toc/toc-item.component';
 import './components/toc/toc.adapter';
-import './components/loading/status.component';
+import './components/status/status.component';
+import './components/text-toggle/toggle-button.component';
+
 import './sections/about-me.section';
 import './sections/contact.section';
 import './sections/portfolio.section';

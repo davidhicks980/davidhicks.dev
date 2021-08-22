@@ -2,6 +2,7 @@ import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { style } from './status.css';
 import { svg } from 'lit';
+import { Readable } from 'stream';
 
 export enum Status {
   NOT_SUBMITTED,
@@ -9,17 +10,30 @@ export enum Status {
   SUBMITTED,
   SUCCESSFUL,
 }
+const warn = (
+  primary: string,
+  secondary: string
+) => svg`<svg class='icon-dimensions' xmlns="http://www.w3.org/2000/svg"  x="0" y="0" version="1.1" viewBox="0 0 24 24" >
+  <path fill="${secondary}" stroke="${primary}" stroke-miterlimit="10" d="M11.3 2.4L2.1 18.8c-.3.6.1 1.2.7 1.2h18.4c.6 0 1-.7.7-1.2L12.7 2.4c-.3-.5-1.1-.5-1.4 0z"/>
+  <g>
+    <circle fill="${primary}" id="dot" cx="12" cy="16.9" r="1" class="st1"/>
+    <path fill="${primary}" id="line" d="M12 6.7c.5 0 .9.4.9 1v5.7c0 .5-.4 1-.9 1s-.9-.4-.9-1V7.7c0-.5.4-1 .9-1z" class="st1"/>
+  </g>
+</svg>
+`;
 @customElement('hicks-status')
 export class StatusComponent extends LitElement {
   @property({ type: Number, reflect: true }) status: Status;
+  @property({ type: String, attribute: 'icon-placement' })
+  iconPlacement: 'before' | 'after' = 'after';
   constructor() {
     super();
     this.status = Status.NOT_SUBMITTED;
   }
   iconTemplate(status: Status) {
     switch (status) {
-      case Status.NOT_SUBMITTED:
-        return '';
+      // case Status.NOT_SUBMITTED:
+      //  return '';
       case Status.SUBMITTED:
         return svg`<svg
             class="loading-parent icon-dimensions"
@@ -43,12 +57,14 @@ export class StatusComponent extends LitElement {
       />
     </svg>`;
       case Status.UNSUCCESSFUL:
-        return '';
+        return warn('var(--complement-9)', 'var(--complement-2)');
     }
   }
   render(): TemplateResult | '' {
+    let icon = this.iconTemplate(this.status);
+    let placeBefore = this.iconPlacement === 'before';
     return html`<div class="status-container">
-      <slot></slot>${this.iconTemplate(this.status)}
+      ${placeBefore ? icon : ''}<slot></slot>${placeBefore ? '' : icon}
     </div>`;
   }
   static get styles(): CSSResultGroup[] {

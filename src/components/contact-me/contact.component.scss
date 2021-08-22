@@ -1,43 +1,37 @@
 @use 'mixins/shadows' as *;
-input,
+@use 'mixins/responsive' as *;
+@use 'mixins/inputs' as *;
+@use 'mixins/button' as *;
+@use 'mixins/form' as *;
+
+input {
+  @extend %common-input;
+  max-width: 100%;
+  grid-column: 2 / 3;
+  @include media-size('zero', 'small') {
+    grid-column: 1 / 2;
+  }
+}
 textarea {
-  padding: 0.5em;
-  font-size: 12pt;
-  font-family: system-ui;
-  border-radius: 3px;
-  box-sizing: border-box;
-  border: 1px solid var(--gray-9);
-  &[type='text'],
-  &[type='email'] {
-    font-size: 12pt;
-    caret-color: blue;
-    grid-column: 3 / 4;
+  @extend %common-input;
+  min-height: 200px;
+  width: 100%;
+  grid-column: 1 / 3;
+  resize: vertical;
+  @include media-size('zero', 'small') {
+    grid-column: 1 / 2;
   }
-  &[type='checkbox'] {
-    height: 1rem;
-    width: 1rem;
-    grid-column: 3 / 4;
-  }
-  &::-webkit-input-placeholder {
-    color: var(--gray-8);
-  }
-  &::placeholder {
-    color: var(--gray-8);
-  }
-  &:hover {
-    background-color: var(--gray-1);
-  }
+}
+[type='checkbox'] {
+  @extend %common-checkbox;
 }
 label {
-  width: 20ch;
+  grid-column: 1 / 2;
+  font-weight: 500;
+  font-size: 10pt;
+  color: var(--gray-9);
 }
-textarea {
-  min-height: 200px;
-}
-.full-width {
-  width: 100%;
-  grid-column: 1 / 4;
-}
+
 button {
   margin: 1rem 0rem;
   padding: 0.25em 0.5em;
@@ -46,13 +40,14 @@ button {
 
 .form-container {
   display: grid;
-  grid-template-columns: 20ch auto;
+  grid-template-columns: minmax(10ch, 18ch) auto;
   row-gap: 1rem;
   border: none;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   padding: 0px;
-  :host([mobile]) & {
+  align-items: center;
+  @include media-size('zero', 'small') {
     grid-template-columns: 100%;
     width: 100%;
   }
@@ -65,48 +60,41 @@ abbr[title='required'] {
 
 .button-container {
   width: 100%;
+  display: flex;
+  align-items: center;
+  grid-column: 1 / 3;
+  flex-direction: column;
+  @include media-size('zero', 'small') {
+    grid-column: 1 / 2;
+  }
 }
-/* CSS */
+
 button {
-  border-radius: 3px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: var(--body-font);
-  font-size: 1rem;
-  height: 2.5em;
-  transition: all 250ms;
-  touch-action: manipulation;
-  width: 20ch;
-  border: none;
-  position: relative;
-  &.primary {
-    color: white;
-    background-color: var(--primary-9);
-
-    @include hoverable-shadow(3);
-    &:hover {
-      filter: brightness(1.1);
-    }
-    &:active {
-      box-shadow: inset 0px 1px 2px 2px rgba(0, 0, 0, 0.26);
-    }
-  }
-  &.secondary {
-    background-color: var(--gray-1);
-    color: var(--gray-11);
-    box-shadow: inset 0px 0px 0px 1px var(--gray-6);
-    border: 1px solid gray;
-    @include hoverable-shadow(2);
-
-    &:hover {
-      background-color: var(--gray-2);
-    }
-    &:active {
-      box-shadow: inset 0px 0px 0px 1px blue;
-    }
-  }
+  @extend %button--primary;
+  font-size: 1.2rem;
+  width: inherit;
+  min-width: min-content;
 }
 
 .directions {
   font-weight: 400;
+}
+
+.checkbox-container {
+  display: contents;
+  @include media-size('zero', 'small') {
+    grid-column: 1 / 2;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+form {
+  @extend %form-container;
+}
+
+hr {
+  border: 1px solid var(--gray-4);
+  border-width: 1px 0px 0px 0px;
 }

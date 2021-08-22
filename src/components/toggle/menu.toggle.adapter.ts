@@ -4,13 +4,13 @@ import {
 } from '../../util/primitives/store';
 import { mix } from '../../util/mixins/mix.with';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
-import { HicksToggle } from './toggle.component';
+import { HicksIconToggle } from './icon-toggle.component';
 import {
   ObservedStateAction,
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
 import { Observable } from 'rxjs';
-import { prefix, observedProperties } from './menu-toggle.properties';
+import { prefix, observedProperties } from './menu.toggle.properties';
 import { TOCProperties } from '../toc/toc.properties';
 
 //Table of contents
@@ -23,26 +23,26 @@ export const MENU_TOGGLE_TAG_NAME = 'hicks-menu-toggle';
 const action = {
   stream: state.filteredChanges([
     StoreProperties.BREAKPOINTS,
-    TOCProperties.ACTIVE_SECTION,
+    TOCProperties.ACTIVE_HASH,
   ]) as Observable<Record<string, unknown>>,
   actions: [
     {
       property: StoreProperties.BREAKPOINTS,
-      componentHandler(this: HicksToggle, propValue) {
+      componentHandler(this: HicksIconToggle, propValue) {
         if (!(propValue.get('mobile') || propValue.get('tablet'))) {
           this.toggled = false;
         }
       },
     },
     {
-      property: TOCProperties.ACTIVE_SECTION,
-      componentHandler(this: HicksToggle, propValue: string) {
+      property: TOCProperties.ACTIVE_HASH,
+      componentHandler(this: HicksIconToggle, propValue: string) {
         this.toggled = false;
       },
     },
   ] as ObservedStateAction[],
 };
-export const HicksMenuToggle = mix(HicksToggle).with(
+export const HicksMenuToggle = mix(HicksIconToggle).with(
   EmitStateMixin(emitActiveSection),
   ObserveStateMixin(action)
 );

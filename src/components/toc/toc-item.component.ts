@@ -6,18 +6,12 @@ import {
   state,
 } from 'lit/decorators.js';
 import { style } from './toc-item.css';
-import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { literal, html } from 'lit/static-html.js';
 
 import { ListItemController } from '../../util/controllers/item.controller';
-/**
- *Allows focusing without having to typecase to an HTMLElement
- *
- * @param {Element} element
- */
 
-const TAG_NAME = 'hicks-list-item';
-@customElement(TAG_NAME)
+export const LIST_ITEM_TAG_NAME = 'hicks-list-item';
+@customElement(LIST_ITEM_TAG_NAME)
 export class HicksListItem extends LitElement {
   static shadowRootOptions = {
     ...LitElement.shadowRootOptions,
@@ -26,7 +20,7 @@ export class HicksListItem extends LitElement {
   private _path: string = '';
   private _position: number[] = [0];
 
-  @queryAssignedNodes('', true, TAG_NAME)
+  @queryAssignedNodes('', true, LIST_ITEM_TAG_NAME)
   childSlot: NodeListOf<HicksListItem>;
   @property({ type: Number, reflect: true })
   listChildren: number = 0;
@@ -40,7 +34,7 @@ export class HicksListItem extends LitElement {
   marker: string = '';
   @property({ type: Boolean, reflect: true })
   mobile: boolean = false;
-  controllers: { item: ListItemController; breakpoint: BreakpointController };
+  controllers: { item: ListItemController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
   topLevel: boolean;
   @state()
@@ -103,21 +97,10 @@ export class HicksListItem extends LitElement {
     </div>
   `;
 
-  handleClick(event: MouseEvent) {
-    console.log(this.link, window.location.hash);
-
-    if (window.location.hash === this.link) {
-      this.focus();
-      event.preventDefault();
-    }
-  }
   constructor() {
     super();
     this.controllers = {} as any;
-    this.controllers.breakpoint = new BreakpointController(this);
-    this.controllers.breakpoint
-      .observeArea(['mobile', 'tablet'])
-      .subscribe((matches) => (this.mobile = matches));
+
     this.controllers.item = new ListItemController(this, 'hicks-toc', '');
     this.controllers.item.observe.all().subscribe(([expanded, active]) => {
       this.expanded = expanded.has(this.path) || expanded.has('*');
@@ -192,7 +175,6 @@ export class HicksListItem extends LitElement {
           role="treeitem"
           class="item__content__a"
           href="${this.link}"
-          @click="${this.handleClick}"
         >
           ${this.templates.slots.link}
         </a>

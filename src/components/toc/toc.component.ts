@@ -6,7 +6,7 @@ import {
   queryAsync,
   state,
 } from 'lit/decorators.js';
-import { HicksListItem } from './toc-item.component';
+import { HicksListItem, LIST_ITEM_TAG_NAME } from './toc-item.component';
 import { style } from './toc.css';
 import { ListChild } from '../../types/ListChild';
 import { tocTemplates as templates } from './toc.templates';
@@ -17,7 +17,7 @@ import {
 } from '../../util/controllers/intersection.controller';
 import { ListItemController } from '../../util/controllers/item.controller';
 import { fastHash } from '../../util/primitives/salt-id';
-import { debounceTime, filter, mapTo } from 'rxjs/operators';
+import { debounceTime, filter, mapTo, takeWhile } from 'rxjs/operators';
 
 import { fromEvent } from 'rxjs';
 import { getHeadingDepth, queryHeader } from '../../util/primitives/headers';
@@ -114,13 +114,8 @@ export class TableOfContents extends LitElement {
       .subscribe((matches: boolean) => {
         this.mobile = matches;
       });
-    this.controllers.item
-      .createHandler('hicks-toc')
-      .observe.all()
-      .pipe(mapTo(true))
-      .subscribe((_) => {
-        //[EXPANDED] window.requestAnimationFrame(() => this.updateItemOffsets());
-      });
+    this.controllers.item.createHandler('hicks-toc');
+
     this.controllers.mutation
       .initiate('table-of-contents')
       .observe([this.closest('main').querySelector('content-tree')])
@@ -130,21 +125,9 @@ export class TableOfContents extends LitElement {
         this.controllers.intersection.observe(this.sections);
         this.requestUpdate();
       });
-    fromEvent(document, 'keydown')
-      .pipe(
-        filter((ev: KeyboardEvent) => {
-          return this.mobile && this.open && ev.key === 'Escape';
-        })
-      )
-      .subscribe(() => {
+    this.addEventListener('keydown', (ev) => {
+      if (this.mobile && this.open && ev.key === 'Escape') {
         this.open = false;
-      });
-    fromEvent(window, 'hashchange').subscribe((change: HashChangeEvent) => {
-      if (this.open) {
-        this.open = false;
-        if (change.newURL.split('#')[1] != change.oldURL.split('#')[1]) {
-          document.getElementById(change.newURL.split('#')[1])?.focus();
-        }
       }
     });
   }
@@ -198,7 +181,7 @@ export class TableOfContents extends LitElement {
        {  fullPath,  childList } = templates.buildChildlist(childLists, path),
         template = templates.listItem(
         childList,
-        { path, href, title, marker, index }
+        { path, href, title, marker, index },
       );
       this.positions.set(href, { title, path });
 
@@ -280,9 +263,6 @@ export class TableOfContents extends LitElement {
     ); /*[EXPANSION] Array.from(this.listItems)?.filter(
       (item) => !item.hidden
     );*/
-    if (_changedProperties.has('activeId')) {
-      this.activeSection = this.positions.get(this.activeLink).title || '';
-    }
   }
   updated(_changedProperties) {
     super.updated(_changedProperties);
@@ -315,7 +295,6 @@ export class TableOfContents extends LitElement {
         this.collapseLists(Array.from(this.listItems).map((el) => el.path));
       }
       this.controllers.item.activate(this._getActivePath() ?? '');
-
       //[EXPANSION] this.updateItemOffsets();
     }
   }
@@ -357,12 +336,12 @@ export class TableOfContents extends LitElement {
     }
   }*/
 
-  toggleAll() {
+  /* [EXPANDED] toggleAll() {
     this.allExpanded
       ? this.controllers.item.collapseAll()
       : this.controllers.item.expandAll();
     this.allExpanded = !this.allExpanded;
-  }
+  }*/
 
   render() {
     if (this.hash.template != this.hash.section) {
@@ -371,18 +350,17 @@ export class TableOfContents extends LitElement {
     }
     let open = this.mobile && this.open;
 
+    /*[EXPANDED] <div class="button__wrapper">
+   <button
+        @click=${this.toggleAll}
+        type="button"
+        class="expand-button button button--secondary"
+        data-toggled=${this.allExpanded}
+      >
+        Expand All <span>+</span>
+      </button>
+    </div>*/
     return html`
-      <!--  <div class="button__wrapper">
-     <button
-          @click=${this.toggleAll}
-          type="button"
-          class="expand-button button button--secondary"
-          data-toggled=${this.allExpanded}
-        >
-          Expand All <span>+</span>
-        </button>
-      </div>-->
-
       ${open
         ? html`<div
             tabindex="0"

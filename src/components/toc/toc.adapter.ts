@@ -8,7 +8,7 @@ import {
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
 import { observedProperties, prefix } from './toc.properties';
-import { ToggleProperties } from '../toggle/menu-toggle.properties';
+import { ToggleProperties } from '../toggle/menu.toggle.properties';
 
 //Table of contents
 const emitActiveSection = {

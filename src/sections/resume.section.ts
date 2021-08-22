@@ -2,6 +2,7 @@ import { html, TemplateResult } from 'lit';
 import { ContentModification } from '../components/content/content.component';
 import { state } from '../util/primitives/store';
 import { RESUME_SORT_ORDER } from './resume-sort-order';
+
 interface ResumeEntry {
   section: string;
   startDate: string;
@@ -13,6 +14,7 @@ interface ResumeEntry {
   detail: string[] | string;
   type?: string;
   description?: string;
+  resume: string;
 }
 export class Resume {
   private _arrayMap: ResumeEntry[];
@@ -29,27 +31,21 @@ export class Resume {
   }
   get buttons(){
     return  html`
-      <div class="resume-buttons__container"> 
-        <button
-
-          id="view-resume-cv"
-          aria-label="Choose whether to view my CV or my resume"
-          role="switch"
-          class="button--primary"
-          aria-checked="true"
-          data-primary-button
-        >
-          View CV
-        </button>
-        <button
-          id="show-hide-details"
-          aria-label="Display the details of each resume entry"
-          class="button--secondary"
-          data-secondary-button
-        >
-          Expand Details
-        </button> 
-      </div>
+      <div style="display: flex; flex-direction: row; gap: 1rem; "> 
+      <hicks-toggle-button
+    id="view-resume-cv"
+    aria-label="Choose whether to view my CV or my resume"
+    class="button--primary"
+  >
+   Full History (CV)
+  </hicks-toggle-button>
+  <hicks-toggle-button 
+    id="show-hide-details"
+    aria-label="Display the details of each resume entry"
+  >
+  Expand All
+  </hicks-toggle-button></div>
+ 
        `
   }
   get subcontent(){
@@ -110,11 +106,12 @@ export class Resume {
       let entry = entries.pop() as ResumeEntry;
       let sectionName = entry[groupBy];
       const fields = Object.entries(entry)
-      console.log(fields)
+      let onResume = entry.resume === 'true';
       let content = html`
-        <hicks-resume-entry>
+        <hicks-resume-entry ?on-resume="${onResume}">
           ${fields.map(([field, content]) => {
-            return html`<span slot="${field}">${this._formatFieldContent(field, content)}</span> `;
+            if(field != 'resume'){
+            return html`<span slot="${field}">${this._formatFieldContent(field, content)}</span> `;}
           })}
           <button slot="expand-button"></button>
         </hicks-resume-entry>
@@ -148,6 +145,8 @@ export const resumeSection = {
   title: 'Resume',
   marker: '📜',
   content: html`
+ 
+  
     <hicks-unlock-resume></hicks-unlock-resume>
     `
 };

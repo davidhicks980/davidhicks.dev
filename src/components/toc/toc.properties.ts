@@ -4,7 +4,7 @@ import {
 } from '../../util/primitives/property-prefixer';
 
 let InternalTOCProperties = {
-  ACTIVE_SECTION: 'activeSection',
+  ACTIVE_HASH: 'activeLink',
   OPEN: 'open',
 };
 export const prefix = 'toc';

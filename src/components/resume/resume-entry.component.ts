@@ -8,12 +8,14 @@ import {
   IntersectionObserverType,
 } from '../../util/controllers/intersection.controller';
 import { style } from './resume-entry.css';
+import '../toggle/expansion.toggle.adapter';
 
 export class HicksResumeEntry extends LitElement {
   @property({ attribute: 'on-resume', type: Boolean })
   onResume: boolean;
   @property({ type: Boolean })
-  open: boolean;
+  hidden: boolean;
+
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive: boolean = false;
   @property({ attribute: 'entry-id', type: Number })
@@ -102,6 +104,10 @@ export class HicksResumeEntry extends LitElement {
     this.controllers.expansion.collapse();
   }
   render(): TemplateResult {
+    if (this.hidden) {
+      this.style.marginBottom = '0px';
+      return;
+    }
     return html`
       <div class="entry">
         <div class="entry__left">

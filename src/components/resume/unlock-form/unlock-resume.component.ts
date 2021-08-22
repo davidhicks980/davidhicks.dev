@@ -4,7 +4,7 @@ import { style } from './unlock-resume.css';
 import { unlockResume } from '../../../firebase.functions';
 import { state } from '../../../util/primitives/store';
 import { ContentModification } from '../../content/content.component';
-import { Status } from '../../loading/status.component';
+import { Status } from '../../status/status.component';
 
 interface SubmitEvent extends Event {
   submitter: HTMLElement;
@@ -17,7 +17,7 @@ export class UnlockResumeElement extends LitElement {
   @query('form')
   form: HTMLFormElement;
   @query('#unlock-resume-input')
-  input;
+  input: HTMLElement;
   async attemptUnlock(ev: SubmitEvent) {
     ev.preventDefault();
     if (this.status >= Status.SUBMITTED) return;
@@ -40,16 +40,16 @@ export class UnlockResumeElement extends LitElement {
   }
 
   statusMessages = {
-    [Status.NOT_SUBMITTED]: '',
+    [Status.NOT_SUBMITTED]: 'Try submitting',
     [Status.SUBMITTED]: 'Loading...',
     [Status.SUCCESSFUL]: `Recruiter token successful. Unlocking...`,
     [Status.UNSUCCESSFUL]: `The recruiter token you entered does not seem to be working. Perhaps you are playing around with the search form, in which case have at it! Otherwise, I may have messed something up. Feel free to email me at david@davidhicks.dev if this is the case.`,
   };
-  statusTemplate = (status: Status) => {
-    return html`<hicks-status status="${status}"
+  statusTemplate(status: Status) {
+    return html`<hicks-status icon-placement="before" status="${status}"
       >${this.statusMessages[status]}</hicks-status
     >`;
-  };
+  }
 
   render(): TemplateResult | Symbol | string {
     let submitted = this.status >= Status.SUBMITTED;
@@ -58,7 +58,7 @@ export class UnlockResumeElement extends LitElement {
       return message;
     }
     return html`
-      ${submitted ? message : ''}
+      ${message}
       <form @submit=${this.attemptUnlock}>
         <fieldset ?disabled="${submitted}">
           <label for="unlock-resume-input">ENTER RECRUITER TOKEN: </label>

@@ -1,11 +1,5 @@
 import { LitElement, html } from 'lit';
-import {
-  query,
-  state,
-  property,
-  queryAssignedNodes,
-  customElement,
-} from 'lit/decorators.js';
+import { query, state, property, queryAssignedNodes } from 'lit/decorators.js';
 import anime from 'animejs';
 import { style } from './header.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
@@ -15,7 +9,6 @@ import {
   IntersectionObserverType,
 } from '../../util/controllers/intersection.controller';
 
-@customElement('hicks-header')
 export class HicksHeader extends LitElement {
   @query('.header__grid', true)
   container: HTMLElement;
@@ -38,7 +31,7 @@ export class HicksHeader extends LitElement {
   @queryAssignedNodes('navigation-toggle', true)
   slottedToggle: HTMLElement;
   @state()
-  isCurved = true;
+  curved = true;
   @property({ type: Boolean, reflect: true })
   mobile: boolean = false;
   @property({ type: Boolean, reflect: true })
@@ -96,8 +89,8 @@ export class HicksHeader extends LitElement {
         }
         let isCurved = this.checkIfCurved();
 
-        if (isCurved != this.isCurved) {
-          this.isCurved = isCurved;
+        if (isCurved != this.curved) {
+          this.curved = isCurved;
         }
       });
     };
@@ -118,7 +111,7 @@ export class HicksHeader extends LitElement {
 
   checkIfCurved() {
     let { bottom, height } = this.upper.getBoundingClientRect();
-    return bottom / height > 0.2;
+    return bottom / height > 0.1;
   }
 
   swapClasses = (
@@ -136,7 +129,7 @@ export class HicksHeader extends LitElement {
     class="header__toolbar__social"
     name="header-social"
   ></slot>`;
-  navToggle = html` <span class="header__toolbar__toggle__container"
+  toggle = html` <span class="header__toolbar__toggle__container"
     ><span class="divider"> </span>
     <slot name="${this.slotNames.toggle}" class="header__toolbar__toggle">
     </slot
@@ -159,12 +152,12 @@ export class HicksHeader extends LitElement {
 
   render() {
     const upperVisibility = classMap({
-      'is-hidden': !this.isCurved,
-      'is-shown': this.isCurved,
+      'is-hidden': !this.curved,
+      'is-shown': this.curved,
     });
     const toolbarVisibility = classMap({
-      'is-hidden': this.isCurved,
-      'is-shown': !this.isCurved,
+      'is-hidden': this.curved,
+      'is-shown': !this.curved,
     });
 
     return html`
@@ -181,7 +174,7 @@ export class HicksHeader extends LitElement {
             ${this.logo}
 
             <div class="header__toolbar__content__links">
-              ${this.social} ${this.navToggle}
+              ${this.social} ${this.toggle}
             </div>
           </div>
           ${this.toolbarPath}

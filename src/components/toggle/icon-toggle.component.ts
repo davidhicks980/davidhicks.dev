@@ -1,12 +1,13 @@
-import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult } from 'lit';
 import { property, queryAssignedNodes } from 'lit/decorators.js';
 import { style } from './toggle.css';
 
-export class HicksToggle extends LitElement {
+export class HicksIconToggle extends LitElement {
   static shadowRootOptions = {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
   };
+  static styles = [style];
   @property({ type: Boolean, reflect: true }) toggled: boolean;
   @property({ type: String }) height: string = '2rem';
   @property({ type: String }) width: string = '2rem';
@@ -58,8 +59,5 @@ export class HicksToggle extends LitElement {
         <slot></slot>
       </button>
     `;
-  }
-  static get styles(): CSSResultGroup[] {
-    return [style];
   }
 }

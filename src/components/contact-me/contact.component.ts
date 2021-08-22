@@ -3,7 +3,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { style } from './contact.css';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { contact } from '../../firebase.functions';
-import { Status } from '../loading/status.component';
+import { Status } from '../status/status.component';
 
 interface SubmitEvent extends Event {
   submitter: HTMLElement;
@@ -12,14 +12,11 @@ interface SubmitEvent extends Event {
 @customElement('hicks-contact')
 export class HicksContact extends LitElement {
   @property({ type: Boolean })
-  showGreetingEntry: boolean = false;
-  breakpointControl: any;
-  @property({ type: Boolean })
-  mobile: boolean = false;
-  @query('form')
-  form: HTMLFormElement;
+  displayGreeting: boolean = false;
   @property({ type: Number })
   status: Status;
+  @query('form')
+  form: HTMLFormElement;
 
   async handleSubmit(ev: SubmitEvent) {
     ev.preventDefault();
@@ -43,23 +40,14 @@ export class HicksContact extends LitElement {
     super();
     this.status = Status.NOT_SUBMITTED;
   }
-  firstUpdated(_changedProperties) {
-    this.breakpointControl = new BreakpointController(this);
-    this.breakpointControl
-      .observe('mobile')
-      .subscribe(([id, matches]) => (this[id] = matches ?? false));
-  }
-  greeting = (entry) => {
-    return entry
-      ? html`<label for="greeting"> Preferred greeting </label>
-          <input
-            id="greeting"
-            name="greeting"
-            placeholder="Dr. Plouff"
-            type="text"
-          />`
-      : '';
-  };
+
+  greeting = html`<label for="greeting"> Preferred greeting </label>
+    <input
+      id="greeting"
+      name="greeting"
+      placeholder="Dr. Plouff"
+      type="text"
+    />`;
 
   statusMessages = {
     [Status.NOT_SUBMITTED]: '',
@@ -67,14 +55,14 @@ export class HicksContact extends LitElement {
     [Status.SUCCESSFUL]: `Message Successfully Sent!`,
     [Status.UNSUCCESSFUL]: `There was an error sending your message. Please try again, or message me using one of the social links above.`,
   };
-  statusTemplate = (status: Status, ignore?: Status[]) => {
+  statusTemplate(status: Status, ignore?: Status[]) {
     if (ignore.includes(status)) {
       return '';
     }
-    return html`<hicks-status status="${status}"
+    return html`<hicks-status icon-placement="before" status="${status}"
       >${this.statusMessages[status]}</hicks-status
     >`;
-  };
+  }
   render(): TemplateResult | string {
     let disabled = this.status >= Status.SUBMITTED;
     let message = this.statusTemplate(this.status, [Status.NOT_SUBMITTED]);
@@ -83,12 +71,13 @@ export class HicksContact extends LitElement {
     }
     return html`${message}
       <form @submit=${this.handleSubmit}>
+        <h2>Thanks for visiting!</h2>
         <p class="directions">
           I'd love to hear your honest feedback on this site and any career
           suggestions. I'm also always looking to discuss development topics, so
           if you are willing to chat, request a response and I'll reach out!
-          <br />
         </p>
+        <hr />
         <br />
         <fieldset ?disabled="${disabled}" class="form-container">
           <label for="fullname"> Name </label>
@@ -105,17 +94,19 @@ export class HicksContact extends LitElement {
             name="email"
             type="email"
           />
-          <label for="response"> Request a response </label>
-          <input
-            id="response"
-            @click="${(ev) => {
-              this.showGreetingEntry = ev.path[0].checked;
-            }}"
-            type="checkbox"
-            name="response"
-          />
+          <div class="checkbox-container">
+            <label for="response"> Request a response </label>
+            <input
+              id="response"
+              @click="${(ev) => {
+                this.displayGreeting = ev.path[0].checked;
+              }}"
+              type="checkbox"
+              name="response"
+            />
+          </div>
 
-          ${this.greeting(this.showGreetingEntry)}
+          ${this.displayGreeting ? this.greeting : ''}
           <label class="full-width" for="message">
             Message<abbr title="required" aria-label="required">*</abbr>
           </label>
@@ -126,7 +117,10 @@ export class HicksContact extends LitElement {
             placeholder="Hello David. I suggest you replace this placeholder text immediately. It is not clever at all."
             required
           ></textarea>
-          <button class="primary" type="submit">Submit</button>
+          <div class="button-container">
+            <hr />
+            <button class="primary" type="submit">Submit</button>
+          </div>
         </fieldset>
       </form> `;
   }

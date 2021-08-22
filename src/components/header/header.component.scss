@@ -21,6 +21,7 @@
         }
       }
     }
+
     &__svg {
       position: absolute;
       width: 1920px;
@@ -44,13 +45,10 @@
       z-index: 5;
       align-content: center;
       align-items: center;
+      background: var(--primary-11);
       &__links {
         display: inherit;
         gap: 0.75rem;
-      }
-      &__section {
-        color: white;
-        font-size: 14pt;
       }
     }
   }

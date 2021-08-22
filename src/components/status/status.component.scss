@@ -20,6 +20,8 @@
 .icon-dimensions {
   height: var(--status--icon-height, 1.5rem);
   width: var(--status--icon-width, 1.5rem);
+  min-width: 1.5rem;
+  min-height: 1.5rem;
 }
 
 .loading-parent {
@@ -89,4 +91,16 @@
 :host([status='3']) {
   --status-color: var(--secondary-10);
   --status-background: var(--secondary-1);
+}
+
+@keyframes warning {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.warning {
+  animation: warning 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
