@@ -28,6 +28,7 @@
     var(--primary) 100%,
     white 100%
   );
+  background-size: var(--range--background-size, 0%), 10%;
   background-repeat: no-repeat;
   transition-property: none !important;
   transform: none !important;
@@ -71,10 +72,13 @@
   align-items: center;
   width: 85%;
   padding: 0% 7.5%;
+  font-size: 10pt;
+  row-gap: 0.5rem;
 }
 
 .range-container:focus-within {
   outline: 2px dashed rgba(0, 0, 0, 0.7);
+  outline-offset: 2px;
   cursor: pointer;
 }
 
@@ -93,5 +97,3 @@
 .slider-container {
   grid-column: 1 / 3;
 }
-
-/**Responsive*/

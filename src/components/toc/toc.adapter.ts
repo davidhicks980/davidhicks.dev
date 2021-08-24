@@ -1,4 +1,4 @@
-import { state } from '../../util/primitives/store';
+import { state } from '../../util/functions/store';
 import { mix } from '../../util/mixins/mix.with';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
 import { TableOfContents } from './toc.component';

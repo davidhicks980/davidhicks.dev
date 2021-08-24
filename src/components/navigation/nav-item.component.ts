@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { customElement, queryAssignedNodes, property } from 'lit/decorators.js';
-import { isFilledArray } from '../../util/primitives/is-filled-array';
+import { isFilledArray } from '../../util/functions/is-filled-array';
 import { style } from './nav-item.css';
 
 export const NAV_ITEM_TAG_NAME = 'hicks-nav-item';

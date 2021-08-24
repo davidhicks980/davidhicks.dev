@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { kineticsDataURI } from '../icons/kinetics.data-uri';
 import { elderDrugDataURI } from '../icons/elder-drug.data-uri';
-import { state } from '../util/primitives/store';
+import { state } from '../util/functions/store';
 import { ContentModification } from '../components/content/content.component';
 
 export const portfolioSection = {
@@ -79,9 +79,7 @@ export const portfolioSection = {
             <h1>Project Description</h1>
             <p>
               The pharmacokinetic web components project was created to supplement
-              the UNC Eshelman School of Pharmacy's pharmacokinetics curriculum. A
-              set of custom graphs had been created by a third-party vendor using canvas and Adobe Animate, but the graphs had errors, were undocumented, and each required a separate large bundle to function. I decided that to improve scalability and ease-of-implementation, web
-              components could be used. The resulting web components generate charts and quizzes using a single object property, and render an interactive chart with a realtime equation and range-inputs.
+              the UNC Eshelman School of Pharmacy's pharmacokinetics curriculum. I was tasked with upgrading our school's interactive pharmacokinetic graphs so as to improve scalability and ease-of-implementation. I decided to use web components for the project in order to ensure interoperability with any future frameworks UNC wanted to use. The resulting web components render an interactive charts with a realtime equation and auto-generated range-inputs.
             </p>
 
               <h2>Challenges</h2>
@@ -102,7 +100,7 @@ export const portfolioSection = {
         <hicks-expansion id="elder-drug-card">
           <span slot="header">Elder Drug</span>
           <span slot="description">
-            <a href='https://www.elderdrug.com'>ElderDrug.com</a> is an Angular PWA that uses the RxNorm API to make it easier to screen medication lists for drugs on Beers Criteria. Beers Criteria is a list of medications to be used with caution in adults 65+. 
+            <a href='https://www.elderdrug.com'>ElderDrug.com</a> is an Angular PWA that uses the RxNorm API in order to simplify screening medication lists for drugs on Beers Criteria. Beers Criteria is a list of medications to be used with caution in adults 65+. 
           </span>
           The Stack: 
           <img slot="icon"  src="./assets/icons/logo-angula.svg" title="Angular">
@@ -121,7 +119,7 @@ export const portfolioSection = {
               <h2>Challenges</h2>
             <details>
               <summary>Therapeutic Categories</summary>
-              <p>Drug classes and therapeutic categories do not have uniform nomenclature. For example, zolpidem can be called a hypnotic, a Z-drug, a non-benzodiazepine sedative, or a Gaba-A Receptor Agonist. The consequences of this can be illustrated with amitriptyline: it is an antidepressant, but if I associated all antidepressants with the effects of Amitriptyline, relatively benign drugs like Sertraline would be categorized as anticholinergics. As a result, I had to find drug classes that accurately corresponded to each entry on Beers Criteria while also containing a queryable ID on RxNorm. To do so, I created a compound index using therapeutic categories and classes from both DailyMed and Veterans Affairs. </p>
+              <p>Drug classes and therapeutic categories do not have uniform nomenclature. The consequences of this can be illustrated with amitriptyline: it is an antidepressant, but if I associated all antidepressants with the effects of Amitriptyline, relatively benign drugs like Sertraline would be categorized as anticholinergics. As a result, I had to find drug classes that accurately corresponded to each entry on Beers Criteria while also containing a queryable ID on RxNorm. To do so, I created a compound index using therapeutic categories and classes from both DailyMed and Veterans Affairs. </p>
             </details>
           <details>
              <summary>

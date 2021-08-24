@@ -10,18 +10,11 @@ import {
 } from '../../util/controllers/intersection.controller';
 
 export class HicksHeader extends LitElement {
-  @query('.header__grid', true)
-  container: HTMLElement;
   @query('.header__upper', true)
   upper: HTMLElement;
-  @query('.header__upper__nav', true)
-  upperNav: HTMLElement;
+
   @query('.header__title-wrapper', true)
   titleWrapper: HTMLDivElement;
-  @query('.header__toolbar__content', true)
-  lowerNav: HTMLDivElement;
-  @query('.header__toolbar__content__section', true)
-  section: HTMLDivElement;
   @query('.header__toolbar__content__nav')
   navEl: HTMLSlotElement;
   @query('.header__toolbar', true)
@@ -31,7 +24,7 @@ export class HicksHeader extends LitElement {
   @queryAssignedNodes('navigation-toggle', true)
   slottedToggle: HTMLElement;
   @state()
-  curved = true;
+  isCurved = true;
   @property({ type: Boolean, reflect: true })
   mobile: boolean = false;
   @property({ type: Boolean, reflect: true })
@@ -42,7 +35,6 @@ export class HicksHeader extends LitElement {
       toggle: 'navigation-toggle',
     };
   }
-  lowerNavNode: Node;
 
   controllers: {
     breakpoint: BreakpointController;
@@ -89,8 +81,8 @@ export class HicksHeader extends LitElement {
         }
         let isCurved = this.checkIfCurved();
 
-        if (isCurved != this.curved) {
-          this.curved = isCurved;
+        if (isCurved != this.isCurved) {
+          this.isCurved = isCurved;
         }
       });
     };
@@ -123,14 +115,10 @@ export class HicksHeader extends LitElement {
     el.classList.remove(oldClass);
   };
 
-  logo = html`<slot name="header-logo"></slot>`;
-  nav = html`<slot name="header-navigation"></slot>`;
-  social = html`<slot
-    class="header__toolbar__social"
-    name="header-social"
-  ></slot>`;
-  toggle = html` <span class="header__toolbar__toggle__container"
-    ><span class="divider"> </span>
+  logo = html`<slot name="logo"></slot>`;
+  nav = html`<slot name="navigation"></slot>`;
+  social = html`<slot class="header__toolbar__social" name="social"></slot>`;
+  toggle = html` <span class="header__toolbar__toggle__container">
     <slot name="${this.slotNames.toggle}" class="header__toolbar__toggle">
     </slot
   ></span>`;
@@ -152,12 +140,12 @@ export class HicksHeader extends LitElement {
 
   render() {
     const upperVisibility = classMap({
-      'is-hidden': !this.curved,
-      'is-shown': this.curved,
+      'is-hidden': !this.isCurved,
+      'is-shown': this.isCurved,
     });
     const toolbarVisibility = classMap({
-      'is-hidden': this.curved,
-      'is-shown': !this.curved,
+      'is-hidden': this.isCurved,
+      'is-shown': !this.isCurved,
     });
 
     return html`
@@ -165,7 +153,7 @@ export class HicksHeader extends LitElement {
       <header class="header__grid">
         <div id="animeHeaderUpper" class="header__upper">
           <div class="header__upper__title">
-            <slot name="header-brand"></slot>
+            <slot name="brand"></slot>
           </div>
           <div class="header__upper__nav ${upperVisibility}">${this.nav}</div>
         </div>

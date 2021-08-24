@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit';
+import { LitElement, css, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { style } from './range.css';
 import { Variable } from './types/Variable';
@@ -10,56 +10,55 @@ import { Variable } from './types/Variable';
  * @param {PlotParameters} params - this parametes generates the plot element including range inputs and toggles.
  *@param {string} element - the element to append the plot to. Will default to
  */
-@customElement('pk-range')
-export class PkRange extends LitElement {
+@customElement('plot-range')
+export class PlotRange extends LitElement {
   /**Declarations */
 
-  @property({ type: Object })
-  variable: Variable = {
-    units: 'na',
-    symbol: 'na',
-    min: 1,
-    max: 5,
-    value: 1,
-    range: [1, 5],
-    name: '',
-  };
-
+  @query('.range')
+  rangeInput!: HTMLInputElement;
+  @property({ type: String })
+  units: string;
+  @property({ type: String })
+  symbol: string;
+  @property({ type: Number })
+  min: number;
+  @property({ type: Number })
+  max: number;
+  @property({ type: Number })
+  value: number;
+  @property({ type: Array })
+  range: number[];
+  @property({ type: String })
+  name: string;
+  @property({ type: Number })
+  step: number;
   @query('#valueLabel')
   valueLabel!: HTMLDivElement;
-  private min: number = 1;
-  private max: number = 5;
   @state()
   private stepArray: number[] = [1];
-  private symbol: string = 'symbol';
-  @state()
-  private value: number = 0;
-  private name: string = 'slider';
   @state()
   private hasRange: boolean = false;
-  @state()
-  private step: number = 0;
-  constructor() {
-    super();
-  }
 
   static get styles() {
     return [style];
   }
-  connectedCallback() {
-    super.connectedCallback();
-    this.value = this.variable.value || 0;
-    this.min = this.variable.min || 0;
-    this.max = this.variable.max || 0;
-    this.symbol = this.variable.symbol || 'na';
-    this.name = this.variable.name || 'na';
-    this.step = typeof this.variable.step === 'number' ? this.variable.step : 0;
-    if (this.variable.range) {
+  constructor() {
+    super();
+    this.value = 0;
+    this.min = 0;
+    this.max = 0;
+    this.symbol = 'Symbol not set';
+    this.name = 'Name not set';
+    this.step = 0;
+    this.range = [];
+    this.units = 'N/A';
+  }
+  firstUpdated() {
+    if (this.range && this.range.length === 2) {
       this.hasRange = true;
-      this.stepArray = this.variable.range;
+      this.stepArray = this.range;
     }
-
-    this.requestUpdate();
+    this.step = this.sliderStep(this.step, this.max);
   }
 
   private sliderStep(step: number, max: number): number {
@@ -75,25 +74,30 @@ export class PkRange extends LitElement {
       }
     }
   }
-  handleEvent(e: Event) {
+  handleInput(e: Event) {
     const target = e.target as HTMLInputElement;
     const output = this.hasRange
-      ? this.stepArray[parseFloat(target.value) - 1]
+      ? String(this.stepArray[parseFloat(target.value) - 1])
       : target.value;
     target.style.backgroundSize = `${
       ((parseFloat(target.value) - this.min) / (this.max - this.min)) * 100
     }%, 10%`;
-    this.valueLabel.innerText = output.toString();
-    this.dispatchEvent(
-      new CustomEvent('shift', {
-        detail: {
-          symbol: this.symbol,
-          value: output,
-        },
-      })
-    );
+    this.valueLabel.innerText = output?.toString() ?? '0';
+    this.dispatchEvent(new InputEvent('input', { data: output }));
   }
 
+  _updateBackgroundSize(): string {
+    return `${((this.value - this.min) / (this.max - this.min)) * 100}`;
+  }
+  updated(_props: PropertyValues) {
+    super.updated(_props);
+    if (_props.has('value') || _props.has('min') || _props.has('max')) {
+      this.rangeInput.style.setProperty(
+        '--range--background-size',
+        this._updateBackgroundSize()
+      );
+    }
+  }
   render() {
     return html`
       <div class="range-container">
@@ -105,11 +109,11 @@ export class PkRange extends LitElement {
         </label>
         <div class="slider-container">
           <input
-            @input="${this.handleEvent}"
+            @input="${this.handleInput}"
             type="range"
             min="${this.min}"
             max="${this.max}"
-            step="${this.sliderStep(this.step, this.max)}"
+            step="${this.step}"
             value="${this.value}"
             class="range"
             style="background-size:${`${

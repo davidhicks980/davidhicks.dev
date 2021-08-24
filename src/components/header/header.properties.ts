@@ -1,9 +1,9 @@
 import {
   propertyArray,
   prefixProperties,
-} from '../../util/primitives/property-prefixer';
+} from '../../util/functions/property-prefixer';
 const InternalHeaderProperties = {
-  CURVED: 'curved',
+  CURVED: 'isCurved',
 };
 export const prefix = 'header';
 export const HeaderProperties = prefixProperties(

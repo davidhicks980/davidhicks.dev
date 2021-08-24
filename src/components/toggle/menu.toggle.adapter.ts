@@ -1,7 +1,7 @@
 import {
   state,
   storeKeys as StoreProperties,
-} from '../../util/primitives/store';
+} from '../../util/functions/store';
 import { mix } from '../../util/mixins/mix.with';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
 import { HicksIconToggle } from './icon-toggle.component';
@@ -23,7 +23,7 @@ export const MENU_TOGGLE_TAG_NAME = 'hicks-menu-toggle';
 const action = {
   stream: state.filteredChanges([
     StoreProperties.BREAKPOINTS,
-    TOCProperties.ACTIVE_HASH,
+    TOCProperties.OPEN,
   ]) as Observable<Record<string, unknown>>,
   actions: [
     {
@@ -34,16 +34,19 @@ const action = {
         }
       },
     },
+
     {
-      property: TOCProperties.ACTIVE_HASH,
-      componentHandler(this: HicksIconToggle, propValue: string) {
-        this.toggled = false;
+      property: TOCProperties.OPEN,
+      componentHandler(this: HicksIconToggle, propValue: boolean) {
+        if (this.toggled != propValue) {
+          this.toggled = propValue;
+        }
       },
     },
   ] as ObservedStateAction[],
 };
-export const HicksMenuToggle = mix(HicksIconToggle).with(
+export const MenuToggle = mix(HicksIconToggle).with(
   EmitStateMixin(emitActiveSection),
   ObserveStateMixin(action)
 );
-customElements.define(MENU_TOGGLE_TAG_NAME, HicksMenuToggle);
+customElements.define(MENU_TOGGLE_TAG_NAME, MenuToggle);

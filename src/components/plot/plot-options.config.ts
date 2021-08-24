@@ -7,7 +7,6 @@ export function plotOptions(
   highlight: string
 ) {
   const gradient = canvas.getContext('2d')?.createLinearGradient(0, 1000, 0, 0);
-
   // Add two color stops
   gradient?.addColorStop(0.75, 'rgba(255,255,255,0)');
   gradient?.addColorStop(1, highlight);
@@ -54,6 +53,7 @@ export function plotOptions(
       parsing: false,
       normalized: true,
       responsive: true,
+      resizeDelay: 100,
       animation: {
         duration: 0, // general animation time
       },
@@ -110,124 +110,3 @@ export function plotOptions(
     } as ChartOptions,
   } as ChartConfiguration;
 }
-
-/*
-{
-    type: 'line',
-    data: {
-      datasets: [
-        {
-          label: 'Dataset',
-          data: coordinates,
-          spanGaps: true,
-
-          backgroundColor: gradient,
-        },
-      ],
-    },
-    options: {
-      parsing: false,
-      normalized: true,
-      animation: {
-        duration: 0, // general animation time
-      },
-      hover: {
-        animationDuration: 0, // duration of animations when hovering an item
-      },
-      elements: {
-        line: {
-          tension: 0, // disables bezier curves
-          backgroundColor: gradient,
-          borderJoinStyle: 'round',
-          borderColor: color,
-          borderWidth: 2,
-        },
-
-        point: {
-          radius: 0,
-        },
-      },
-      aspectRatio: 1.5,
-      maintainAspectRatio: false,
-      devicePixelRatio: 2.3,
-      tooltips: {
-        enabled: false,
-      },
-      legend: {
-        display: false,
-      },
-      fill: false,
-      options: {
-        responsive: true,
-        legend: {
-          labels: {
-            // This more specific font property overrides the global property
-            defaultFontFamily: 'IBM Plex Sans',
-          },
-        },
-      },
-      layout: {
-        padding: {
-          left: 5,
-        },
-      },
-      scales: {
-        y: [
-          {
-            weight: 2,
-            type: 'linear',
-            scaleLabel: {
-              display: true,
-              labelString: 'Concentration',
-              fontSize: 14,
-              padding: 3,
-              fontColor: 'rgb(50,50,50)',
-            },
-            gridLines: {
-              tickMarkLength: 5,
-              zeroLineColor: 'rgb(50,50,50)',
-              zeroLineWidth: 1.3,
-              display: true,
-            },
-            ticks: {
-              fontColor: 'rgb(90,90,90)',
-              fontFamily: 'Jetbrains Mono',
-              maxTicksLimit: 10,
-              fontSize: 14,
-              padding: 2,
-              precision: 0.1,
-            },
-          },
-        ],
-        x: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: 'Time (hours)',
-              fontSize: 14,
-              padding: 3,
-              fontColor: 'rgb(50,50,50)',
-            },
-            position: 'bottom',
-            weight: 1,
-            type: 'linear',
-            gridLines: {
-              tickMarkLength: 0,
-              zeroLineColor: 'rgb(50,50,50)',
-              zeroLineWidth: 1.3,
-              display: true,
-              drawOnChartArea: true,
-            },
-            ticks: {
-              fontColor: 'rgb(90,90,90)',
-              fontFamily: 'Jetbrains Mono',
-              fontSize: 14,
-              padding: 5,
-              precision: 1,
-            },
-          },
-        ],
-      },
-    },
-  } as any;
-*/

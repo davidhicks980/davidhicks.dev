@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { ContentModification } from "../components/content/content.component";
-import { state } from "../util/primitives/store";
+import { state } from "../util/functions/store";
 
 export const contact = {
   title: 'Contact',

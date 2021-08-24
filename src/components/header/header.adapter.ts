@@ -1,4 +1,4 @@
-import { state } from '../../util/primitives/store';
+import { state } from '../../util/functions/store';
 import { mix } from '../../util/mixins/mix.with';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
 import { observedProperties, prefix } from './header.properties';
@@ -9,6 +9,6 @@ const emitHeaderChange = {
   observedProperties,
   prefix,
 };
-const e = mix(HicksHeader).with(EmitStateMixin(emitHeaderChange));
+const header = mix(HicksHeader).with(EmitStateMixin(emitHeaderChange));
 
-customElements.define('hicks-header', e);
+customElements.define('hicks-header', header);

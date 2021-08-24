@@ -4,9 +4,16 @@ import produce, {
   produceWithPatches,
 } from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  distinct,
+  distinctUntilChanged,
+  map,
+  reduce,
+  filter,
+} from 'rxjs/operators';
 import { clone } from '../../components/content/deep-clone';
 import { documentBreakpoints } from './breakpoint-emitter.component';
+import { tap } from 'rxjs/operators';
 const validateObj = (o: Object) => {
   if (typeof o === 'object' && o !== null) {
     return true;
@@ -21,40 +28,40 @@ enableMapSet();
 class StateStore {
   private _changes: BehaviorSubject<{ [key: string]: unknown }>;
   private _store: BehaviorSubject<{ [key: string]: unknown }>;
+  private changes$: Observable<Record<string, any>>;
+  private store$: Observable<Record<string, any>>;
 
-  get changes() {
-    return this._changes.asObservable();
-  }
-  get store() {
-    return this._store.asObservable();
-  }
   constructor() {
     this._changes = new BehaviorSubject({});
     this._store = new BehaviorSubject({});
+    [this.changes$, this.store$] = [this._changes, this._store].map((sub) =>
+      sub.asObservable().pipe(map((state) => Array.from(Object.entries(state))))
+    );
   }
   hookPropertyUpdates() {
     return this.update.bind(this);
   }
   private _filterSubject(
     property: string,
-    filter: string[]
+    filters: string[]
   ): Observable<Record<string, unknown>> {
     return this[property].pipe(
-      map((state) => {
-        return Object.entries(state)
-          .filter(([key]) => filter.includes(key))
-          .reduce((obj, [key, value]) => {
-            obj[key] = value;
-            return obj;
-          }, {});
+      filter((state: [string, any][]) =>
+        state.some(([key, value]) => filters.includes(key))
+      ),
+      map((state: [string, any][]) => {
+        return state.reduce((obj, [key, value]) => {
+          obj[key] = value;
+          return obj;
+        }, {});
       })
     );
   }
   filteredChanges(filter: string[]): Observable<Record<string, unknown>> {
-    return this._filterSubject('_changes', filter);
+    return this._filterSubject('changes$', filter);
   }
   filteredStore(filter: string[]): Observable<Record<string, unknown>> {
-    return this._filterSubject('_store', filter);
+    return this._filterSubject('store$', filter);
   }
   update(stateUpdate: { [key: string]: any }) {
     if (validateObj(stateUpdate)) {

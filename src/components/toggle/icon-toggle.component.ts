@@ -20,10 +20,7 @@ export class HicksIconToggle extends LitElement {
     this.toggled = false;
   }
   handleClick(e: PointerEvent) {
-    if (this.toggled) {
-      setTimeout(() => this.focus(), 10);
-    }
-    this.toggled = this.toggled ? false : true;
+    this.toggled = !this.toggled;
     this.dispatchEvent(
       new CustomEvent('toggle', {
         detail: { isToggled: this.toggled },
@@ -31,9 +28,13 @@ export class HicksIconToggle extends LitElement {
         composed: true,
       })
     );
+
     if (this.slottedIcon) {
       this.toggleIconClass();
     }
+    window.requestAnimationFrame(() => {
+      this.focus({ preventScroll: true });
+    });
   }
   toggleIconClass() {
     this.slottedIcon[0].classList.toggle('toggled', this.toggled);

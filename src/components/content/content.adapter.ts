@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { state } from '../../util/primitives/store';
+import { state } from '../../util/functions/store';
 import {
   ObservedStateAction,
   ObserveStateMixin,

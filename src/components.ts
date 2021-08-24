@@ -1,4 +1,3 @@
-import './components/header/header.adapter';
 import './components/navigation/nav.component';
 import './components/card/card.component';
 import './components/plot/plot.component';
@@ -16,6 +15,7 @@ import './components/toc/toc-item.component';
 import './components/toc/toc.adapter';
 import './components/status/status.component';
 import './components/text-toggle/toggle-button.component';
+import './components/header/header.adapter';
 
 import './sections/about-me.section';
 import './sections/contact.section';

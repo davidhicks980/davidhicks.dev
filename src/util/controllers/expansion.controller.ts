@@ -1,9 +1,9 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Observable } from 'rxjs';
 import { filter, take, tap } from 'rxjs/operators';
-import { debounce } from '../primitives/debounce';
-
-import { ExpansionHandler as CollapseHandler } from '../primitives/expand-handler';
+import { debounce } from '../functions/debounce';
+import { ResizeObserver } from '@juggle/resize-observer';
+import { ExpansionHandler as CollapseHandler } from '../functions/expand-handler';
 
 const handlers = new Map() as Map<string, CollapseHandler>;
 type Controller<T> = ReactiveControllerHost & T;

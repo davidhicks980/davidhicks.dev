@@ -1,4 +1,4 @@
-import { html, LitElement, TemplateResult } from 'lit';
+import { html, LitElement, TemplateResult, PropertyValues } from 'lit';
 import {
   property,
   query,
@@ -16,12 +16,12 @@ import {
   IntersectionObserverType,
 } from '../../util/controllers/intersection.controller';
 import { ListItemController } from '../../util/controllers/item.controller';
-import { fastHash } from '../../util/primitives/salt-id';
+import { fastHash } from '../../util/functions/salt-id';
 import { debounceTime, filter, mapTo, takeWhile } from 'rxjs/operators';
 
 import { fromEvent } from 'rxjs';
-import { getHeadingDepth, queryHeader } from '../../util/primitives/headers';
-import { queryAnchor } from '../../util/primitives/anchors';
+import { getHeadingDepth, queryHeader } from '../../util/functions/headers';
+import { queryAnchor } from '../../util/functions/anchors';
 import { MutationController } from '../../util/controllers/mutation.controller';
 import { queryAssignedNodes } from 'lit/decorators.js';
 
@@ -37,9 +37,7 @@ export class TableOfContents extends LitElement {
     delegatesFocus: true,
   };
   toggle: any;
-  handleSlotChange(event) {
-    console.log(this.menuToggle[0]);
-  }
+
   @property({ type: Object })
   get slotNames() {
     return {
@@ -48,15 +46,15 @@ export class TableOfContents extends LitElement {
   }
   //Child Queries
   @query('.list', true)
-  topLevelList: HTMLUListElement;
+  topLevelList!: HTMLUListElement;
   @queryAll('.list__sublist')
-  sublists: NodeListOf<HTMLUListElement>;
+  sublists!: NodeListOf<HTMLUListElement>;
   @queryAll('hicks-list-item')
-  listItems: NodeListOf<HicksListItem>;
+  listItems!: NodeListOf<HicksListItem>;
   @queryAsync('hicks-list-item')
-  itemsLoaded: Promise<HicksListItem>;
+  itemsLoaded!: Promise<HicksListItem>;
   @queryAssignedNodes('navigation-toggle', true)
-  menuToggle: HTMLElement;
+  menuToggle!: HTMLElement;
   //Public properties
   @property({ type: Boolean, reflect: true })
   open: boolean;
@@ -68,7 +66,7 @@ export class TableOfContents extends LitElement {
   @state()
   activeLink: string = '';
   //Shared controllers
-  controllers: {
+  controllers!: {
     intersection: IntersectionController;
     breakpoint: BreakpointController;
     item: ListItemController;
@@ -81,15 +79,13 @@ export class TableOfContents extends LitElement {
     section: 0,
     template: 0,
   };
-
   @state()
   template: TemplateResult<1>;
   itemMap: any;
   visibleItems: HicksListItem[];
   @state()
   allExpanded: boolean = false;
-  @property()
-  activeSection: string;
+
   positions: Map<string, { path: string; title: string }>;
 
   headingLevel: number = 2;
@@ -100,7 +96,9 @@ export class TableOfContents extends LitElement {
     this.open = false;
     this.activeLink = '';
     this.positions = new Map();
-
+    this.template = html``;
+    this.visibleItems = [];
+    this.list = [];
     this.scrollSpy = this.scrollSpy.bind(this);
     this.controllers = {
       intersection: new IntersectionController(this),
@@ -136,8 +134,8 @@ export class TableOfContents extends LitElement {
     return Array.from(this.closest('main').querySelectorAll('section'));
   }
 
-  firstUpdated(changedProperties) {
-    super.firstUpdated(changedProperties);
+  firstUpdated(_changedProperties: PropertyValues) {
+    super.firstUpdated(_changedProperties);
 
     //Build the toc
     this.list = this.refreshLinks(this.sections);
@@ -257,20 +255,31 @@ export class TableOfContents extends LitElement {
   }
   update(_changedProperties) {
     super.update(_changedProperties);
-
-    this.visibleItems = Array.from(
-      this.listItems
-    ); /*[EXPANSION] Array.from(this.listItems)?.filter(
-      (item) => !item.hidden
-    );*/
+    this.visibleItems = Array.from(this.listItems);
   }
   updated(_changedProperties) {
     super.updated(_changedProperties);
     if (_changedProperties.has('open')) {
       if (this.open && this.mobile) {
+        let listItemTest = (el: HTMLElement) => {
+          return el?.tagName?.toLowerCase() === LIST_ITEM_TAG_NAME;
+        };
+
+        fromEvent(document, 'click')
+          .pipe(
+            takeWhile(() => this.open === true),
+            filter((ev) => ev.composedPath().some(listItemTest))
+          )
+          .subscribe(() => {
+            this.open = false;
+          });
         setTimeout(() => {
-          this.listItems.item(0).focus();
           this.toggle = this.menuToggle[0];
+          if (document.activeElement === this.toggle) {
+            return;
+          } else if (this.toggle) {
+            this.toggle.focus();
+          }
         }, 500);
       }
     }
@@ -288,14 +297,12 @@ export class TableOfContents extends LitElement {
       this.activeLink;
 
     //Make sure we do not already have the correct element selected
-
     queryAnchor(intersectingSections[0]?.target);
     if (previousActiveId !== this.activeLink) {
       if (this.listItems.length > 0) {
         this.collapseLists(Array.from(this.listItems).map((el) => el.path));
       }
       this.controllers.item.activate(this._getActivePath() ?? '');
-      //[EXPANSION] this.updateItemOffsets();
     }
   }
 
@@ -316,32 +323,6 @@ export class TableOfContents extends LitElement {
   get closedLists() {
     return Array.from(this.listItems).filter((sl) => !sl.expanded);
   }
-  /* [EXPANDED] private updateItemOffsets() {
-    if (this.visibleItems) {
-      Array.from(this.visibleItems).map((el: HicksListItem, i) => {
-        let prevEl = el.previousElementSibling as HicksListItem;
-        if (prevEl && prevEl.index === el.index - 1) {
-          const offset = Array.from(this.closedLists)
-            .filter((list) => list.path.includes(prevEl.path))
-            .reduce((total, curr) => total + curr.listChildren, 0);
-          if ((el.offset = offset + prevEl.offset)) {
-            return;
-          } else {
-            el.offset = offset + prevEl.offset;
-          }
-        } else {
-          el.offset = 0;
-        }
-      });
-    }
-  }*/
-
-  /* [EXPANDED] toggleAll() {
-    this.allExpanded
-      ? this.controllers.item.collapseAll()
-      : this.controllers.item.expandAll();
-    this.allExpanded = !this.allExpanded;
-  }*/
 
   render() {
     if (this.hash.template != this.hash.section) {
@@ -350,16 +331,6 @@ export class TableOfContents extends LitElement {
     }
     let open = this.mobile && this.open;
 
-    /*[EXPANDED] <div class="button__wrapper">
-   <button
-        @click=${this.toggleAll}
-        type="button"
-        class="expand-button button button--secondary"
-        data-toggled=${this.allExpanded}
-      >
-        Expand All <span>+</span>
-      </button>
-    </div>*/
     return html`
       ${open
         ? html`<div
@@ -385,6 +356,7 @@ export class TableOfContents extends LitElement {
             tabindex="0"
             aria-hidden="true"
             @focusin="${() => {
+              console.log(this.menuToggle[0]);
               this.menuToggle[0]?.focus();
             }}"
           ></div>`

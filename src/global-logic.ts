@@ -1,7 +1,8 @@
-import { state } from './util/primitives/store';
+import './polyfills';
+import { state } from './util/functions/store';
 import { combineLatest, fromEvent } from 'rxjs';
 import { take, withLatestFrom } from 'rxjs/operators';
-import { documentBreakpoints } from './util/primitives/breakpoint-emitter.component';
+import { documentBreakpoints } from './util/functions/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu.toggle.properties';
 import { HicksHeader } from './components/header/header.component';
 import { TableOfContents } from './components/toc/toc.component';
@@ -11,6 +12,22 @@ const elementById = (id) => document.getElementById(id);
 fromEvent(window, 'load')
   .pipe(take(1))
   .subscribe((ev) => {
+    fromEvent(elementById('header'), 'focusin')
+      .pipe(withLatestFrom(state.filteredChanges([HeaderProperties.CURVED])))
+      .subscribe(
+        ([e, toolbarCurved]: [FocusEvent, Record<string, boolean>]) => {
+          let target = e.target as HTMLElement;
+          let isInToolbar =
+            target.classList.contains('toolbar-item') ||
+            target.classList.contains('menu-toggle');
+          if (isInToolbar && window.scrollY < 450) {
+            window.scroll({
+              top: 500,
+              left: 0,
+            });
+          }
+        }
+      );
     //Start with only resume entries showing.
     state.update({ resumeentries$showcv: false });
     //Expand resume entries on init
@@ -27,6 +44,7 @@ fromEvent(window, 'load')
       ([menuToggle, breakpoint]) => {
         let open = menuToggle[TOGGLED] || false;
         let smallScreen = breakpoint.get('mobile') || breakpoint.get('tablet');
+        console.log('ran');
         if (smallScreen && open) {
           app.classList.add('has-open-menu');
           toggle.slot = TableOfContents.prototype.slotNames.toggle;
@@ -40,25 +58,8 @@ fromEvent(window, 'load')
     );
 
     //Focusing on a button in the header will scroll to that button's position, which will make the button visible
-    fromEvent(elementById('header'), 'focusin')
-      .pipe(withLatestFrom(state.filteredStore([HeaderProperties.CURVED])))
-      .subscribe(
-        ([e, toolbarCurved]: [FocusEvent, Record<string, boolean>]) => {
-          let target = e.target as HTMLElement;
-          let isInToolbar =
-            target.classList.contains('toolbar-item') ||
-            target.classList.contains('menu-toggle');
-          if (isInToolbar) {
-            if (toolbarCurved[HeaderProperties.CURVED]) {
-              console.log('ran');
-              window.scroll({
-                top: 500,
-                left: 0,
-              });
-            }
-          }
-        }
-      );
+
+    fromEvent(document, 'click').subscribe((ev) => console.log(ev));
 
     fromEvent(document, 'resumeload')
       .pipe(take(1))

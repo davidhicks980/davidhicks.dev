@@ -3,8 +3,8 @@ import { property, customElement } from 'lit/decorators.js';
 import { style } from './toggle.css';
 import { classMap } from 'lit/directives/class-map.js';
 
-@customElement('pk-toggle')
-export class PkToggle extends LitElement {
+@customElement('plot-switch')
+export class PlotSwitch extends LitElement {
   @property({ reflect: true, type: Boolean })
   toggled = false;
   @property({ reflect: true, type: String })

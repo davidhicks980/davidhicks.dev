@@ -16,6 +16,8 @@
     overflow: hidden;
     &__toggle {
       &__container {
+        border-left: 2px solid var(--primary-2);
+        padding-left: 1rem;
         @include media-size('medium') {
           display: none;
         }
@@ -88,12 +90,7 @@
       );
       pointer-events: none;
     }
-    &__nav {
-      --nav-item--font-weight: 300;
-      --nav-item--font-color: white;
-      --nav-item--hover--font-color: var(--secondary-3);
-      --nav-item--selected--font-color: var(--complement-5);
-    }
+
     @include media-size(zero, medium) {
       flex-direction: column;
       justify-content: start;
@@ -126,11 +123,6 @@
     }
     @include media-size(zero, small) {
       gap: 25vh;
-      &__nav {
-        --nav--direction: column;
-        --nav--justify-content: start;
-        --nav--gap: 1rem;
-      }
     }
   }
 }
@@ -145,13 +137,6 @@
     max-width: 4rem;
     width: 4rem;
   }
-}
-
-.divider {
-  border-left: 1px solid white;
-  display: block;
-  box-sizing: border-box;
-  margin-left: 2px;
 }
 
 hicks-nav {

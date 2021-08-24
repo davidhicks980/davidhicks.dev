@@ -3,7 +3,7 @@ import { state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { literal, html as staticHTML } from 'lit/static-html.js';
 import { timer } from 'rxjs';
-import { fastHash } from '../../util/primitives/salt-id';
+import { fastHash } from '../../util/functions/salt-id';
 import { clone } from './deep-clone';
 import { PageSection } from '../../types/PageSection';
 export class Tree {

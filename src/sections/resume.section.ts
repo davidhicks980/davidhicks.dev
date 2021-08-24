@@ -1,6 +1,6 @@
 import { html, TemplateResult } from 'lit';
 import { ContentModification } from '../components/content/content.component';
-import { state } from '../util/primitives/store';
+import { state } from '../util/functions/store';
 import { RESUME_SORT_ORDER } from './resume-sort-order';
 
 interface ResumeEntry {

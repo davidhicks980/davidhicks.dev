@@ -5,15 +5,17 @@ import {
   Chart,
   ScatterDataPoint,
   registerables,
-} from 'chart.js/dist/chart.esm';
-import { html, LitElement } from 'lit';
-
+  ChartOptions,
+  ChartConfiguration,
+} from 'chart.js';
 import { plotOptions } from './plot-options.config';
 import { VariableSet } from './types/VariableSet';
 import { PlotParameters } from './types/PlotPage';
 import { Variable } from './types/Variable';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './plot.css';
+import { html, LitElement } from 'lit';
+import { getParamNames } from '../../util/functions/get-param-names';
 
 /**
  * Component that renders a plot to the DOM given a list of parameters (see PlotParameters interface)
@@ -135,6 +137,18 @@ const plots = {
     multipleDose: false,
   },
 };
+const createDebouncer = (method: (...args: any) => any, delay: number) => {
+  let timeout = false;
+  return (params: {}) => (e) => {
+    if (!timeout) {
+      timeout = true;
+      setTimeout(() => {
+        method(params, e);
+        timeout = false;
+      }, delay);
+    }
+  };
+};
 
 @customElement('plot-engine')
 export class PlotEngine extends LitElement {
@@ -142,7 +156,6 @@ export class PlotEngine extends LitElement {
   @state()
   params: Partial<PlotParameters> = plots.multipledose;
   private _plotType = 'multipledose';
-  mobile: boolean;
 
   @property({ type: String, reflect: true })
   public get plotType() {
@@ -155,10 +168,12 @@ export class PlotEngine extends LitElement {
   }
   @property({ type: Object, reflect: false })
   loaded = {};
+  @property({ type: Boolean, reflect: false })
+  mobile: boolean = false;
   @query('#chart')
   canvas!: HTMLCanvasElement;
   @query('.container', true)
-  container: HTMLDivElement;
+  container!: HTMLDivElement;
   /**Sets the highlight color of the plot */
   @property({ type: String })
   mainColor: string = getComputedStyle(
@@ -177,16 +192,16 @@ export class PlotEngine extends LitElement {
   range: number = 10;
   labels!: string[];
   independentVariable!: string;
+  eventDebouncer: (params: {}) => any;
   private variableValues: VariableSet = {};
-
-  chart: Chart;
+  chart!: Chart;
   scale: number = 40;
   worker!: Worker;
   lockSVG: any;
-  plotFunction!: (values: {}, equation: string, scale?: number) => void;
+  generateCoordinates!: (values: {}, equation: string, scale?: number) => void;
 
-  createWorker(fn) {
-    const blob = new Blob(['self.onmessage = ', fn.toString()], {
+  createWorker(methodBody: string) {
+    const blob = new Blob(['self.onmessage = ', methodBody], {
       type: 'text/javascript',
     });
     const url = URL.createObjectURL(blob);
@@ -194,28 +209,26 @@ export class PlotEngine extends LitElement {
     return new Worker(url);
   }
 
-  private logToggle(e: Event): void {
-    this.chart.options.scales.y.type = (e.target as HTMLInputElement).checked
-      ? 'logarithmic'
-      : 'linear';
+  private logToggle(e: CustomEvent<{ toggled: boolean }>): void {
+    this.chart.options.scales.y.type =
+      e.detail.toggled ?? false ? 'logarithmic' : 'linear';
     this.chart.update();
   }
-  private fixToggle(e: Event): void {
-    this.chart.options.scales.y.max = (e.target as HTMLInputElement).checked
-      ? this.max()
-      : null;
+  private fixToggle(e: CustomEvent<{ toggled: boolean }>): void {
+    this.chart.options.scales.y.max =
+      e.detail.toggled ?? false ? this.getMax() : null;
     this.chart.update();
   }
-  private max(): number {
+  private getMax(): number {
     const data = this.chart.data.datasets[0].data as ScatterDataPoint[];
     return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
   }
   _initPlotting(chart) {
     this._initVariables();
-    this._initPlotUpdate(chart);
+    this._initiateUpdates(chart);
   }
   firstUpdated() {
-    this.chart = this._initPlotCanvas(
+    this.chart = this._createChart(
       this.canvas,
       this.mainColor,
       this.highlightColor
@@ -226,6 +239,7 @@ export class PlotEngine extends LitElement {
         if (entry.target.classList.contains('container')) {
           this.container.classList.remove('is-small');
           const contentWidth = entry?.contentRect?.width;
+
           if (contentWidth < 500) {
             this.container.classList.add('is-small');
           }
@@ -236,8 +250,8 @@ export class PlotEngine extends LitElement {
   }
   constructor() {
     super();
-    this.eventDebouncer = this.createDebouncer(this.updatePlot, 30);
     Chart.register(...registerables);
+    this.eventDebouncer = createDebouncer(this.updatePlot.bind(this), 16);
   }
   /**
    * @description Sets variables using user-supplied or default values. This must be called prior to plotting any equations
@@ -245,30 +259,29 @@ export class PlotEngine extends LitElement {
    * @memberof PlotEngine
    */
   private _initVariables() {
-    if (this.params?.equation && Array.isArray(this.params?.variables)) {
+    let { equation, range, axis, independentVariable, variables } = this.params;
+    if (equation && Array.isArray(variables)) {
       //Replaces user-interpolated variables and ASCII syntax with property accessor that utilize dot notations. Honestly, probably didn't need to replace anything here, but it works fine and may have a small performance benefit.
-      this.plottedEquation = this.params.equation
+      this.plottedEquation = equation
         .replace(/v\[\"/g, 'variables.')
         .replace(/\"]/g, '')
         .replace(/\^/g, '**')
         .replace(/\`/g, '');
       //The side of the X axis. Defaults to 100
-      this.range = this.params.range ? this.params.range : 100;
+      this.range = range || 100;
       //Axis labels. Should be provided as ['x', 'y']
-      this.labels = this.params.axis;
+      this.labels = axis;
       //The independent variable. Defaults to x. This is only used in the interpolated equation, so it does not affect the graph itself
-      this.independentVariable = this.params.independentVariable
-        ? this.params.independentVariable
-        : 'x';
+      this.independentVariable = independentVariable || 'x';
       //Initiate the variable values
-      this.params.variables.forEach((v) => {
+      for (let v of variables) {
         this.variableValues[v.symbol] = v.value;
-      });
+      }
       //Can now initiate graphing
       this.loaded = true;
     }
   }
-  private _initPlotCanvas(
+  private _createChart(
     canvasElement: HTMLCanvasElement,
     color: string,
     highlight: string
@@ -278,173 +291,67 @@ export class PlotEngine extends LitElement {
       plotOptions([{ x: 0, y: 0 }], canvasElement, color, highlight)
     );
   }
-  private _initPlotUpdate(chart: Chart) {
-    const updateChart = this.updateChart;
-    this._initCoordinateFunction(updateChart, chart);
-    this.latex.update();
-    this.plotFunction(this.variableValues, this.plottedEquation, this.range);
+  private _initiateUpdates(chart: Chart) {
+    this._setPlotFunction(this.redrawChart.bind(this), chart);
+    this.updateLatexEquation();
+    this.generateCoordinates(
+      this.variableValues,
+      this.plottedEquation,
+      this.range
+    );
   }
   private _resetWorker() {
     this.worker.terminate();
     this._initPlotting(this.chart);
   }
-  private _initCoordinateFunction(
+  private _setPlotFunction(
     updateChart: (points: ScatterDataPoint[], chart: Chart) => void,
     chart: Chart
   ) {
+    let { multipleDose } = this.params;
     if (window.Worker) {
-      this.worker = this.params.multipleDose
-        ? this.createWorker(this.multipleDosingWorker)
-        : this.createWorker(this.bolusDosingWorker);
+      this.worker = multipleDose
+        ? this.createWorker(this.stringifyWorkerMethod(this.multipleDoseMethod))
+        : this.createWorker(this.stringifyWorkerMethod(this.bolusMethod));
       this.worker.onmessage = function (ev) {
         updateChart(ev.data, chart);
       };
-      this.plotFunction = (values: {}, equation: string, range: number) => {
+      this.generateCoordinates = (
+        values: {},
+        equation: string,
+        range: number
+      ) => {
         this.worker.postMessage([values, equation, range]);
       };
     } else {
-      this.plotFunction = this.params.multipleDose
-        ? this.nativeFunctions.multipleDose
-        : this.nativeFunctions.bolus;
+      this.generateCoordinates = multipleDose
+        ? this.multipleDoseMethod
+        : this.bolusMethod;
     }
   }
 
-  updateChart(points: ScatterDataPoint[], chart: Chart) {
+  redrawChart(points: ScatterDataPoint[], chart: Chart) {
     chart.data.datasets[0].data = points;
     chart.update();
   }
-  get nativeFunctions() {
-    return {
-      /**Updates the bolus coordinates*/
-      bolus: (values: VariableSet, equation: string, scale: number) => {
-        return this.calculations.bolus(values, equation, scale);
-      },
-      multipleDose: (values: VariableSet, equation: string) => {
-        return this.calculations.multipleDose(values, equation);
-      },
-    };
-  }
 
-  get calculations() {
-    return {
-      /**
-       * Multiple dose coordinate calculation
-       * @param {VariableSet} values - key value pairs representing variable values
-       * @param {string} equation - a string representing an equation with interpolated variables
-       * @returns {ScatterDataPoint[]} an array of coordinates
-       */
-      multipleDose: (
-        values: VariableSet,
-        equation: string
-      ): ScatterDataPoint[] => {
-        const tau = values['tau'],
-          doses = values['n'],
-          calculate = new Function(
-            'variables',
-            'x',
-            'n',
-            '"use strict";return (' + equation + ')'
-          ),
-          data = [];
-        let i,
-          stepCount,
-          hour = 0;
-        for (i = 0; i < doses; i++) {
-          for (stepCount = 0; stepCount < tau; stepCount++) {
-            data.push({
-              x: hour++,
-              y: calculate(values, stepCount, i + 1),
-            });
-            if (hour === doses * tau) {
-              stepCount++;
-              for (stepCount; stepCount < doses * tau * 0.5; stepCount++) {
-                data.push({
-                  x: hour++,
-                  y: calculate(values, stepCount, i + 1),
-                });
-              }
-            }
-          }
-        }
-        return data;
-      },
-      /**
-       * Bolus dose coordinate calculation
-       * @param {VariableSet} values - key value pairs representing variable values
-       * @param {string} equation - a string representing an equation with interpolated variables
-       * @param {number} scale - A number representing the size of the x-axis. Defaults to 40.
-       * @returns {ScatterDataPoint[]} an array of coordinates
-       */
-      bolus: (
-        values: VariableSet,
-        equation: string,
-        scale: number
-      ): ScatterDataPoint[] => {
-        let i = 0;
-        const data = [];
-        const calculate = new Function(
-          'variables',
-          'x',
-          '"use strict"; return (' + equation + ')'
-        );
-        for (i; i < scale; i += 0.5) {
-          data.push({
-            x: i++,
-            y: calculate(values, i),
-          });
-        }
-        return data;
-      },
-    };
-  }
-
-  latex = {
-    interpolateVariables: (equation: string, variables: object): string => {
-      const calculate = new Function(
-        'variables',
-        '"use strict";return (' + equation + ')'
-      );
-      return calculate(variables);
-    },
-    update: () => {
-      this.displayedEquation = this.latex
-        .interpolateVariables(
-          this.params.equation
-            .replace(/v\["/g, '${variables.')
-            .replace(/"\]/g, '.toFixed(1)}'),
-          this.variableValues
-        )
-        .replace(/x/g, 'time')
-        .replace(/2.71/g, 'e')
-        .replace(/\*?-?\*?0.06\*?/g, '');
-    },
-  };
-
-  minMaxCalc(name: string, value: number, type: string) {
-    if (name === 'tau') {
-      const comparator = type !== 'none' ? Math[type] : 1;
-      comparator !== 1
-        ? this.tauValueArray[value]
-        : comparator(this.tauValueArray);
-    } else {
-      return value;
-    }
-  }
-  disconnectedCallback() {
-    this.worker.terminate();
-  }
-
-  multipleDosingWorker = (ev: MessageEvent<any[]>): void => {
-    const values = ev.data[0];
-    const equation = ev.data[1];
-
+  /**
+   * Multiple dose coordinate calculation
+   * @param {VariableSet} values - key value pairs representing variable values
+   * @param {string} equation - a string representing an equation with interpolated variables
+   * @returns {ScatterDataPoint[]} an array of coordinates
+   */
+  multipleDoseMethod(
+    values: VariableSet,
+    equation: string
+  ): ScatterDataPoint[] {
     const tau = values['tau'],
       doses = values['n'],
       calculate = new Function(
         'variables',
         'x',
         'n',
-        '"use strict";return (' + equation + ')'
+        ';return (' + equation + ')'
       ),
       data = [];
     let i,
@@ -467,52 +374,72 @@ export class PlotEngine extends LitElement {
         }
       }
     }
-    postMessage(data, null);
-  };
-  bolusDosingWorker = (ev: MessageEvent<any[]>): void => {
+    return data;
+  }
+  /**
+   * Bolus dose coordinate calculation
+   * @param {VariableSet} values - key value pairs representing variable values
+   * @param {string} equation - a string representing an equation with interpolated variables
+   * @param {number} scale - A number representing the size of the x-axis. Defaults to 40.
+   * @returns {ScatterDataPoint[]} an array of coordinates
+   */
+  bolusMethod(values: VariableSet, equation: string): ScatterDataPoint[] {
     let i = 0;
-    const data = [];
-    const calculate = new Function(
-      'variables',
-      'x',
-      '"use strict"; return (' + ev.data[1] + ')'
-    );
+    const data = [],
+      calculate = new Function('variables', 'x', '; return (' + equation + ')');
     for (i; i < 40; i += 0.5) {
       data.push({
         x: i++,
-        y: calculate(ev.data[0], i),
+        y: calculate(values, i),
       });
     }
-
-    postMessage(data, null);
-  };
-
-  get parameters() {
-    if (this.params.variables) return this.params.variables;
-    else return [];
+    return data;
   }
 
-  createDebouncer = (method: (...args: any) => any, delay: number) => {
-    let timeout = false;
-    return (params: {}) => (e) => {
-      if (!timeout) {
-        // Executes the func after delay time.
-        timeout = true;
-        setTimeout(() => {
-          method(params, e);
-          timeout = false;
-        }, delay);
-      }
-    };
-  };
+  updateLatexEquation() {
+    const interpolateLatex = (equation: string) =>
+      new Function('variables', '"use strict";return (' + equation + ')');
 
-  eventDebouncer: (params: {}) => any;
-  updatePlot = (slider, e) => {
-    this.variableValues[slider.symbol] = parseFloat(e.detail.value);
-    this.latex.update();
+    this.displayedEquation = interpolateLatex(
+      this.params.equation
+        .replace(/v\["/g, '${variables.')
+        .replace(/"\]/g, '.toFixed(1)}')
+    )(this.variableValues)
+      .replace(/x/g, 'time')
+      .replace(/2.71/g, 'e')
+      .replace(/\*?-?\*?0.06\*?/g, '');
+  }
 
-    this.plotFunction(this.variableValues, this.plottedEquation, this.range);
-  };
+  disconnectedCallback() {
+    this.worker.terminate();
+  }
+
+  stringifyWorkerMethod(method: (equation, values) => void): string {
+    let stringified = method.toString(),
+      end = stringified.lastIndexOf('return'),
+      start = stringified.search('{'),
+      body = stringified.substring(start + 1, end),
+      [values, equation] = getParamNames(method);
+    return `(ev) => 
+    { const ${values} = ev.data[0], 
+      ${equation} = ev.data[1];
+      ${body}
+      postMessage(data, null)}
+    `;
+  }
+  bolusDosingWorker(ev: MessageEvent<any[]>): void {
+    postMessage(this.bolusMethod(ev.data[0], ev.data[1]), null);
+  }
+
+  updatePlot(symbol: string, event: InputEvent): void {
+    this.variableValues[symbol] = parseFloat(event.data);
+    this.updateLatexEquation();
+    this.generateCoordinates(
+      this.variableValues,
+      this.plottedEquation,
+      this.range
+    );
+  }
   render() {
     return html`
       <div class="container">
@@ -522,16 +449,25 @@ export class PlotEngine extends LitElement {
         <div class="container__inputs">
           <div class="inputs__range">
             ${this.params.variables.map((v: Variable) => {
-              return html`<pk-range
-                .variable="${v}"
-                @shift="${this.eventDebouncer(v)}"
-              ></pk-range>`;
+              return html`<plot-range
+                value=${v.value}
+                min=${v.min}
+                max=${v.max}
+                name=${v.name}
+                units=${v.units}
+                step=${v.step}
+                .range=${v.range}
+                symbol=${v.symbol}
+                @input="${this.eventDebouncer(v.symbol)}"
+              ></plot-range>`;
             })}
           </div>
 
           <div class="inputs__toggle">
-            <pk-toggle @toggle="${this.logToggle}"> Trigger Log </pk-toggle>
-            <pk-toggle @toggle="${this.fixToggle}"> Trigger Fixed </pk-toggle>
+            <plot-switch @toggle="${this.logToggle}"> Trigger Log </plot-switch>
+            <plot-switch @toggle="${this.fixToggle}">
+              Trigger Fixed
+            </plot-switch>
           </div>
         </div>
         <div class="container__latex">

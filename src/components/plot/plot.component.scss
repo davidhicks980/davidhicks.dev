@@ -2,9 +2,10 @@
 .container {
   display: grid;
   box-sizing: border-box;
-  gap: 10px;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-areas: 'chart chart chart latex latex' 'chart chart chart inputs inputs' 'chart chart chart inputs inputs';
+  gap: 0.5rem;
+  grid-template-columns: 3fr 2fr;
+  grid-template-rows: 1fr 5fr;
+  grid-template-areas: 'chart latex' 'chart inputs';
   position: relative;
   /* width */
   ::-webkit-scrollbar {
@@ -21,6 +22,7 @@
     background: #b0b0b0;
     border-radius: 10px;
   }
+
   &.is-small {
     grid-template-areas: 'latex' 'chart' 'chart' 'inputs';
     grid-template-rows: auto minmax(5vh, 150px) minmax(5vh, 150px) auto;
@@ -28,7 +30,7 @@
   }
   & > * {
     border-radius: 5px;
-    border: 1px solid #bbbbbb;
+    border: 1px solid var(--gray-5);
     background: white;
     @include hoverable-shadow(3);
   }
@@ -50,11 +52,11 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    gap: 1em;
+    gap: 1rem;
   }
   &__latex {
     grid-area: latex;
-    border: 1px solid #bbbbbb;
+    border: 1px solid var(--gray-5);
     position: relative;
   }
 }
@@ -64,21 +66,21 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   place-content: space-around;
   width: 100%;
-  row-gap: 1em;
-  padding: 0.5em;
-  column-gap: 0.75em;
+  row-gap: 1rem;
+  padding: 0.5rem;
+  column-gap: 0.75rem;
 }
 
 .inputs__toggle {
   display: flex;
-  border: 1px dotted #bbbbbb;
+  border: 1px dotted var(--gray-5);
   border-radius: 5px;
-  height: 3.5em;
+  height: 3.5rem;
   place-content: space-evenly;
   box-shadow: var(--pk-shadow--step-0);
   align-items: center;
-  max-width: 14em;
-  width: 11em;
+  max-width: 14rem;
+  width: 11rem;
 }
 
 pk-latex {

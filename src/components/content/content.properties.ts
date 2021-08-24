@@ -1,7 +1,7 @@
 import {
   prefixProperties,
   propertyArray,
-} from '../../util/primitives/property-prefixer';
+} from '../../util/functions/property-prefixer';
 const InternalContentProperties = {
   TEMPLATE: 'template',
 };

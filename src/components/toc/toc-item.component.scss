@@ -41,8 +41,9 @@
     display: none;
     @include root.state('[top-level]') {
       display: block;
-      font-size: 2rem;
-      padding: 1rem;
+      font-size: 2.5rem;
+      padding: 1rem 0rem;
+      min-width: auto;
     }
   }
 
@@ -114,6 +115,13 @@
       }
       :host(:hover) & {
         color: var(--primary-8);
+        @include root.state('[top-level]') {
+          &:hover::before {
+            content: '◆';
+            position: absolute;
+            left: -1rem;
+          }
+        }
       }
       font-family: var(--list-item--font-family);
     }

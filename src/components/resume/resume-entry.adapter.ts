@@ -1,7 +1,7 @@
 import { HicksResumeEntry } from './resume-entry.component';
 import { mix } from '../../util/mixins/mix.with';
 import { Observable } from 'rxjs';
-import { state } from '../../util/primitives/store';
+import { state } from '../../util/functions/store';
 import {
   ObservedStateAction,
   ObserveStateMixin,

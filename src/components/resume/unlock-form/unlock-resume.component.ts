@@ -2,7 +2,7 @@ import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { style } from './unlock-resume.css';
 import { unlockResume } from '../../../firebase.functions';
-import { state } from '../../../util/primitives/store';
+import { state } from '../../../util/functions/store';
 import { ContentModification } from '../../content/content.component';
 import { Status } from '../../status/status.component';
 
@@ -58,10 +58,10 @@ export class UnlockResumeElement extends LitElement {
       return message;
     }
     return html`
-      ${message}
+      ${this.status === Status.NOT_SUBMITTED ? '' : message}
       <form @submit=${this.attemptUnlock}>
         <fieldset ?disabled="${submitted}">
-          <label for="unlock-resume-input">ENTER RECRUITER TOKEN: </label>
+          <label for="unlock-resume-input">Enter Recruiter Token: </label>
           <input
             minlength="32"
             maxlength="32"

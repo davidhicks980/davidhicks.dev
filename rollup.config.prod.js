@@ -7,26 +7,14 @@ import copy from 'rollup-plugin-copy';
 import watchAssets from 'rollup-plugin-watch-assets';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import serve from 'rollup-plugin-serve';
-//import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
-
-const mode = 'production';
-const folder = mode === 'production' ? 'public' : 'dist';
-const copyConfig = {
-  targets: [
-    { src: 'src/assets/', dest: folder },
-    { src: 'src/index.html', dest: folder },
-    { src: 'src/icons', dest: folder },
-    { src: 'src/icons', dest: folder + '/assets' },
-  ],
-};
-process.env.NODE_ENV = 'dev';
+import { copyConfig } from './rollup.variables';
+process.env.NODE_ENV = 'production';
 export default {
   input: './src/components.ts',
   output: {
-    dir: `./${folder}`,
-    format: 'es',
-    module: true,
+    dir: `./public`,
+    format: 'iife',
   },
   watch: {
     include: 'src/**',
@@ -41,24 +29,25 @@ export default {
   plugins: [
     typescript({
       outDir: './public/',
-      incremental: false,
+      removeComments: true,
+      tsBuildInfoFile: './public/.cache',
+      incremental: true,
     }),
-    copy(copyConfig),
+    copy(copyConfig('public')),
     commonjs(),
-    //babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
     resolve(),
     watchAssets({ assets: ['src/index.html'] }),
     injectProcessEnv({
-      NODE_ENV: mode,
+      NODE_ENV: 'production',
     }),
     replace({ 'Reflect.decorate': 'undefined' }),
     terser({
       output: {
         comments: false,
       },
-      compress: true,
-      mangle: true,
+      //compress: true,
+      // mangle: true,
     }),
-    serve(),
+    serve({ port: '3333', watch: true }),
   ],
 };

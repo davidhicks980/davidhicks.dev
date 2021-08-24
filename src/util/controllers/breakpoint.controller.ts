@@ -1,6 +1,6 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { filter, map } from 'rxjs/operators';
-import { documentBreakpoints } from '../primitives/breakpoint-emitter.component';
+import { documentBreakpoints } from '../functions/breakpoint-emitter.component';
 
 export class BreakpointController implements ReactiveController {
   host: ReactiveControllerHost;

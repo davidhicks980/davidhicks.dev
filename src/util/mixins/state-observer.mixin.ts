@@ -9,6 +9,7 @@ export type ObservedStateAction = {
   property: string;
   componentHandler: (...args) => unknown;
 };
+const s_actionMap = Symbol();
 
 export function ObserveStateMixin(handler: {
   stream: Observable<Record<string, unknown>>;
@@ -16,19 +17,19 @@ export function ObserveStateMixin(handler: {
 }) {
   return <T extends LitProto>(superClass: T) =>
     class extends superClass {
-      actionsMap: Map<string, (...args: any[]) => unknown>;
+      [s_actionMap]: Map<string, (...args: any[]) => unknown>;
       constructor(...args: any[]) {
         super();
         const { actions, stream } = handler;
-        this.actionsMap = new Map();
+        this[s_actionMap] = new Map();
         actions.map(({ property: prop, componentHandler }) => {
           const handler = componentHandler.bind(this);
-          this.actionsMap.set(prop, handler);
+          this[s_actionMap].set(prop, handler);
         });
 
         stream.subscribe((observedProps: Record<string, unknown>) => {
           Object.entries(observedProps).forEach(([key, value]) => {
-            if (key) this.actionsMap.get(key)(value);
+            if (key) this[s_actionMap].get(key)(value);
           });
         });
       }

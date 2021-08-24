@@ -10,24 +10,23 @@
       href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&family=Roboto:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/combine/npm/@webcomponents/webcomponentsjs@2.6.0/custom-elements-es5-adapter.min.js,npm/@webcomponents/webcomponentsjs@2.6.0"></script>
+
     <link rel="stylesheet" href="./main.prod.css" />
-    <script type="module" src="./components.js"></script>
+
+    <script src="dist/polyfills/lit/polyfill-support.js"></script>
+    <script src="dist/polyfills/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <title>The Developer Site for David Hicks</title>
   </head>
 
   <body id="app">
     <a tabindex="0" class="hidden" href="#">Skip to content</a>
     <hicks-header id="header">
-      <brand-component slot="header-brand"></brand-component>
+      <brand-component slot="brand"></brand-component>
       <logo-component
-        slot="header-logo"
+        slot="logo"
         style="height: 2.2rem; width: 3.6rem"
       ></logo-component>
-      <hicks-nav
-        style="--nav-item--font-size: 1.25rem"
-        slot="header-navigation"
-      >
+      <hicks-nav class="header__navigation" slot="navigation">
         <hicks-nav-item>About</hicks-nav-item>
         <hicks-nav-item>Portfolio</hicks-nav-item>
         <hicks-nav-item>Resume</hicks-nav-item>
@@ -35,8 +34,12 @@
       </hicks-nav>
       <hicks-nav
         id="toolbar-navigation"
-        style="--nav--gap: 1rem; --nav--height: 2.25rem"
-        slot="header-social"
+        style="
+          --nav--height: 2.25rem;
+          --nav--gap: 0px;
+          --nav-item--padding: 0.3rem 0.5rem 0.1rem 0.5rem;
+        "
+        slot="social"
       >
         <hicks-nav-item
           class="toolbar-item"
@@ -65,7 +68,11 @@
           />
         </hicks-nav-item>
       </hicks-nav>
-      <hicks-menu-toggle class="menu-toggle" id="menu-toggle">
+      <hicks-menu-toggle
+        slot="navigation-toggle"
+        class="menu-toggle"
+        id="menu-toggle"
+      >
         <svg
           class="menu-icon"
           style="transform: scale(1.1)"
@@ -107,11 +114,11 @@
     </hicks-header>
     <main id="main" class="layout">
       <content-tree class="content"></content-tree>
-      <div class="navigation">
+      <div class="toc">
         <hicks-toc id="table-of-contents" style="--body--font: 'Arimo'">
-          <span class="toc__toggle-anchor" slot="toggle"></span
-        ></hicks-toc>
+        </hicks-toc>
       </div>
     </main>
   </body>
+  <script type="module" src="./components.js"></script>
 </html>

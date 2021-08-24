@@ -8,49 +8,42 @@ import watchAssets from 'rollup-plugin-watch-assets';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import serve from 'rollup-plugin-serve';
 import json from '@rollup/plugin-json';
-
-const copyConfig = {
-  targets: [
-    { src: 'src/assets/', dest: 'dist' },
-    { src: 'src/index.html', dest: 'dist' },
-    { src: 'src/icons', dest: 'dist' },
-    { src: 'src/icons', dest: 'dist/assets' },
-  ],
-};
+import { copyConfig } from './rollup.variables';
 process.env.NODE_ENV = 'dev';
-export default {
-  input: './src/components.ts',
-  output: {
-    dir: 'dist',
-    format: 'es',
-    module: true,
+export default [
+  {
+    input: './src/components.ts',
+    output: {
+      dir: 'dist',
+      format: 'iife',
+      //module: true,
+    },
+    watch: {
+      include: 'src/**',
+      chokidar: true,
+    },
+    onwarn(warning) {
+      if (warning.code !== 'THIS_IS_UNDEFINED') {
+        //console.error(`(!) ${warning.message}`);
+      }
+    },
+    preserveEntrySignatures: 'strict',
+    plugins: [
+      // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
+      typescript({
+        outDir: './dist/',
+        incremental: true,
+        tsBuildInfoFile: './dist/out',
+      }),
+      copy(copyConfig('dist')),
+      commonjs(),
+      resolve(),
+      watchAssets({ assets: ['src/index.html'] }),
+      injectProcessEnv({
+        NODE_ENV: 'development',
+      }),
+      replace({ 'Reflect.decorate': 'undefined' }),
+      serve({ openPage: './dist/index.html' }),
+    ],
   },
-  watch: {
-    include: 'src/**',
-    chokidar: true,
-  },
-  onwarn(warning) {
-    if (warning.code !== 'THIS_IS_UNDEFINED') {
-      //console.error(`(!) ${warning.message}`);
-    }
-  },
-  preserveEntrySignatures: 'strict',
-  plugins: [
-    // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
-    json(),
-    typescript({
-      outDir: './dist/',
-      incremental: true,
-      tsBuildInfoFile: './dist/out',
-    }),
-    copy(copyConfig),
-    commonjs(),
-    resolve(),
-    watchAssets({ assets: ['src/index.html'] }),
-    injectProcessEnv({
-      NODE_ENV: 'development',
-    }),
-    replace({ 'Reflect.decorate': 'undefined' }),
-    serve({ openPage: './dist/index.html' }),
-  ],
-};
+];

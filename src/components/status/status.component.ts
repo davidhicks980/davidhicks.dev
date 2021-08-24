@@ -32,8 +32,8 @@ export class StatusComponent extends LitElement {
   }
   iconTemplate(status: Status) {
     switch (status) {
-      // case Status.NOT_SUBMITTED:
-      //  return '';
+      case Status.NOT_SUBMITTED:
+        return '';
       case Status.SUBMITTED:
         return svg`<svg
             class="loading-parent icon-dimensions"
@@ -58,6 +58,8 @@ export class StatusComponent extends LitElement {
     </svg>`;
       case Status.UNSUCCESSFUL:
         return warn('var(--complement-9)', 'var(--complement-2)');
+      default:
+        return '';
     }
   }
   render(): TemplateResult | '' {

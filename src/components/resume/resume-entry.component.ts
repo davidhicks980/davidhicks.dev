@@ -1,5 +1,5 @@
-import { fastHash } from '../../util/primitives/salt-id';
-import { state as stateStore } from '../../util/primitives/store';
+import { fastHash } from '../../util/functions/salt-id';
+import { state as stateStore } from '../../util/functions/store';
 import { CollapseController } from '../../util/controllers/expansion.controller';
 import { LitElement, html, CSSResultGroup, TemplateResult, svg } from 'lit';
 import { property, query, queryAsync } from 'lit/decorators.js';

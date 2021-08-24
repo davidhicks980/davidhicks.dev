@@ -1,7 +1,7 @@
 import {
   propertyArray as propertyArray,
   prefixProperties,
-} from '../../util/primitives/property-prefixer';
+} from '../../util/functions/property-prefixer';
 const InternalToggleProperties = {
   TOGGLED: 'toggled',
 };
