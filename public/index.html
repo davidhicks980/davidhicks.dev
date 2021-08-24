@@ -12,14 +12,19 @@
     />
 
     <link rel="stylesheet" href="./main.prod.css" />
-
-    <script src="dist/polyfills/lit/polyfill-support.js"></script>
-    <script src="dist/polyfills/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="polyfills/polyfills.js"></script>
+    <script src="polyfills/polyfill-support.js"></script>
+    <script src="polyfills/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+    <script src="polyfills/webcomponentsjs/webcomponents-loader.js"></script>
+    <script>
+      window.WebComponents = window.WebComponents || {};
+      window.WebComponents.root = 'polyfills/webcomponentsjs/';
+    </script>
     <title>The Developer Site for David Hicks</title>
   </head>
 
   <body id="app">
-    <a tabindex="0" class="hidden" href="#">Skip to content</a>
+    <a tabindex="0" class="skip-to-content" href="#main">Skip to content</a>
     <hicks-header id="header">
       <brand-component slot="brand"></brand-component>
       <logo-component
@@ -115,10 +120,9 @@
     <main id="main" class="layout">
       <content-tree class="content"></content-tree>
       <div class="toc">
-        <hicks-toc id="table-of-contents" style="--body--font: 'Arimo'">
-        </hicks-toc>
+        <hicks-toc id="table-of-contents"> </hicks-toc>
       </div>
     </main>
   </body>
-  <script type="module" src="./components.js"></script>
+  <script src="./components.js"></script>
 </html>

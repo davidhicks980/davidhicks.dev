@@ -30,7 +30,7 @@ export default {
     typescript({
       outDir: './public/',
       removeComments: true,
-      tsBuildInfoFile: './public/.cache',
+      tsBuildInfoFile: './public/cache/cache',
       incremental: true,
     }),
     copy(copyConfig('public')),
@@ -45,8 +45,11 @@ export default {
       output: {
         comments: false,
       },
-      //compress: true,
-      // mangle: true,
+      safari10: true,
+      compress: true,
+      mangle: {
+        reserved: ['export', 'data'],
+      },
     }),
     serve({ port: '3333', watch: true }),
   ],
