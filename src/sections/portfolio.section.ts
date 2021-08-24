@@ -103,7 +103,7 @@ export const portfolioSection = {
             <a href='https://www.elderdrug.com'>ElderDrug.com</a> is an Angular PWA that uses the RxNorm API in order to simplify screening medication lists for drugs on Beers Criteria. Beers Criteria is a list of medications to be used with caution in adults 65+. 
           </span>
           The Stack: 
-          <img slot="icon"  src="./assets/icons/logo-angula.svg" title="Angular">
+          <img slot="icon"  src="./assets/icons/logo-angular.svg" title="Angular">
           <img slot="icon"  src="./assets/icons/logo-rxjs.svg" title="RxJS">
           <img slot="icon"  src="./assets/icons/logo-typescript.svg" title="Typescript">
           <img slot="icon"  src="./assets/icons/logo-sass.svg" title="Sass">
