@@ -37,7 +37,7 @@ export class PlotRange extends LitElement {
   @state()
   private stepArray: number[] = [1];
   @state()
-  private hasRange: boolean = false;
+  private hasRange = false;
 
   static get styles() {
     return [style];

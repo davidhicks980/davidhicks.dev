@@ -7,52 +7,57 @@
 
 @mixin thumb {
   appearance: none;
-  width: 1.4em;
-  height: 1.4em;
   background-image: linear-gradient(rgb(246, 246, 246), rgb(233, 233, 233));
+  border: 1px solid var(--gray-7);
   border-radius: 50%;
-  border: 1px solid gray;
-  box-shadow: rgb(63 63 63 / 50%) 0px 1px 1px 0px;
+  box-shadow: rgb(63 63 63 / 50%) 0 1px 1px 0;
+  height: 1.4em;
+  width: 1.4em;
+
   &:active {
     background-image: linear-gradient(#dfdfdf, #e9e9e9);
   }
+
   &:hover {
     box-shadow: 0 0 0 2px rgba(23, 34, 129, 0.24);
   }
 }
 
 .range {
+  animation: none !important;
+  appearance: none;
   background-image: linear-gradient(
     to right,
     var(--primary--light) 0%,
-    var(--primary) 100%,
-    white 100%
+    var(--primary) 100%
   );
-  background-size: var(--range--background-size, 0%), 10%;
   background-repeat: no-repeat;
-  transition-property: none !important;
-  transform: none !important;
-  animation: none !important;
+  background-size: var(--range--background-size, 0%), 10%;
   border: 1px solid var(--gray-5);
   border-radius: 3px;
-  height: 0.7em;
-  appearance: none;
   box-shadow: 1px 1px 4px 1px inset rgba(63, 63, 63, 0.1);
-  position: relative;
+  height: 0.7em;
   outline: none;
+  position: relative;
+  transform: none !important;
+  transition-property: none !important;
   width: 100%;
+
   & * {
-    font: var(--font);
     color: var(--font-color);
+    font: var(--font);
   }
+
   &::-webkit-slider-thumb {
     @include thumb;
   }
+
   &::-moz-slider-thumb {
     @include thumb;
     height: 2em;
     width: 2em;
   }
+
   &::-ms-thumb {
     @include thumb;
   }
@@ -66,20 +71,20 @@
 /**Slider Containers*/
 
 .range-container {
-  display: grid;
-  grid-template-columns: 4fr 1fr;
-  place-self: center;
   align-items: center;
-  width: 85%;
-  padding: 0% 7.5%;
+  display: grid;
   font-size: 10pt;
+  grid-template-columns: 4fr 1fr;
+  padding: 0% 7.5%;
+  place-self: center;
   row-gap: 0.5rem;
+  width: 85%;
 }
 
 .range-container:focus-within {
+  cursor: pointer;
   outline: 2px dashed rgba(0, 0, 0, 0.7);
   outline-offset: 2px;
-  cursor: pointer;
 }
 
 .value-label {
@@ -88,9 +93,9 @@
 
 .name-label {
   grid-column: 1 / 2;
-  text-transform: capitalize;
-  text-overflow: ellipsis;
   overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
   white-space: nowrap;
 }
 

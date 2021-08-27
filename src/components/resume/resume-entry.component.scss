@@ -1,33 +1,37 @@
 @use 'mixins/fonts' as *;
 @use 'mixins/shadows' as *;
 @use 'mixins/responsive' as *;
+
 :host {
   --timeline--marker-size: 0.6rem;
   font-family: var(--body-font);
 }
+
 h2,
 h3,
 h4,
 h5 {
-  margin-top: 0em;
   margin-bottom: 0.25em;
+  margin-top: 0;
 }
+
 :host {
-  display: block;
   background: white;
+  display: block;
 }
 %minor-text {
   font-size: 10pt;
   font-weight: 400;
 }
+
 .entry {
+  background-color: white;
+  border-radius: 5px;
   display: grid;
+  gap: 1rem;
   grid-template-areas: 'date timeline content expand';
   grid-template-columns: 80px 1px 1fr 30px;
   position: relative;
-  gap: 1rem;
-  border-radius: 5px;
-  background-color: white;
 
   @include media-size(zero, small) {
     grid-template-areas: 'timeline date date' 'timeline content expand';
@@ -37,104 +41,116 @@ h5 {
   //@include hoverable-shadow(3);
   &__left {
     display: flex;
-    justify-content: flex-end;
     grid-area: date;
+    justify-content: flex-end;
     @include media-size(zero, small) {
       justify-content: flex-start;
     }
   }
+
   &__timeline {
-    grid-area: timeline;
     background-color: lightgray;
+    grid-area: timeline;
 
     &::after {
-      color: var(--gray-6);
       --timeline--marker-size: 0.6rem;
-      position: absolute;
+      background-color: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 5px 3px white;
+      color: var(--gray-6);
       content: '';
       height: var(--timeline--marker-size);
-      width: var(--timeline--marker-size);
-      border-radius: 50%;
-      background-color: currentColor;
+      position: absolute;
       transform: translate(calc(var(--timeline--marker-size) * -0.43), 0.3rem);
-      box-shadow: 0 0 5px 3px white;
       transition: color 0.3s ease-in;
+      width: var(--timeline--marker-size);
+
       :host([active]) & {
         color: var(--primary-9);
       }
     }
   }
+
   &__right {
     grid-area: content;
     padding-bottom: 0.5rem;
   }
+
   &__expand {
     grid-area: expand;
+
     &__button {
       height: 2rem;
       width: 2rem;
     }
   }
+
   &__date {
+    color: var(--gray-9);
+    color: var(--gray-9);
     display: block;
     font-size: 9pt;
-    color: var(--gray-9);
     font-weight: 500;
-    text-transform: uppercase;
     padding-top: 0.15rem;
     text-align: right;
-    color: var(--gray-9);
+    text-transform: uppercase;
     transition: color 0.3s ease-in;
 
     :host([active]) & {
       color: var(--primary-9);
     }
   }
+
   &__name {
+    color: var(--gray-13);
     cursor: pointer;
     font-size: 12pt;
-    color: var(--gray-13);
+
     :hover {
       text-decoration: underline;
     }
   }
+
   &__logistics {
-    font-size: 11pt;
     color: var(--gray-12);
+    font-size: 11pt;
     font-weight: 400;
   }
 
   &__supervisor {
-    color: var(--gray-11);
     @extend %minor-text;
+    color: var(--gray-11);
   }
 
   &__description {
-    margin: 0px;
     @extend %minor-text;
+    margin: 0;
   }
 
   &__detail {
-    margin: 0px;
 
     @extend %minor-text;
+    margin: 0;
   }
+
   &__expansion {
-    margin: 0px;
-    transform: scale(1);
+    margin: 0;
     opacity: 1;
-    transition-property: opacity transform;
+    transform: scale(1);
     transition: 0.35s ease-in-out;
+    transition-property: opacity transform;
     visibility: visible;
+
     :host([collapsed]) &,
     :host(.is-collapsing) & {
-      transform: scale(0.8);
       opacity: 0;
+      transform: scale(0.8);
       visibility: hidden;
     }
+
     :host([collapsed].is-expanding) & {
-      transform: scale(1);
       opacity: 1;
+      transform: scale(1);
       visibility: visible;
     }
   }
@@ -149,25 +165,29 @@ h5 {
   :host(.is-collapsing) & {
     transform: rotate(0deg);
   }
+
   :host(.is-expanding) & {
     transform: rotate(-90deg);
   }
 }
 
 .expand {
+  color: var(--gray-7);
+  cursor: pointer;
+  outline: none;
   transform: rotate(0deg);
   transform-origin: center center;
   transition: transform 0.35s ease-in-out;
-  color: var(--gray-7);
-  outline: none;
-  cursor: pointer;
+
   &:hover {
     color: var(--primary-11);
   }
+
   :host([collapsed]) &,
   :host(.is-collapsing) & {
     transform: rotate(-180deg);
   }
+
   :host(.is-expanding) & {
     transform: rotate(0deg);
   }

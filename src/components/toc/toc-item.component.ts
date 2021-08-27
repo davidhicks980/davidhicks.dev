@@ -17,23 +17,23 @@ export class HicksListItem extends LitElement {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
   };
-  private _path: string = '';
+  private _path = '';
   private _position: number[] = [0];
 
   @queryAssignedNodes('', true, LIST_ITEM_TAG_NAME)
   childSlot: NodeListOf<HicksListItem>;
   @property({ type: Number, reflect: true })
-  listChildren: number = 0;
+  listChildren = 0;
   @property({ type: Boolean, reflect: true })
-  active: boolean = false;
+  active = false;
   @property({ type: Boolean, reflect: true })
-  hidden: boolean = false;
+  hidden = false;
   @property({ type: Boolean, reflect: true })
-  expanded: boolean = false;
+  expanded = false;
   @property({ type: String })
-  marker: string = '';
+  marker = '';
   @property({ type: Boolean, reflect: true })
-  mobile: boolean = false;
+  mobile = false;
   controllers: { item: ListItemController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
   topLevel: boolean;
@@ -58,7 +58,7 @@ export class HicksListItem extends LitElement {
     this._path = value;
   }
   @property({ type: String, reflect: true })
-  link: string = '';
+  link = '';
 
   get hasListChildren() {
     return this.listChildren > 0;
@@ -79,7 +79,7 @@ export class HicksListItem extends LitElement {
    * @memberof HicksListItem
    */
   @property({ type: Number, reflect: true })
-  offset: number = 0;
+  offset = 0;
 
   templates: {
     tags: {

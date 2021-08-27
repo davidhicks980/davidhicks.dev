@@ -44,8 +44,8 @@ export class Tree {
   }
 
   _buildTree(section: PageSection[], depth: number) {
-    let root = section.slice();
-    let contentTree = [];
+    const root = section.slice();
+    const contentTree = [];
     let item = 0;
     if (Array.isArray(section)) {
       while (root.length) {
@@ -142,7 +142,7 @@ export class ContentTree extends LitElement {
 
   @state()
   template: TemplateTuple[];
-  loading: boolean = true;
+  loading = true;
   sectionsToSplice = new Map();
   createRenderRoot() {
     // Disable shadow DOM.
@@ -152,7 +152,7 @@ export class ContentTree extends LitElement {
   async load(sections: PageSection[]) {
     this.content.clear();
     const order = this.tree.loadTree(sections).map((section) => {
-      let { key, template, item } = section;
+      const { key, template, item } = section;
       this.content.set(key, template);
       return [key, item] as [string, number];
     });
@@ -164,7 +164,7 @@ export class ContentTree extends LitElement {
     change: ContentModification,
     entry?: PageSection
   ) {
-    let splicedSections = (clone(this._cache) || []) as (PageSection | true)[];
+    const splicedSections = (clone(this._cache) || []) as (PageSection | true)[];
     //If the position already exists, you can write to spliced sections
     if (splicedSections[position]) {
       switch (change) {

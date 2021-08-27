@@ -3,7 +3,7 @@ import {
   propertyArray,
 } from '../../util/functions/property-prefixer';
 
-let InternalTOCProperties = {
+const InternalTOCProperties = {
   ACTIVE_HASH: 'activeLink',
   OPEN: 'open',
 };

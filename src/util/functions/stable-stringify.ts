@@ -1,33 +1,34 @@
-var json = typeof JSON !== 'undefined' ? JSON : require('jsonify');
+//@ts-nocheck
+const json = typeof JSON !== 'undefined' ? JSON : require('jsonify');
 
 export function stableStringify(obj, opts) {
   if (!opts) opts = {};
   if (typeof opts === 'function') opts = { cmp: opts };
-  var space = opts.space || '';
+  let space = opts.space || '';
   if (typeof space === 'number') space = Array(space + 1).join(' ');
-  var cycles = typeof opts.cycles === 'boolean' ? opts.cycles : false;
-  var replacer =
+  const cycles = typeof opts.cycles === 'boolean' ? opts.cycles : false;
+  const replacer =
     opts.replacer ||
     function (key, value) {
       return value;
     };
 
-  var cmp =
+  const cmp =
     opts.cmp &&
     (function (f) {
       return function (node) {
         return function (a, b) {
-          var aobj = { key: a, value: node[a] };
-          var bobj = { key: b, value: node[b] };
+          const aobj = { key: a, value: node[a] };
+          const bobj = { key: b, value: node[b] };
           return f(aobj, bobj);
         };
       };
     })(opts.cmp);
 
-  var seen = [];
+  const seen = [];
   return (function stringify(parent, key, node, level) {
-    var indent = space ? '\n' + new Array(level + 1).join(space) : '';
-    var colonSeparator = space ? ': ' : ':';
+    const indent = space ? '\n' + new Array(level + 1).join(space) : '';
+    const colonSeparator = space ? ': ' : ':';
 
     if (node && node.toJSON && typeof node.toJSON === 'function') {
       node = node.toJSON();
@@ -44,7 +45,7 @@ export function stableStringify(obj, opts) {
     if (isArray(node)) {
       var out = [];
       for (var i = 0; i < node.length; i++) {
-        var item =
+        const item =
           stringify(node, i, node[i], level + 1) || json.stringify(null);
         out.push(indent + space + item);
       }
@@ -55,15 +56,15 @@ export function stableStringify(obj, opts) {
         throw new TypeError('Converting circular structure to JSON');
       } else seen.push(node);
 
-      var keys = objectKeys(node).sort(cmp && cmp(node));
+      const keys = objectKeys(node).sort(cmp && cmp(node));
       var out = [];
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
-        var value = stringify(node, key, node[key], level + 1);
+        const value = stringify(node, key, node[key], level + 1);
 
         if (!value) continue;
 
-        var keyValue = json.stringify(key) + colonSeparator + value;
+        const keyValue = json.stringify(key) + colonSeparator + value;
         out.push(indent + space + keyValue);
       }
       seen.splice(seen.indexOf(node), 1);
@@ -81,13 +82,13 @@ var isArray =
 var objectKeys =
   Object.keys ||
   function (obj) {
-    var has =
+    const has =
       Object.prototype.hasOwnProperty ||
       function () {
         return true;
       };
-    var keys = [];
-    for (var key in obj) {
+    const keys = [];
+    for (const key in obj) {
       if (has.call(obj, key)) keys.push(key);
     }
     return keys;

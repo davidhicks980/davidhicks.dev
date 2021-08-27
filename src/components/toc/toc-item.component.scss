@@ -19,31 +19,31 @@
   animation-iteration-count: 1;
 }*/
 :host {
-  width: inherit;
+  color: var(--list-item--font-color);
   //Layout
   display: list-item;
-  padding-left: 0.5em;
-  list-style-type: none;
   //Misc
   font: var(--list-item--font);
+  list-style-type: none;
   min-width: 15ch;
   outline: none;
-  color: var(--list-item--font-color);
+  padding-left: 0.5em;
   pointer-events: none;
+  width: inherit;
 
   @media (prefers-reduced-motion) {
-    transition: none;
-    transform: none;
     opacity: 1;
+    transform: none;
+    transition: none;
   }
   @include media-size(zero, medium) {
-    width: inherit;
     display: none;
+    width: inherit;
     @include root.state('[top-level]') {
       display: block;
       font-size: 2.5rem;
-      padding: 1rem 0rem;
       min-width: auto;
+      padding: 1rem 0;
     }
   }
 
@@ -60,8 +60,8 @@
   }*/
 
   .sublist {
-    margin: 0px;
-    padding: 0px 0px 0px 1rem;
+    margin: 0;
+    padding: 0 0 0 1rem;
     pointer-events: none;
     /* visibility: hidden;
      opacity: 0;*/
@@ -76,59 +76,70 @@
 }
 
 .item {
-  margin: 0.5rem 0rem;
+  margin: 0.5rem 0;
+
   &__content {
+    align-items: center;
     display: grid;
     grid-template-areas: 'icon link button';
     grid-template-columns: 2fr 8fr 2fr;
-    align-items: center;
+    @include media-size(zero, small) {
+      width: inherit;
+    }
     //height: var(--list-item--height);
 
     &__prefix {
       grid-area: icon;
-      :host(:not([top-level])) & {
-        padding-right: 1rem;
-      }
 
       @include media-size(zero, medium) {
         display: none;
       }
-    }
-    @include media-size(zero, small) {
-      width: inherit;
+
+      :host(:not([top-level])) & {
+        padding-right: 1rem;
+      }
     }
 
     &__a {
-      text-decoration: none;
-      grid-area: link;
       box-sizing: border-box;
+      grid-area: link;
       pointer-events: all;
+      text-decoration: none;
       z-index: 5;
     }
+
     &__link {
       color: var(--list-item--font-color);
+
+      font-family: var(--list-item--font-family);
+
       :host([active]) & {
-        color: var(--primary-10);
+        color: var(--primary-9);
         @include media-size(zero, medium) {
           color: white;
         }
       }
-      :host(:hover) & {
-        color: var(--primary-8);
-        @include root.state('[top-level]') {
+
+      &:hover {
+        color: var(--primary-9);
+      }
+
+      :host([top-level]) & {
+        @include media-size(zero, medium) {
           &:hover::before {
             content: '◆';
-            position: absolute;
             left: -1rem;
+            position: absolute;
           }
         }
       }
-      font-family: var(--list-item--font-family);
     }
+
     &__suffix {
-      width: var(--list-item--height);
       grid-area: button;
+      width: var(--list-item--height);
     }
+
     :host([top-level]) &__link {
       font-weight: 500;
     }

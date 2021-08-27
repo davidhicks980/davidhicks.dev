@@ -1,3 +1,4 @@
+//@ts-nocheck
 //Took this straight from https://javascript.plainenglish.io/write-a-better-deep-clone-function-in-javascript-d0e798e5f550
 function cloneOtherType(target) {
   const constrFun = target.constructor;
@@ -20,8 +21,8 @@ function cloneOtherType(target) {
 }
 
 function toRawType(value) {
-  let _toString = Object.prototype.toString;
-  let str = _toString.call(value);
+  const _toString = Object.prototype.toString;
+  const str = _toString.call(value);
   return str.slice(8, -1);
 }
 
@@ -84,7 +85,7 @@ export function clone<Type>(target: Type, map = new WeakMap()): Type {
 
   // clone Array
   if (type == 'Array') {
-    cloneTarget = new Array();
+    cloneTarget = [];
     forEach(target, (value, index) => {
       cloneTarget[index] = clone(value, map);
     });

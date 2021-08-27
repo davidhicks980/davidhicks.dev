@@ -1,6 +1,6 @@
 export const prefixProperties = <Type>(prefix: string, o: Type): Type => {
-  let newO = {} as Type;
-  for (let p of Object.getOwnPropertyNames(o)) {
+  const newO = {} as Type;
+  for (const p of Object.getOwnPropertyNames(o)) {
     newO[p] = prefix + '$' + o[p];
   }
   return Object.freeze(newO);

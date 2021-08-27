@@ -1,8 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from 'lit';
 import { Observable } from 'rxjs';
-import { filter, take, tap } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { debounce } from '../functions/debounce';
-import { ResizeObserver } from '@juggle/resize-observer';
 import { ExpansionHandler as CollapseHandler } from '../functions/expand-handler';
 
 const handlers = new Map() as Map<string, CollapseHandler>;
@@ -21,13 +20,17 @@ const defineElementError = Error('No collapsible element defined');
 
 export class CollapseController implements ReactiveController {
   host: Controller<HTMLElement>;
-  elementsInViewport = [];
   _handlerKey: string;
-  inProgress: boolean;
   elementListeners = new WeakMap() as WeakMap<
     Element,
     Observable<AnimationEvent>
   >;
+  collapsingPanel!: HTMLElement;
+  panelHeight = 0;
+  collapsed: boolean;
+  observers!: {
+    resize: ResizeObserver;
+  };
 
   private _root: HTMLElement;
   /**
@@ -42,14 +45,8 @@ export class CollapseController implements ReactiveController {
   set root(value: HTMLElement) {
     this._root = value;
   }
-  collapsingPanel: HTMLElement;
-  panelHeight: number = 0;
-  collapsed: boolean;
-  observers: {
-    resize: ResizeObserver;
-  };
 
-  get handler(): CollapseHandler {
+  get handler(): CollapseHandler | undefined {
     return handlers.get(this._handlerKey);
   }
 
@@ -89,9 +86,12 @@ export class CollapseController implements ReactiveController {
     this.collapsed = false;
     this._displaceElement();
   }
-  private _beginToggleAnimation(element, currentlyCollapsed: boolean) {
+  private _beginToggleAnimation(
+    element: HTMLElement,
+    currentlyCollapsed: boolean
+  ) {
     const listener = this.elementListeners.get(element);
-    if (listener) {
+    if (listener && this.handler) {
       listener
         .pipe(
           filter((ev) => this.handleAnimationEvents(ev)),
@@ -116,7 +116,7 @@ export class CollapseController implements ReactiveController {
   }
   updateOffset(): number {
     window.requestAnimationFrame(() => {
-      let height = this.collapsingPanel.offsetHeight;
+      const height = this.collapsingPanel.offsetHeight;
       if (height > 0) {
         this.panelHeight = height;
         this.watchElement(this.collapsingPanel);
@@ -136,17 +136,25 @@ export class CollapseController implements ReactiveController {
   }
   watchElement(element: HTMLElement) {
     this.panelHeight = element.offsetHeight;
-    const listener = this.handler.addAnimation(
-      element,
-      this.host,
-      this.panelHeight
-    );
-    this.elementListeners.set(element, listener);
-    if (!this.observers?.resize) {
-      this.observers = {
-        resize: new ResizeObserver(debounce(50, this.updateOffset.bind(this))),
-      };
-      this.observers.resize.observe(this.collapsingPanel);
+    if (this.handler) {
+      const listener = this.handler.addAnimation(
+        element,
+        this.host,
+        this.panelHeight
+      );
+      this.elementListeners.set(element, listener);
+      if (!this.observers?.resize) {
+        this.observers = {
+          resize: new ResizeObserver(
+            debounce(50, this.updateOffset.bind(this))
+          ),
+        };
+        this.observers.resize.observe(this.collapsingPanel);
+      }
+    } else {
+      throw new TypeError(
+        'You must create an expansion handler to begin watching an element'
+      );
     }
   }
   constructor(
@@ -156,13 +164,21 @@ export class CollapseController implements ReactiveController {
     collapsingPanel?: HTMLElement
   ) {
     (this.host = host).addController(this);
-    this._handlerKey = handlerKey;
-    this._root = root;
-    if (!handlers.has(this._handlerKey)) {
-      handlers.set(this._handlerKey, new CollapseHandler(this._root));
+    if (handlerKey && root) {
+      this._handlerKey = handlerKey;
+      this._root = root;
+      if (!handlers.has(this._handlerKey)) {
+        handlers.set(this._handlerKey, new CollapseHandler(this._root));
+      }
+      if (collapsingPanel) {
+        this.collapsingPanel = collapsingPanel;
+      }
+      this.collapsed = true;
+    } else {
+      throw new TypeError(
+        'You must specify the root viewport and the key of your expansion controller'
+      );
     }
-    this.collapsingPanel = collapsingPanel;
-    this.collapsed = true;
   }
   hostConnected() {
     this.host.requestUpdate();

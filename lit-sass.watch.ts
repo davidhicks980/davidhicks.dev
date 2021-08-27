@@ -5,7 +5,7 @@ const options = {
   ignoreInitial: false,
 };
 
-const inst = chokidar.watch('**/*.component.scss', options);
+const inst = chokidar.watch(['**/*.component.scss', '**/*.dev.scss'], options);
 inst.on('change', (path) => {
   sassRender(path).catch((err) => {
     console.log(err);

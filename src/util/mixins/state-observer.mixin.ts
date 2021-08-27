@@ -10,7 +10,7 @@ export type ObservedStateAction = {
   componentHandler: (...args) => unknown;
 };
 const s_actionMap = Symbol();
-
+//@ts-ignore
 export function ObserveStateMixin(handler: {
   stream: Observable<Record<string, unknown>>;
   actions: ObservedStateAction[];

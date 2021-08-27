@@ -1,13 +1,7 @@
 import './pk-range.component';
 import './pk-latex.component';
 import './toggle.component';
-import {
-  Chart,
-  ScatterDataPoint,
-  registerables,
-  ChartOptions,
-  ChartConfiguration,
-} from 'chart.js';
+import { Chart, ScatterDataPoint, registerables } from 'chart.js';
 import { plotOptions } from './plot-options.config';
 import { VariableSet } from './types/VariableSet';
 import { PlotParameters } from './types/PlotPage';
@@ -16,140 +10,14 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './plot.css';
 import { html, LitElement } from 'lit';
 import { getParamNames } from '../../util/functions/get-param-names';
-
+import { plots } from './plot-samples';
+import { createDebouncer } from './createDebouncer';
+import { ifDefined } from 'lit/directives/if-defined.js';
 /**
  * Component that renders a plot to the DOM given a list of parameters (see PlotParameters interface)
  * @param {PlotParameters} params - this function generates the plot element including range inputs and toggles.
  *@param {string} element - the element to append the plot to. Will default to
  */
-
-const plots = {
-  multipledose: {
-    id: 'pk_mdmp_q2_mdplot',
-    index: 2,
-    title: 'Multiple Dosing Regimen Plot',
-    header:
-      'Drug X is an antibiotic with a therapeutic range between 20 and 40 mg/L. It is administered as an IV bolus. The population average for clearance and volume are 6 L/h and 85 L, respectively. Using the slider bars, explore how changes in dose and dosing interval impact achieving concentrations within the therapeutic window while maintaining an average steady-state concentration of 30 mg/L.',
-    variables: [
-      {
-        name: 'Dose',
-        units: 'mg',
-        symbol: 'X_0',
-        min: 500,
-        max: 4500,
-        value: 1000,
-        step: 50,
-      },
-      {
-        name: 'Number of Doses',
-        units: '#',
-        symbol: 'n',
-        min: 4,
-        max: 24,
-        value: 4,
-        step: 2,
-      },
-      {
-        name: 'Volume of Distribution',
-        units: 'L',
-        symbol: 'V_D',
-        min: 50,
-        max: 500,
-        value: 250,
-        step: 5,
-      },
-      {
-        name: 'Clearance',
-        units: 'mL/min',
-        symbol: 'Cl',
-        min: 5,
-        max: 50,
-        value: 100,
-        step: 5,
-      },
-      {
-        name: 'Dosing Interval',
-        units: 'hr',
-        symbol: 'tau',
-        min: 1,
-        max: 7,
-        value: 4,
-        step: 1,
-        range: [null, 4, 8, 12, 18, 24, 36, 48],
-      },
-    ],
-    equation:
-      '`(v["X_0"]/v["V_D"])*(1-2.71^(-n*0.06*(v["Cl"]/v["V_D"])*v["tau"]))/(1-2.71^(-0.06*(v["Cl"]/v["V_D"])*v["tau"]))*(2.71^(-0.06*(v["Cl"]/v["V_D"])*x))`',
-    equationTemplate: '',
-    multipleDose: true,
-    bottomBound: 20,
-    topBound: 40,
-    axis: ['time (hr)', 'concentration (ug/L)'],
-  },
-  extravasation: {
-    id: 'pk_akct_q1_scplot',
-    title: 'Extravascular Administration',
-    index: 1,
-    header:
-      'Move the slider bar to see the effects of clearance on the concentration-time profile. Concentration is related to time using the equation.',
-    variables: [
-      {
-        name: 'Dose',
-        units: 'mg',
-        symbol: 'X_0',
-        min: 250,
-        max: 1000,
-        value: 500,
-        step: 50,
-      },
-      {
-        name: 'Clearance',
-        units: 'mL/min',
-        symbol: 'Cl',
-        min: 5,
-        max: 50,
-        value: 25,
-        step: 5,
-      },
-      {
-        name: 'Volume of Distribution',
-        units: 'L',
-        symbol: 'V_D',
-        min: 50,
-        max: 500,
-        value: 250,
-        step: 10,
-      },
-      {
-        name: 'k<sub>a</sub>',
-        units: '1/h',
-        symbol: 'k_a',
-        min: 0.1,
-        max: 1,
-        value: 0.5,
-        step: 0.05,
-      },
-    ],
-    equation:
-      '`(v["k_a"]*v["X_0"])/(v["V_D"]*v["k_a"]-(0.06*v["Cl"]/v["V_D"]))*(2.71^(-(0.06*v["Cl"]/v["V_D"])*x)-2.71^(-v["k_a"]*x))`',
-    equationTemplate: '`C = `',
-    axis: ['time (min)', 'drug X(mg/L)'],
-    multipleDose: false,
-  },
-};
-const createDebouncer = (method: (...args: any) => any, delay: number) => {
-  let timeout = false;
-  return (params: {}) => (e) => {
-    if (!timeout) {
-      timeout = true;
-      setTimeout(() => {
-        method(params, e);
-        timeout = false;
-      }, delay);
-    }
-  };
-};
-
 @customElement('plot-engine')
 export class PlotEngine extends LitElement {
   /**Declarations */
@@ -169,11 +37,13 @@ export class PlotEngine extends LitElement {
   @property({ type: Object, reflect: false })
   loaded = {};
   @property({ type: Boolean, reflect: false })
-  mobile: boolean = false;
+  mobile = false;
   @query('#chart')
   canvas!: HTMLCanvasElement;
   @query('.container', true)
   container!: HTMLDivElement;
+  @query('.container__chart', true)
+  chartContainer!: HTMLDivElement;
   /**Sets the highlight color of the plot */
   @property({ type: String })
   mainColor: string = getComputedStyle(
@@ -187,15 +57,15 @@ export class PlotEngine extends LitElement {
   displayedEquation!: string;
   isMultipleDose!: boolean;
   tauValueArray = [null, 4, 8, 12, 18, 24, 36, 48];
-  plottedEquation: string = '';
-  latexEquation: string = '';
-  range: number = 10;
+  plottedEquation = '';
+  latexEquation = '';
+  range = 10;
   labels!: string[];
   independentVariable!: string;
   eventDebouncer: (params: {}) => any;
   private variableValues: VariableSet = {};
   chart!: Chart;
-  scale: number = 40;
+  scale = 40;
   worker!: Worker;
   lockSVG: any;
   generateCoordinates!: (values: {}, equation: string, scale?: number) => void;
@@ -210,20 +80,24 @@ export class PlotEngine extends LitElement {
   }
 
   private logToggle(e: CustomEvent<{ toggled: boolean }>): void {
-    this.chart.options.scales.y.type =
-      e.detail.toggled ?? false ? 'logarithmic' : 'linear';
+    if (this.chart?.options?.scales?.y) {
+      this.chart.options.scales.y.type =
+        e.detail.toggled ?? false ? 'logarithmic' : 'linear';
+    }
     this.chart.update();
   }
   private fixToggle(e: CustomEvent<{ toggled: boolean }>): void {
-    this.chart.options.scales.y.max =
-      e.detail.toggled ?? false ? this.getMax() : null;
+    if (this.chart?.options?.scales?.y) {
+      this.chart.options.scales.y.max =
+        e.detail.toggled ?? false ? this.getMax() : undefined;
+    }
     this.chart.update();
   }
   private getMax(): number {
     const data = this.chart.data.datasets[0].data as ScatterDataPoint[];
     return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
   }
-  _initPlotting(chart) {
+  _initPlotting(chart: Chart) {
     this._initVariables();
     this._initiateUpdates(chart);
   }
@@ -235,7 +109,7 @@ export class PlotEngine extends LitElement {
     );
     this._initPlotting(this.chart);
     const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         if (entry.target.classList.contains('container')) {
           this.container.classList.remove('is-small');
           const contentWidth = entry?.contentRect?.width;
@@ -259,7 +133,8 @@ export class PlotEngine extends LitElement {
    * @memberof PlotEngine
    */
   private _initVariables() {
-    let { equation, range, axis, independentVariable, variables } = this.params;
+    const { equation, range, axis, independentVariable, variables } =
+      this.params;
     if (equation && Array.isArray(variables)) {
       //Replaces user-interpolated variables and ASCII syntax with property accessor that utilize dot notations. Honestly, probably didn't need to replace anything here, but it works fine and may have a small performance benefit.
       this.plottedEquation = equation
@@ -270,11 +145,11 @@ export class PlotEngine extends LitElement {
       //The side of the X axis. Defaults to 100
       this.range = range || 100;
       //Axis labels. Should be provided as ['x', 'y']
-      this.labels = axis;
+      this.labels = axis || ['x', 'y'];
       //The independent variable. Defaults to x. This is only used in the interpolated equation, so it does not affect the graph itself
       this.independentVariable = independentVariable || 'x';
       //Initiate the variable values
-      for (let v of variables) {
+      for (const v of variables) {
         this.variableValues[v.symbol] = v.value;
       }
       //Can now initiate graphing
@@ -292,7 +167,7 @@ export class PlotEngine extends LitElement {
     );
   }
   private _initiateUpdates(chart: Chart) {
-    this._setPlotFunction(this.redrawChart.bind(this), chart);
+    this._setPlotFunction(this.plotPoints.bind(this), chart);
     this.updateLatexEquation();
     this.generateCoordinates(
       this.variableValues,
@@ -308,7 +183,7 @@ export class PlotEngine extends LitElement {
     updateChart: (points: ScatterDataPoint[], chart: Chart) => void,
     chart: Chart
   ) {
-    let { multipleDose } = this.params;
+    const { multipleDose } = this.params;
     if (window.Worker) {
       this.worker = multipleDose
         ? this.createWorker(this.stringifyWorkerMethod(this.multipleDoseMethod))
@@ -316,12 +191,8 @@ export class PlotEngine extends LitElement {
       this.worker.onmessage = function (ev) {
         updateChart(ev.data, chart);
       };
-      this.generateCoordinates = (
-        values: {},
-        equation: string,
-        range: number
-      ) => {
-        this.worker.postMessage([values, equation, range]);
+      this.generateCoordinates = (values: VariableSet, equation: string) => {
+        this.worker.postMessage([values, equation]);
       };
     } else {
       this.generateCoordinates = multipleDose
@@ -330,7 +201,7 @@ export class PlotEngine extends LitElement {
     }
   }
 
-  redrawChart(points: ScatterDataPoint[], chart: Chart) {
+  plotPoints(points: ScatterDataPoint[], chart: Chart) {
     chart.data.datasets[0].data = points;
     chart.update();
   }
@@ -400,21 +271,25 @@ export class PlotEngine extends LitElement {
     const interpolateLatex = (equation: string) =>
       new Function('variables', '"use strict";return (' + equation + ')');
 
-    this.displayedEquation = interpolateLatex(
-      this.params.equation
-        .replace(/v\["/g, '${variables.')
-        .replace(/"\]/g, '.toFixed(1)}')
-    )(this.variableValues)
-      .replace(/x/g, 'time')
-      .replace(/2.71/g, 'e')
-      .replace(/\*?-?\*?0.06\*?/g, '');
+    if (this.params.equation) {
+      this.displayedEquation = interpolateLatex(
+        this.params?.equation
+          .replace(/v\["/g, '${variables.')
+          .replace(/"\]/g, '.toFixed(1)}')
+      )(this.variableValues)
+        .replace(/x/g, 'time')
+        .replace(/2.71/g, 'e')
+        .replace(/\*?-?\*?0.06\*?/g, '');
+    }
   }
 
   disconnectedCallback() {
     this.worker.terminate();
   }
 
-  stringifyWorkerMethod(method: (equation, values) => void): string {
+  stringifyWorkerMethod(
+    method: (values: VariableSet, equation: string) => void
+  ): string {
     let stringified = method.toString(),
       end = stringified.lastIndexOf('return'),
       start = stringified.search('{'),
@@ -424,15 +299,12 @@ export class PlotEngine extends LitElement {
     { const ${values} = ev.data[0], 
       ${equation} = ev.data[1];
       ${body}
-      postMessage(data, null)}
+      postMessage(data, undefined)}
     `;
-  }
-  bolusDosingWorker(ev: MessageEvent<any[]>): void {
-    postMessage(this.bolusMethod(ev.data[0], ev.data[1]), null);
   }
 
   updatePlot(symbol: string, event: InputEvent): void {
-    this.variableValues[symbol] = parseFloat(event.data);
+    this.variableValues[symbol] = parseFloat(event.data || '');
     this.updateLatexEquation();
     this.generateCoordinates(
       this.variableValues,
@@ -448,15 +320,15 @@ export class PlotEngine extends LitElement {
         </div>
         <div class="container__inputs">
           <div class="inputs__range">
-            ${this.params.variables.map((v: Variable) => {
+            ${this.params?.variables?.map((v: Variable) => {
               return html`<plot-range
                 value=${v.value}
                 min=${v.min}
                 max=${v.max}
-                name=${v.name}
+                name=${ifDefined(v.name)}
                 units=${v.units}
-                step=${v.step}
-                .range=${v.range}
+                step=${ifDefined(v.step)}
+                .range=${v.range || []}
                 symbol=${v.symbol}
                 @input="${this.eventDebouncer(v.symbol)}"
               ></plot-range>`;

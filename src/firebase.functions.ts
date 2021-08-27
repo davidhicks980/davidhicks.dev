@@ -43,7 +43,7 @@ export const unlockResume = (resumeKey: string) => {
   const unlockResume = httpsCallable(functions, 'unlockResume');
   return unlockResume(resumeKey)
     .then((res: HTTPSFunctionsResponse) => {
-      let { hasError, result } = res.data;
+      const { hasError, result } = res.data;
       if (hasError) {
         return false;
       } else {
@@ -52,9 +52,9 @@ export const unlockResume = (resumeKey: string) => {
       }
     })
     .catch((error) => {
-      var code = error.code;
-      var message = error.message;
-      var details = error.details;
+      const code = error.code;
+      const message = error.message;
+      const details = error.details;
       console.error(
         'There was an error when calling the Cloud Function',
         error
@@ -77,9 +77,9 @@ export const contact = (formData: string) => {
       return res.data;
     })
     .catch((error) => {
-      var code = error.code;
-      var message = error.message;
-      var details = error.details;
+      const code = error.code;
+      const message = error.message;
+      const details = error.details;
       console.error(
         'There was an error when calling the Cloud Function',
         error

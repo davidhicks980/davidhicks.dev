@@ -1,65 +1,52 @@
-import './polyfills';
 import { state } from './util/functions/store';
 import { combineLatest, fromEvent } from 'rxjs';
-import { take, withLatestFrom } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/functions/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu.toggle.properties';
-import { HicksHeader } from './components/header/header.component';
 import { TableOfContents } from './components/toc/toc.component';
-import { HeaderProperties } from './components/header/header.properties';
 
-const elementById = (id) => document.getElementById(id);
+const elementById = (id) => document.getElementById(id) as HTMLElement;
 fromEvent(window, 'load')
   .pipe(take(1))
   .subscribe((ev) => {
-    fromEvent(elementById('header'), 'focusin')
-      .pipe(withLatestFrom(state.filteredChanges([HeaderProperties.CURVED])))
-      .subscribe(
-        ([e, toolbarCurved]: [FocusEvent, Record<string, boolean>]) => {
-          let target = e.target as HTMLElement;
-          let isInToolbar =
-            target.classList.contains('toolbar-item') ||
-            target.classList.contains('menu-toggle');
-          if (isInToolbar && window.scrollY < 450) {
-            window.scroll({
-              top: 500,
-              left: 0,
-            });
-          }
-        }
-      );
-    //Start with only resume entries showing.
-    state.update({ resumeentries$showcv: false });
-    //Expand resume entries on init
-    state.update({ resumeentries$expand: true });
-
     const app = elementById('app'),
       toggle = elementById('menu-toggle'),
       header = elementById('header'),
-      toc = elementById('table-of-contents');
+      toc = elementById('table-of-contents'),
+      navigation = elementById('toolbar-navigation');
+    const scrollToToolbar = (e: Event) => {
+      e.preventDefault();
+      window.requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        window.scroll({
+          top: scrollY < 510 ? 500 : scrollY,
+        });
+      });
+    };
+    fromEvent(navigation, 'focusin').subscribe((e: Event) =>
+      scrollToToolbar(e)
+    );
+    fromEvent(toggle, 'focusin').subscribe((e: Event) => scrollToToolbar(e));
+
     const TOGGLED = ToggleProperties.TOGGLED,
       toggled$ = state.filteredChanges([TOGGLED]);
 
     combineLatest([toggled$, documentBreakpoints.observeAllMatches$]).subscribe(
       ([menuToggle, breakpoint]) => {
-        let open = menuToggle[TOGGLED] || false;
-        let smallScreen = breakpoint.get('mobile') || breakpoint.get('tablet');
-        console.log('ran');
+        const open = menuToggle[TOGGLED] || false;
+        const smallScreen =
+          breakpoint.get('mobile') || breakpoint.get('tablet');
         if (smallScreen && open) {
           app.classList.add('has-open-menu');
           toggle.slot = TableOfContents.prototype.slotNames.toggle;
           toc.appendChild(toggle);
         } else {
           app.classList.remove('has-open-menu');
-          toggle.slot = HicksHeader.prototype.slotNames.toggle;
+          toggle.slot = 'navigation-toggle';
           header.appendChild(toggle);
         }
       }
     );
-
-    //Focusing on a button in the header will scroll to that button's position, which will make the button visible
-
-    fromEvent(document, 'click').subscribe((ev) => console.log(ev));
 
     fromEvent(document, 'resumeload')
       .pipe(take(1))
@@ -67,24 +54,28 @@ fromEvent(window, 'load')
         const showDetailsToggle = elementById('show-hide-details');
         const resumeToggle = elementById('view-resume-cv');
         if (showDetailsToggle) {
-          fromEvent(showDetailsToggle, 'pressed').subscribe(function (
-            this: HTMLElement,
-            ev: CustomEvent
-          ) {
-            state.update({ app$expand: !ev.detail });
-          });
+          fromEvent(showDetailsToggle, 'pressed').subscribe(
+            (ev: CustomEvent) => {
+              state.update({ app$expand: !ev.detail });
+            }
+          );
         } else {
           throw Error('ThrowDetailsToggle is not defined');
         }
         if (resumeToggle) {
-          fromEvent(resumeToggle, 'pressed').subscribe(function (
-            this: HTMLElement,
-            ev: CustomEvent
-          ) {
+          fromEvent(resumeToggle, 'pressed').subscribe((ev: CustomEvent) => {
             state.update({ app$showcv: ev.detail });
           });
         } else {
           throw Error('CVToggle is not defined');
         }
+
+        setTimeout(
+          //Start with only resume entries showing.
+          () => state.update({ app$showcv: false }),
+          200
+        );
+        //Expand resume entries on init
+        state.update({ app$expand: true });
       });
   });

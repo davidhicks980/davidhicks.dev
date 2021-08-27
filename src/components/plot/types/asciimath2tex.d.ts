@@ -1,1 +1,1 @@
-declare module "asciimath2tex" {}
+export type asciimath2tex = unknown;

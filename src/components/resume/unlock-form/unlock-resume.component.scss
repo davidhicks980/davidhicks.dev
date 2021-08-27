@@ -5,34 +5,41 @@
 
 .unlock-resume {
   &__input-wrapper {
-    padding: 1.5rem 0px;
+    padding: 1.5rem 0;
   }
 }
+
 :host {
   @include hoverable-shadow(3);
 }
+
 input {
   @extend %common-input;
+
   &[type='text'] {
-    font-size: 1.15rem;
-    width: 100%;
     caret-color: var(--primary-9);
+    font-size: 1.15rem;
     -webkit-text-security: disc;
+    width: 100%;
   }
 
-  &::-webkit-input-placeholder {
+  &::input-placeholder {
     color: var(--gray-8);
   }
+
   &::placeholder {
     color: var(--gray-8);
   }
+
   &:hover {
     background-color: var(--gray-0);
   }
 }
+
 .unlock-resume__hint {
-  font-size: 9pt;
   color: var(--gray-9);
+  font-size: 9pt;
+
   &--emphasis {
     font-style: normal;
   }
@@ -46,11 +53,13 @@ button {
 .button[type='submit'] {
   width: 100%;
 }
+
 label {
+  color: var(--gray-9);
   font-family: var(--body-font);
   font-weight: 500;
-  color: var(--gray-9);
 }
+
 form {
   display: flex;
   justify-content: center;
@@ -58,8 +67,8 @@ form {
 
 fieldset {
   @extend %form-container;
-  max-width: 400px;
   display: grid;
-  grid-template-rows: 1rem 2.5rem 2rem 2rem;
   gap: 1rem;
+  grid-template-rows: 1rem 2.5rem 2rem 2rem;
+  max-width: 400px;
 }

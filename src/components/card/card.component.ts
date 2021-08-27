@@ -15,7 +15,7 @@ export class HicksCard extends LitElement {
       `,
     ];
   }
-  private _color: string = 'white';
+  private _color = 'white';
 
   @property({ type: String })
   get hue(): string {

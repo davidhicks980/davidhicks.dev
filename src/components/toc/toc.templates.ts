@@ -6,6 +6,7 @@ import { ListChild } from '../../types/ListChild';
 import { ChildList } from '../../types/ChildList';
 import '../toggle/expansion.toggle.adapter';
 import { ListItemParameters } from '../../types/ListItemParameters';
+import { ifDefined } from 'lit/directives/if-defined.js';
 export const tocTemplates = {
   expandIcon: () => svg`<svg
     xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +28,7 @@ export const tocTemplates = {
         '--item--index': index.toString(),
       };
     return html`<hicks-list-item
-      childItems="${childCount}"
+      childItems="${ifDefined(childCount)}"
       marker="${marker}"
       path="${path}"
       link="${href}"
@@ -61,11 +62,11 @@ export const tocTemplates = {
     if (!sublists.has(path)) {
       return this.emptyChildList;
     }
-    let childList: Partial<ChildList> = {};
+    const childList: Partial<ChildList> = {};
     childList.params = sublists.get(path);
     childList.count = childList.params.length;
     childList.template = this.childList(childList.params);
-    let fullPath = path + childList.params.join('||');
+    const fullPath = path + childList.params.join('||');
     return { childList, fullPath };
   },
   list(list: TemplateResult | TemplateResult[]) {

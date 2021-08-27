@@ -20,9 +20,9 @@ export class MutationController implements ReactiveController {
   private _emitter: (id: string) => (entries: MutationRecord[]) => void;
 
   observe(elements: HTMLElement[], observerId?: string) {
-    let id = this._getObserverId(observerId);
+    const id = this._getObserverId(observerId);
     if (id) {
-      for (let el of elements) {
+      for (const el of elements) {
         observers.get(id).observe(el, { subtree: true, childList: true });
       }
     } else {
@@ -85,7 +85,7 @@ export class MutationController implements ReactiveController {
 
   initiate(observerId: string) {
     if (!observers.has(observerId)) {
-      let observer = new MutationObserver(this._emitter(observerId).bind(this));
+      const observer = new MutationObserver(this._emitter(observerId).bind(this));
       observers.set(observerId, observer);
     }
     this._handlerKey = observerId;

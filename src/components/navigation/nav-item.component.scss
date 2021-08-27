@@ -1,28 +1,32 @@
 @use 'sass:color';
 @use 'sass:selector';
 @use 'mixins/shadows' as *;
+
 .link {
-  text-decoration: none;
-  position: relative;
   display: block;
   padding: var(--nav-item--padding);
+  position: relative;
+  text-decoration: none;
   transition: var(--nav-item--transition);
+
   &__content {
-    min-height: 2rem;
-    min-width: 2rem;
+    color: var(--nav-item--font-color);
+    font-family: var(--body-font);
     font-size: var(--nav-item--font-size);
     font-weight: var(--nav-item--font-weight);
+    min-height: 2rem;
+    min-width: 2rem;
     text-decoration: var(--nav-item--text-decoration);
-    font-family: var(--body-font);
-    color: var(--nav-item--font-color);
+
     :host([selected]) & {
       color: var(--nav-item--selected--font-color);
     }
   }
+
   &:hover {
-    opacity: 1;
-    color: var(--nav-item--hover--font-color);
     box-shadow: var(--nav-item--hover--box-shadow);
+    color: var(--nav-item--hover--font-color);
+    opacity: 1;
     text-decoration: var(--nav-item--hover--text-decoration);
   }
 }

@@ -25,16 +25,20 @@ export const resumeEntryObserver = {
     {
       property: 'app$expand',
       componentHandler(this: HicksResumeEntry, propValue) {
-        propValue
-          ? this.controllers.expansion.collapse()
-          : this.controllers.expansion.expand();
+        if (this.controllers?.expansion) {
+          propValue
+            ? this.controllers.expansion.collapse()
+            : this.controllers.expansion.expand();
+        }
       },
     },
     {
       property: 'app$showcv',
       componentHandler(this: HicksResumeEntry, propValue) {
         this.hidden = propValue === false ? !this.onResume : false;
-        if (this.collapsed) this.controllers.expansion.collapse();
+        if (this.collapsed && this.controllers?.expansion) {
+          this.controllers.expansion.collapse();
+        }
       },
     },
   ] as ObservedStateAction[],

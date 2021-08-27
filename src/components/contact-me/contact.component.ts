@@ -12,11 +12,11 @@ interface SubmitEvent extends Event {
 @customElement('hicks-contact')
 export class HicksContact extends LitElement {
   @property({ type: Boolean })
-  displayGreeting: boolean = false;
+  displayGreeting = false;
   @property({ type: Number })
   status: Status;
   @query('form')
-  form: HTMLFormElement;
+  form!: HTMLFormElement;
 
   async handleSubmit(ev: SubmitEvent) {
     ev.preventDefault();
@@ -56,7 +56,7 @@ export class HicksContact extends LitElement {
     [Status.UNSUCCESSFUL]: `There was an error sending your message. Please try again, or message me using one of the social links above.`,
   };
   statusTemplate(status: Status, ignore?: Status[]) {
-    if (ignore.includes(status)) {
+    if (ignore?.includes(status)) {
       return '';
     }
     return html`<hicks-status icon-placement="before" status="${status}"
@@ -64,8 +64,8 @@ export class HicksContact extends LitElement {
     >`;
   }
   render(): TemplateResult | string {
-    let disabled = this.status >= Status.SUBMITTED;
-    let message = this.statusTemplate(this.status, [Status.NOT_SUBMITTED]);
+    const disabled = this.status >= Status.SUBMITTED;
+    const message = this.statusTemplate(this.status, [Status.NOT_SUBMITTED]);
     if (this.status === Status.SUCCESSFUL) {
       return message;
     }
@@ -98,8 +98,8 @@ export class HicksContact extends LitElement {
             <label for="response"> Request a response </label>
             <input
               id="response"
-              @click="${(ev) => {
-                this.displayGreeting = ev.path[0].checked;
+              @click="${(ev: InputEvent) => {
+                this.displayGreeting = (ev.target as HTMLInputElement).checked;
               }}"
               type="checkbox"
               name="response"

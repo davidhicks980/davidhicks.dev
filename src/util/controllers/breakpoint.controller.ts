@@ -16,7 +16,7 @@ export class BreakpointController implements ReactiveController {
    * @memberof BreakpointController
    */
   observe(breakpointIds: string | string[]) {
-    let ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
+    const ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
     return documentBreakpoints.observer$.pipe(
       filter(([id, matches]) => ids.includes(id))
     );
@@ -29,7 +29,7 @@ export class BreakpointController implements ReactiveController {
    * @memberof BreakpointController
    */
   observeArea(breakpointIds: string | string[]) {
-    let ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
+    const ids = !Array.isArray(breakpointIds) ? [breakpointIds] : breakpointIds;
     return documentBreakpoints.observeAllMatches$.pipe(
       map((queries) => ids.some((bp) => queries.get(bp) === true))
     );

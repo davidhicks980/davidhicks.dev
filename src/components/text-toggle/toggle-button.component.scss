@@ -2,9 +2,13 @@
 @use 'styles/mixins/button' as *;
 
 :host {
-  width: 20ch;
+  @include root.state(':hover') {
+  }
+  @include root.state(':focus') {
+  }
   font-size: 1rem;
-  text-shadow: 0px 0px 2px var(--secondary-14);
+  text-shadow: 0 0 2px var(--secondary-14);
+  width: 20ch;
 
   @include root.state('[aria-pressed="true"]') {
     @extend %button--tertiary;
@@ -12,9 +16,5 @@
   }
   @include root.state('[aria-pressed="false"]') {
     @extend %button--secondary;
-  }
-  @include root.state(':hover') {
-  }
-  @include root.state(':focus') {
   }
 }

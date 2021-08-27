@@ -1,0 +1,16 @@
+{
+  "bundle": {
+    "commonSourceDirectory": "..",
+    "sourceFiles": [
+      "../src/components/text-toggle/toggle-button.adapter.ts",
+      "../src/types/SectionParameters.ts"
+    ],
+    "js": {
+      "sections": []
+    },
+    "dts": {
+      "sections": []
+    }
+  },
+  "version": "4.2.4"
+}

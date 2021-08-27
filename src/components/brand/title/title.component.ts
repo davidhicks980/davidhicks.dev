@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js';
 export class TitleComponent extends LitElement {
   render(): TemplateResult {
     return svg`
-    <svg xmlns="http://www.w3.org/2000/svg" style="overflow: visible" alt="David Hicks, pharmacist and developer" viewBox="0 0 326.58 80.49">
+    <svg xmlns="http://www.w3.org/2000/svg" class="title-icon" alt="David Hicks, pharmacist and developer" viewBox="0 0 326.58 80.49">
     
   <defs>
         <filter id="shadow">
@@ -26,21 +26,28 @@ export class TitleComponent extends LitElement {
           <path id="left" d="M3.23 65.08v1.8l10.09 5.52a.4.4 0 00.06-.22v-1.44a.16.16 0 00-.09-.15l-8.13-4.45a.18.18 0 01-.06-.24s0-.05.06-.07l8.14-4.39a.17.17 0 00.09-.16v-1.4a.18.18 0 00-.17-.17h-.07z" class="fill-green stroke"/>
         </g>
       </g>
-      <path fill="none" stroke="#bedeaa" stroke-miterlimit="10" stroke-width=".75" d="M21.62 64.87l-3.63 7a4.86 4.86 0 001.76 6.6 5.55 5.55 0 004.4-.34 4.93 4.93 0 002-2.16l3.46-6.63a17.55 17.55 0 01-3.84-1.42 17.9 17.9 0 01-4.15-3.05z"/>
+      <path fill="none" class="stroke" d="M21.62 64.87l-3.63 7a4.86 4.86 0 001.76 6.6 5.55 5.55 0 004.4-.34 4.93 4.93 0 002-2.16l3.46-6.63a17.55 17.55 0 01-3.84-1.42 17.9 17.9 0 01-4.15-3.05z"/>
 </svg>`;
   }
   static get styles(): CSSResultGroup[] {
     return [
       css`
+        .title-icon {
+          --title-width: clamp(300px, 40vw, 400px);
+          display: block;
+          width: var(--title-width, 350px);
+          height: 100px;
+          min-height: 100px;
+        }
         .fill-green {
-          fill: var(--secondary-4);
+          fill: var(--secondary-4, seagreen);
         }
         .fill-white {
           fill: #fff;
           filter: url(#shadow);
         }
         .stroke {
-          stroke: var(--secondary-4);
+          stroke: var(--secondary-4, seagreen);
           stroke-miterlimit: 10;
           stroke-width: 0.75px;
         }

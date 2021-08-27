@@ -9,8 +9,8 @@ export class HicksIconToggle extends LitElement {
   };
   static styles = [style];
   @property({ type: Boolean, reflect: true }) toggled: boolean;
-  @property({ type: String }) height: string = '2rem';
-  @property({ type: String }) width: string = '2rem';
+  @property({ type: String }) height = '2rem';
+  @property({ type: String }) width = '2rem';
 
   @queryAssignedNodes('', true, 'svg')
   slottedIcon: NodeListOf<SVGElement>;
@@ -18,6 +18,7 @@ export class HicksIconToggle extends LitElement {
   constructor() {
     super();
     this.toggled = false;
+    this.tabIndex = 0;
   }
   handleClick(e: PointerEvent) {
     this.toggled = !this.toggled;

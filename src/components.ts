@@ -1,8 +1,8 @@
 import './components/navigation/nav.component';
 import './components/card/card.component';
 import './components/plot/plot.component';
-import './components/brand/brand.component';
 import './components/brand/logo/logo.component';
+import './components/brand/title/title.component';
 import './components/navigation/nav-item.component';
 import './components/contact-me/contact.component';
 import './components/expansion-panel/expansion-panel.component';

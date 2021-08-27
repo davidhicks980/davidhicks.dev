@@ -10,9 +10,9 @@ import { NavItemComponent } from './nav-item.component';
 @customElement('hicks-nav')
 export class NavComponent extends LitElement {
   @queryAssignedNodes('', true, 'hicks-nav-item')
-  navItems: NodeListOf<NavItemComponent>;
+  navItems!: NodeListOf<NavItemComponent>;
   @query('ul')
-  navList: HTMLUListElement;
+  navList!: HTMLUListElement;
   @property({ type: Boolean, reflect: true })
   opened = true;
 

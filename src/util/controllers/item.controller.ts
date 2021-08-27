@@ -63,7 +63,7 @@ export class ListItemController implements ReactiveController {
     return this;
   }
   _expandAncestors(path: string) {
-    let ancestors = path.split('.');
+    const ancestors = path.split('.');
     const ancestorPaths = [];
     while (ancestors.length) {
       ancestorPaths.push(ancestors.join('.'));

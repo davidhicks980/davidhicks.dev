@@ -58,7 +58,7 @@ export class ExpansionHandler {
     while (children.length) {
       el = children.pop() as HTMLElement;
       if (isParent(el, host)) {
-        let nodeChildren = Array.from(el.children) as HTMLElement[];
+        const nodeChildren = Array.from(el.children) as HTMLElement[];
         proceeding = proceeding.concat(this._walkChildren(nodeChildren, host));
       } else if (isAfter(el, host)) {
         proceeding.push(el);
@@ -82,16 +82,16 @@ export class ExpansionHandler {
     offset: number,
     options = { duration: 250, easing: 'ease-in-out' }
   ) {
-    let expandKeyframes = [
+    const expandKeyframes = [
       { transform: `translateY(0px)` },
       { transform: `translateY(${offset}px)` },
     ];
-    let collapseKeyframes = [
+    const collapseKeyframes = [
       { transform: `translateY(0px)` },
       { transform: `translateY(-${offset}px)` },
     ];
 
-    let proceeding = this._getElementsFollowing(
+    const proceeding = this._getElementsFollowing(
       expandAfterHost
     ) as HTMLElement[];
     const frames = proceeding.map((el: HTMLElement) => {
@@ -105,8 +105,8 @@ export class ExpansionHandler {
         },
       };
     });
-    let key = this._accessKey(element);
-    let observer = this._animationSubject
+    const key = this._accessKey(element);
+    const observer = this._animationSubject
       .asObservable()
       .pipe(filter((animation) => animation.key === key));
     this._animations.set(key, {
@@ -140,7 +140,7 @@ export class ExpansionHandler {
   }
 
   toggle(element: HTMLElement, isCollapsed: boolean) {
-    let { frames, key } = this._getAnimation(element);
+    const { frames, key } = this._getAnimation(element);
     let animations = frames
       .filter((frame) => this._inViewport.has(frame.element))
       .map(({ animations }) =>
@@ -187,13 +187,13 @@ export class ExpansionHandler {
     Object.values(this.observers).forEach((obs) => obs.disconnect());
   }
   getIntersectionObserver() {
-    let callback = function (
+    const callback = function (
       this: ExpansionHandler,
       entries: IntersectionObserverEntry[]
     ) {
-      let inView = (e: IntersectionObserverEntry) => e.isIntersecting;
+      const inView = (e: IntersectionObserverEntry) => e.isIntersecting;
       entries.forEach((e) => {
-        let tar = e.target as HTMLElement;
+        const tar = e.target as HTMLElement;
         window.requestAnimationFrame(() => {
           if (inView(e)) {
             this._inViewport.add(tar);
@@ -205,7 +205,7 @@ export class ExpansionHandler {
         });
       });
     };
-    let props = {
+    const props = {
       root: null,
       rootMargin: '0px 0px 600px 0px',
       threshold: [0, 0.5],

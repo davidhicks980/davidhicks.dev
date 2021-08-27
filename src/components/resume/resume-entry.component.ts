@@ -17,9 +17,9 @@ export class HicksResumeEntry extends LitElement {
   hidden: boolean;
 
   @property({ attribute: 'active', type: Boolean, reflect: true })
-  isActive: boolean = false;
+  isActive = false;
   @property({ attribute: 'entry-id', type: Number })
-  entryId: number = 0;
+  entryId = 0;
   @property({ type: Boolean, reflect: true })
   collapsed: boolean;
   @property({ type: Boolean, reflect: true })
@@ -33,7 +33,7 @@ export class HicksResumeEntry extends LitElement {
     intersection: IntersectionController;
     expansion: CollapseController;
   };
-  panelLoaded: boolean = false;
+  panelLoaded = false;
 
   constructor() {
     super();
@@ -43,7 +43,7 @@ export class HicksResumeEntry extends LitElement {
   }
   firstUpdated(_changedProperties) {
     this.collapsed = true;
-    let root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
+    const root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
 
     this.controllers = {
       intersection: new IntersectionController(this),
@@ -57,7 +57,7 @@ export class HicksResumeEntry extends LitElement {
 
     this.watchScroll();
     this.onPanelLoad.then((panel) => {
-      let height = panel.offsetHeight;
+      const height = panel.offsetHeight;
       this.style.marginBottom = -1 * height + 'px';
       this.controllers.expansion.collapsed = true;
     });
@@ -70,7 +70,7 @@ export class HicksResumeEntry extends LitElement {
     );
   }
   watchScroll() {
-    let margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
+    const margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
       threshold = [0];
     const observe = this.controllers.intersection
       .initiate('resume-entry', null, threshold, margin)
@@ -78,8 +78,8 @@ export class HicksResumeEntry extends LitElement {
     observe
       .on(IntersectionObserverType.INTERSECTING)
       .subscribe((entries: IntersectionObserverEntry[]) => {
-        let entry = entries[0]?.target as HicksResumeEntry;
-        let id = entry?.entryId;
+        const entry = entries[0]?.target as HicksResumeEntry;
+        const id = entry?.entryId;
         if (id) {
           stateStore.update({ 'active-entry': id });
         }

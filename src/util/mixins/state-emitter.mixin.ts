@@ -34,7 +34,7 @@ export function EmitStateMixin(state: StateHandler) {
               value !== undefined && (props.length === 0 || props.includes(key))
           )
           .forEach(([key, _]) =>
-            _propertyHandler({ [prefix + '$' + key]: this[key] })
+            _propertyHandler({ [prefix + '$' + key]: this[key as string] })
           );
       }
     };

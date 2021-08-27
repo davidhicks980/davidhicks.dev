@@ -1,49 +1,72 @@
-// @ts-nocheck
-import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
-import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
-import watchAssets from 'rollup-plugin-watch-assets';
-import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import html from '@web/rollup-plugin-html';
 import serve from 'rollup-plugin-serve';
-import json from '@rollup/plugin-json';
 import { copyConfig } from './rollup.variables';
-process.env.NODE_ENV = 'dev';
-export default [
-  {
-    input: './src/components.ts',
-    output: {
-      dir: 'dist',
-      format: 'iife',
-      //module: true,
-    },
-    watch: {
-      include: 'src/**',
-      chokidar: true,
-    },
-    onwarn(warning) {
-      if (warning.code !== 'THIS_IS_UNDEFINED') {
-        //console.error(`(!) ${warning.message}`);
-      }
-    },
-    preserveEntrySignatures: 'strict',
-    plugins: [
-      // babel({ babelHelpers: 'bundled', exclude: 'node_modules/**/*' }),
-      typescript({
-        outDir: './dist/',
-        incremental: true,
-        tsBuildInfoFile: './dist/out',
-      }),
-      copy(copyConfig('dist')),
-      commonjs(),
-      resolve(),
-      watchAssets({ assets: ['src/index.html'] }),
-      injectProcessEnv({
-        NODE_ENV: 'development',
-      }),
-      replace({ 'Reflect.decorate': 'undefined' }),
-      serve({ openPage: './dist/index.html' }),
-    ],
+import minifyHTML from 'rollup-plugin-minify-html-literals';
+import { terser } from 'rollup-plugin-terser';
+import commonjs from '@rollup/plugin-commonjs';
+import polyfillsLoader from '@web/rollup-plugin-polyfills-loader';
+process.env.NODE_ENV = 'production';
+export default {
+  preserveEntrySignatures: 'strict',
+  plugins: [
+    copy(copyConfig('public')),
+    html({
+      input: 'index.html',
+      minify: true,
+      transformHtml: [
+        (html) =>
+          html.replace(
+            '<!--Asset Tag-->',
+            '<link rel="stylesheet" href="./main.prod.css" />'
+          ),
+      ],
+    }),
+    commonjs(),
+    resolve(),
+    /*  minifyHTML(),
+    terser({
+      compress: true,
+      mangle: {
+        reserved: ['data'],
+      },
+      safari10: true,
+      module: true,
+      output: {
+        comments: false,
+      },
+    }),*/
+    replace({ 'Reflect.decorate': 'undefined' }),
+    polyfillsLoader({
+      polyfills: {
+        hash: false,
+        coreJs: true,
+        regeneratorRuntime: true,
+        fetch: true,
+        webcomponents: true,
+        intersectionObserver: true,
+        resizeObserver: true,
+        esModuleShims: true,
+        abortController: true,
+        dynamicImport: true,
+        // Custom configuration for loading Lit's polyfill-support module,
+        // required for interfacing with the webcomponents polyfills
+        custom: [
+          {
+            name: 'lit-polyfill-support',
+            path: 'node_modules/lit/polyfill-support.js',
+            test: "!('attachShadow' in Element.prototype)",
+          },
+        ],
+      },
+      minify: true,
+    }),
+    serve({ openPage: './public/index.html' }),
+  ],
+  output: {
+    format: 'esm',
+    dir: './public',
   },
-];
+};

@@ -1,30 +1,31 @@
 @use 'mixins/shadows' as *;
+
 :host {
+  @include hoverable-shadow(3);
+  border: 1px solid var(--card--border, gray);
   border-radius: 4px;
   box-sizing: border-box;
-  transition: box-shadow 0.5s;
-  position: relative;
-  width: 100%;
+  display: flex;
   height: 100%;
-  border: 1px solid var(--card--border, gray);
   height: 150px;
   max-height: 200px;
   min-width: 150px;
-  display: flex;
   padding: 1rem;
-  @include hoverable-shadow(3);
+  position: relative;
+  transition: box-shadow 0.5s;
+  width: 100%;
 }
 
-p ::slotted(*) {
+p {
+  color: var(--card-text--font-color, black);
   font-size: 10pt;
   font-weight: 400;
-  color: var(--card-text--font-color, black);
 }
 
-h1 ::slotted(*) {
+h1 {
+  color: var(--card-title--font-color, black);
   font-size: 24pt;
   font-weight: 400;
-  margin: 0px;
-  margin-block: 0px;
-  color: var(--card-title--font-color, black);
+  margin: 0;
+  margin-block: 0;
 }

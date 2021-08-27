@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" name="viewport" content="width=device-width" />
+    <!--Asset Tag-->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -11,22 +12,100 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="./main.prod.css" />
-    <script src="polyfills/polyfills.js"></script>
-    <script src="polyfills/polyfill-support.js"></script>
-    <script src="polyfills/webcomponentsjs/custom-elements-es5-adapter.js"></script>
-    <script src="polyfills/webcomponentsjs/webcomponents-loader.js"></script>
-    <script>
-      window.WebComponents = window.WebComponents || {};
-      window.WebComponents.root = 'polyfills/webcomponentsjs/';
-    </script>
+    <script src="./node_modules/web-animations-js/web-animations-next.min.js"></script>
+    <script
+      type="module"
+      src="./dist/components/navigation/nav.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/brand/title/title.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/card/card.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/plot/plot.component.js"
+    ></script>
+    <script
+      type="module"
+      defer
+      src="./dist/components/brand/logo/logo.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/navigation/nav-item.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/contact-me/contact.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/expansion-panel/expansion-panel.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/toggle/menu.toggle.adapter.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/toggle/expansion.toggle.adapter.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/content/content.adapter.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/resume/unlock-form/unlock-resume.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/resume/resume-entry.adapter.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/toc/toc-item.component.js"
+    ></script>
+    <script type="module" src="./dist/components/toc/toc.adapter.js"></script>
+    <script
+      type="module"
+      src="./dist/components/status/status.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/text-toggle/toggle-button.component.js"
+    ></script>
+    <script
+      type="module"
+      src="./dist/components/header/header.adapter.js"
+    ></script>
+    <script type="module" src="./dist/sections/about-me.section.js"></script>
+    <script type="module" src="./dist/sections/contact.section.js"></script>
+    <script type="module" src="./dist/sections/portfolio.section.js"></script>
+    <script type="module" src="./dist/sections/resume.section.js"></script>
+    <script type="module" src="./dist/global-logic.js"></script>
+
     <title>The Developer Site for David Hicks</title>
   </head>
 
-  <body id="app">
+  <script>
+    window.process = {
+      env: {
+        NODE_ENV: 'production',
+      },
+    };
+    function unhide(ev) {
+      document.body.style.visibility = 'visible';
+    }
+  </script>
+  <body onload="unhide()" style="visibility: hidden" id="app">
     <a tabindex="0" class="skip-to-content" href="#main">Skip to content</a>
     <hicks-header id="header">
-      <brand-component slot="brand"></brand-component>
+      <title-component slot="brand"></title-component>
       <logo-component
         slot="logo"
         style="height: 2.2rem; width: 3.6rem"
@@ -50,7 +129,11 @@
           class="toolbar-item"
           href="mailto:david@davidhicks.dev?subject=Howdy David, I'm reaching out to discuss your website."
         >
-          <img class="icon--social" src="./icons/logo-google.svg" alt="Gmail" />
+          <img
+            class="icon--social"
+            src="./assets/logo-google.svg"
+            alt="Gmail"
+          />
         </hicks-nav-item>
         <hicks-nav-item
           class="toolbar-item"
@@ -58,7 +141,7 @@
         >
           <img
             class="icon--social"
-            src="./icons/logo-github.svg"
+            src="./assets/logo-github.svg"
             alt="Github"
           />
         </hicks-nav-item>
@@ -68,7 +151,7 @@
         >
           <img
             class="icon--social"
-            src="./icons/logo-linkedin.svg"
+            src="./assets/logo-linkedin.svg"
             alt="LinkedIn"
           />
         </hicks-nav-item>
@@ -124,5 +207,4 @@
       </div>
     </main>
   </body>
-  <script src="./components.js"></script>
 </html>

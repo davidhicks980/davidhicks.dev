@@ -1,58 +1,75 @@
-import { LitElement, html } from 'lit';
-import {
-  customElement,
-  property,
-  query,
-  state,
-  queryAsync,
-} from 'lit/decorators.js';
+import { LitElement, html, PropertyValues } from 'lit';
+import { customElement, property, query, queryAsync } from 'lit/decorators.js';
 import { style } from './expansion-panel.css';
 import { CollapseController } from '../../util/controllers/expansion.controller';
 import { timer } from 'rxjs';
+import { isElement } from '../../util/functions/is-html-element';
 @customElement('hicks-expansion')
 export class HicksExpansionPanel extends LitElement {
-  @state()
-  backgroundStyle: { backgroundImage: string };
   @queryAsync('.panel')
-  onPanelLoad: Promise<HTMLElement>;
+  onPanelLoad!: Promise<HTMLElement>;
   @query('.panel', true)
-  collapsingPanel;
+  collapsingPanel!: HTMLElement;
   @property({ attribute: 'data-uri', type: String })
-  dataURI: string = 'none';
+  dataURI = 'none';
   @property({ type: Boolean, reflect: true })
   collapsed: boolean;
-  controllers: { expansion: CollapseController };
 
-  firstUpdated(_changedProperties) {
-    super.firstUpdated(_changedProperties);
+  @property({ type: String, attribute: 'expansion-root' })
+  expansionRoot!: string;
+  controllers!: { expansion: CollapseController };
+
+  constructor() {
+    super();
     this.collapsed = true;
-    this.controllers = {
-      expansion: new CollapseController(
-        this,
-        'portfolio',
-        document.querySelector('content-tree'),
-        this.collapsingPanel
-      ),
-    };
-    this.onPanelLoad.then(() => {
-      timer(10).subscribe(() => {
-        this.controllers.expansion.collapse();
+  }
+  firstUpdated(_changedProperties: PropertyValues) {
+    super.firstUpdated(_changedProperties);
+    if (typeof this.expansionRoot === 'string') {
+      let tree = document.querySelector(this.expansionRoot);
+      if (isElement(tree)) {
+        this.controllers = {
+          expansion: new CollapseController(
+            this,
+            'portfolio',
+            tree as HTMLElement,
+            this.collapsingPanel
+          ),
+        };
+      }
+      this.onPanelLoad.then(() => {
+        timer(10).subscribe(() => {
+          this.controllers.expansion.collapse();
+        });
       });
-    });
+    }
   }
 
   private updateOffset(): void {
-    this.controllers.expansion.updateOffset();
+    if (this.controllers?.expansion) {
+      this.controllers.expansion.updateOffset();
+    }
   }
 
   private toggle(): void {
-    this.controllers.expansion.toggle();
+    this.dispatchEvent(
+      new CustomEvent('toggled', {
+        detail: !this.collapsed,
+        bubbles: true,
+        composed: true,
+      })
+    );
+    if (this.controllers?.expansion) {
+      this.controllers.expansion.toggle();
+    } else {
+      this.collapsed = false;
+    }
   }
   render() {
     return html`
       <div class="expansion">
-        <span class="expansion__img"></span>
-        <div class="expansion__summary">
+        <span class="img"></span>
+        <div>
           <div class="header">
             <h1 class="header__title">
               <slot name="header"> </slot>

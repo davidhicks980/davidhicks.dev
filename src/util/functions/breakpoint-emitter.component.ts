@@ -23,12 +23,18 @@ export class BreakpointEmitter {
 
   private _updateListeners() {
     this.queries.forEach(({ id, query }) => {
-      const breakpoint = window.matchMedia(query);
-      this._queryEmitter.next([id, breakpoint.matches]);
-      breakpoint.addEventListener(
-        'change',
-        this._getQueryListener(id, this._queryEmitter)
-      );
+      const breakpoint = window.matchMedia(query) as MediaQueryList;
+      if (breakpoint) {
+        try {
+          this._queryEmitter.next([id, breakpoint.matches]);
+          breakpoint?.addEventListener(
+            'change',
+            this._getQueryListener(id, this._queryEmitter)
+          );
+        } catch (err) {
+          console.log(err);
+        }
+      }
     });
   }
   private _dedupeQueries(newQueries: QueryEntry[], oldQueries: QueryEntry[]) {

@@ -25,10 +25,10 @@ export class IntersectionController implements ReactiveController {
   _entryStream$: Observable<IntersectionObserverRecord>;
   _emitter: (id: string) => (entries: IntersectionObserverEntry[]) => void;
   observe(elements: HTMLElement[], observerId?: string) {
-    let id = this._getObserverId(observerId);
+    const id = this._getObserverId(observerId);
 
     if (id) {
-      for (let el of elements) {
+      for (const el of elements) {
         observers.get(id).observe(el);
       }
     } else {
@@ -121,10 +121,10 @@ export class IntersectionController implements ReactiveController {
     } = { top: '0px', right: '0px', bottom: '0px', left: '0px' }
   ) {
     if (!observers.has(observerId)) {
-      let rootMargin = ['top', 'right', 'bottom', 'left']
+      const rootMargin = ['top', 'right', 'bottom', 'left']
         .map((dir) => margins[dir])
         .join(' ');
-      let obs = new IntersectionObserver(this._emitter(observerId).bind(this), {
+      const obs = new IntersectionObserver(this._emitter(observerId).bind(this), {
         root,
         rootMargin,
         threshold,

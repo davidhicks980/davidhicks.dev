@@ -40,6 +40,7 @@ exports.sassRender = exports.writeFile = exports.sassToCss = void 0;
 var fs = require("fs");
 var sass = require("sass");
 var postcss = require("postcss");
+var doiuse = require("doiuse");
 var autoprefixer = require("autoprefixer");
 var postcssPresetEnv = require("postcss-preset-env");
 /////////////////////////////////////////////
@@ -80,12 +81,11 @@ var writeFile = function (outFile, data) {
 };
 exports.writeFile = writeFile;
 var sassRender = function (file) { return __awaiter(void 0, void 0, void 0, function () {
-    var template, cssString, processedCss, newFileName, cssTemplate;
+    var cssString, processedCss, newFileName, template, cssString, processedCss, newFileName, cssTemplate;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                if (!/([\w\d\s-]+).component.scss/.test(file)) return [3 /*break*/, 4];
-                template = "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
+                if (!/([\w\d\s-]+).dev.scss/.test(file)) return [3 /*break*/, 4];
                 return [4 /*yield*/, exports.sassToCss(file)];
             case 1:
                 cssString = (_a.sent());
@@ -95,14 +95,43 @@ var sassRender = function (file) { return __awaiter(void 0, void 0, void 0, func
                     ]).process(cssString)];
             case 2:
                 processedCss = _a.sent();
+                console.log(file);
+                newFileName = file
+                    .replace(/([\w\d\s-]+).dev.scss/, '$1.prod.css')
+                    .replace('src', 'public');
+                return [4 /*yield*/, exports.writeFile(newFileName, processedCss.css.trim())];
+            case 3:
+                _a.sent();
+                _a.label = 4;
+            case 4:
+                if (!/([\w\d\s-]+).component.scss/.test(file)) return [3 /*break*/, 8];
+                template = "import { css } from 'lit';\n\n export const style = css`{0}`;\n";
+                return [4 /*yield*/, exports.sassToCss(file)];
+            case 5:
+                cssString = (_a.sent());
+                return [4 /*yield*/, postcss([
+                        autoprefixer({ grid: 'autoplace' }),
+                        postcssPresetEnv,
+                        doiuse({
+                            browsers: ['> 1%'],
+                            ignore: ['rem'],
+                            onFeatureUsage: function (usageInfo) {
+                                console.log(usageInfo.message);
+                            }
+                        }),
+                    ]).process(cssString)];
+            case 6:
+                processedCss = _a.sent();
                 newFileName = file.replace(/([\w\d\s-]+).component.scss/, '$1.css.ts');
                 cssTemplate = template.replace('{0}', processedCss.css.trim());
                 return [4 /*yield*/, exports.writeFile(newFileName, cssTemplate)];
-            case 3:
+            case 7:
                 _a.sent();
-                return [3 /*break*/, 5];
-            case 4: throw new Error('File does not match syntax _FILENAME.component.scss ');
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 9];
+            case 8:
+                console.info('File does not match syntax _FILENAME.component.scss ');
+                _a.label = 9;
+            case 9: return [2 /*return*/];
         }
     });
 }); };

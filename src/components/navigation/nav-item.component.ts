@@ -12,12 +12,12 @@ export class NavItemComponent extends LitElement {
     delegatesFocus: true,
   };
   @queryAssignedNodes('', true)
-  slotButton;
+  slotButton!: NodeListOf<HTMLElement>;
   @property({ type: Boolean, reflect: true })
   selected = false;
   @property({ type: String, reflect: true })
   href = '';
-  slotChangedCallback(e) {
+  slotChangedCallback(e: Event) {
     if (this.href.length === 0) {
       this.href = isFilledArray(this.slotButton)
         ? '#' + this.slotButton[0].wholeText.toLowerCase()

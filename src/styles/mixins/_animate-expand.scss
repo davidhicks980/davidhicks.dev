@@ -14,14 +14,15 @@
     from {
       transform: translateY($offset);
     }
+
     to {
-      transform: translateY(0px);
+      transform: translateY(0);
     }
   }
 }
 
 @mixin animate-expand {
   .mixin--animate-expand--base-element
-    ~ *.mixin--animation-expand--should-expand {
+  ~ *.mixin--animation-expand--should-expand {
   }
 }

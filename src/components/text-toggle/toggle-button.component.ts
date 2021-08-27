@@ -6,7 +6,7 @@ export class ToggleComponent extends LitElement {
   @queryAssignedNodes('', true)
   text;
   @property({ type: String, reflect: true, attribute: 'aria-pressed' })
-  toggled: string = 'false';
+  toggled = 'false';
 
   /**
    * Toggles the toggle button's state between *pressed* and *not pressed*.

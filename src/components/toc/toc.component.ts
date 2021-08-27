@@ -17,7 +17,7 @@ import {
 } from '../../util/controllers/intersection.controller';
 import { ListItemController } from '../../util/controllers/item.controller';
 import { fastHash } from '../../util/functions/salt-id';
-import { debounceTime, filter, mapTo, takeWhile } from 'rxjs/operators';
+import { debounceTime, filter, takeWhile, tap } from 'rxjs/operators';
 
 import { fromEvent } from 'rxjs';
 import { getHeadingDepth, queryHeader } from '../../util/functions/headers';
@@ -36,7 +36,6 @@ export class TableOfContents extends LitElement {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
   };
-  toggle: any;
 
   @property({ type: Object })
   get slotNames() {
@@ -54,7 +53,7 @@ export class TableOfContents extends LitElement {
   @queryAsync('hicks-list-item')
   itemsLoaded!: Promise<HicksListItem>;
   @queryAssignedNodes('navigation-toggle', true)
-  menuToggle!: HTMLElement;
+  menuToggle!: NodeListOf<HTMLElement>;
   //Public properties
   @property({ type: Boolean, reflect: true })
   open: boolean;
@@ -64,7 +63,7 @@ export class TableOfContents extends LitElement {
   loaded = false;
   //Internal States
   @state()
-  activeLink: string = '';
+  activeLink = '';
   //Shared controllers
   controllers!: {
     intersection: IntersectionController;
@@ -79,18 +78,23 @@ export class TableOfContents extends LitElement {
     section: 0,
     template: 0,
   };
+  toggle!: HTMLElement;
+  headers!: HTMLHeadingElement[];
   @state()
   template: TemplateResult<1>;
   itemMap: any;
   visibleItems: HicksListItem[];
   @state()
-  allExpanded: boolean = false;
+  allExpanded = false;
 
   positions: Map<string, { path: string; title: string }>;
 
-  headingLevel: number = 2;
+  headingLevel = 2;
   activeAttribute = 'href';
 
+  queryHeaders() {
+    return this.sections?.map(queryHeader);
+  }
   constructor() {
     super();
     this.open = false;
@@ -114,15 +118,6 @@ export class TableOfContents extends LitElement {
       });
     this.controllers.item.createHandler('hicks-toc');
 
-    this.controllers.mutation
-      .initiate('table-of-contents')
-      .observe([this.closest('main').querySelector('content-tree')])
-      .on('childList')
-      .subscribe((change) => {
-        this.list = this.refreshLinks(this.sections);
-        this.controllers.intersection.observe(this.sections);
-        this.requestUpdate();
-      });
     this.addEventListener('keydown', (ev) => {
       if (this.mobile && this.open && ev.key === 'Escape') {
         this.open = false;
@@ -130,30 +125,50 @@ export class TableOfContents extends LitElement {
     });
   }
 
-  get sections(): HTMLElement[] {
-    return Array.from(this.closest('main').querySelectorAll('section'));
+  get sections(): HTMLElement[] | [] {
+    let sections = this.closest('main')?.querySelectorAll(
+      'section'
+    ) as NodeListOf<HTMLElement>;
+    if (sections.length > 0) {
+      return Array.from(sections);
+    }
+    return [];
   }
 
   firstUpdated(_changedProperties: PropertyValues) {
     super.firstUpdated(_changedProperties);
 
     //Build the toc
+
     this.list = this.refreshLinks(this.sections);
     this.initIntersectionObserver();
-
+    this.controllers.mutation
+      .initiate('table-of-contents')
+      .observe([
+        this.closest('main')?.querySelector('content-tree') as HTMLElement,
+      ])
+      .on('childList')
+      .subscribe((change) => {
+        this.list = this.refreshLinks(this.sections);
+        this.controllers.intersection.observe(
+          this.queryHeaders() || this.sections
+        );
+        this.requestUpdate();
+      });
     this.itemsLoaded.then(() => {
       this.loaded = true;
     });
   }
   initIntersectionObserver() {
-    let margin = { top: '-49%', bottom: '-50%', left: '0px', right: '0px' },
+    const margin = { top: '-70px', bottom: '-60%', left: '0px', right: '0px' },
       threshold = [0];
-    const boundScroll = this.scrollSpy.bind(this);
-    this.controllers.intersection
-      .initiate('hicks-toc', null, threshold, margin)
-      .observe(this.sections)
-      .on(IntersectionObserverType.ENTRY)
-      .subscribe(boundScroll);
+    if (this.controllers.intersection) {
+      this.controllers.intersection
+        .initiate('hicks-toc', null, threshold, margin)
+        .observe(this.sections)
+        .on(IntersectionObserverType.ENTRY)
+        .subscribe(this.scrollSpy);
+    }
   }
 
   /**
@@ -164,7 +179,7 @@ export class TableOfContents extends LitElement {
    */
   refreshLinks(sections: HTMLElement[]): TemplateResult<1>[] {
     this.positions.clear();
-    let childLists = new Map() as Map<string, ListChild[]>;
+    const childLists = new Map() as Map<string, ListChild[]>;
     const attributes = this.getSectionAttributes(sections, this.headingLevel),
       sortAttributes = (a, b) => {
         return b.sortOrder - a.sortOrder;
@@ -200,9 +215,11 @@ export class TableOfContents extends LitElement {
     sublists: Map<string, ListChild[]>,
     root: string
   ) {
-    return sublists.has(root)
-      ? sublists.get(root).push(item)
-      : sublists.set(root, [item]);
+    if (sublists && root) {
+      return sublists.has(root)
+        ? sublists.get(root).push(item)
+        : sublists.set(root, [item]);
+    }
   }
 
   private getSectionAttributes(sections: HTMLElement[], headingLevel: number) {
@@ -253,16 +270,20 @@ export class TableOfContents extends LitElement {
       };
     });
   }
-  update(_changedProperties) {
+  update(_changedProperties: PropertyValues) {
     super.update(_changedProperties);
     this.visibleItems = Array.from(this.listItems);
   }
-  updated(_changedProperties) {
+  updated(_changedProperties: PropertyValues) {
     super.updated(_changedProperties);
     if (_changedProperties.has('open')) {
       if (this.open && this.mobile) {
-        let listItemTest = (el: HTMLElement) => {
-          return el?.tagName?.toLowerCase() === LIST_ITEM_TAG_NAME;
+        const listItemTest = (el: Element): boolean => {
+          if (el.tagName) {
+            return el?.tagName?.toLowerCase() === LIST_ITEM_TAG_NAME;
+          } else {
+            return false;
+          }
         };
 
         fromEvent(document, 'click')
@@ -275,11 +296,6 @@ export class TableOfContents extends LitElement {
           });
         setTimeout(() => {
           this.toggle = this.menuToggle[0];
-          if (document.activeElement === this.toggle) {
-            return;
-          } else if (this.toggle) {
-            this.toggle.focus();
-          }
         }, 500);
       }
     }
@@ -329,7 +345,7 @@ export class TableOfContents extends LitElement {
       this.template = templates.list(this.list);
       this.hash.template = this.hash.section;
     }
-    let open = this.mobile && this.open;
+    const open = this.mobile && this.open;
 
     return html`
       ${open
@@ -345,10 +361,7 @@ export class TableOfContents extends LitElement {
         : ''}
       <div class="button__wrapper">
         <div class="background"></div>
-        <slot
-          @slotchange="${this.handleSlotChange}"
-          name="${this.slotNames.toggle}"
-        ></slot>
+        <slot name="${this.slotNames.toggle}"></slot>
       </div>
       ${this.template}
       ${open
@@ -356,8 +369,7 @@ export class TableOfContents extends LitElement {
             tabindex="0"
             aria-hidden="true"
             @focusin="${() => {
-              console.log(this.menuToggle[0]);
-              this.menuToggle[0]?.focus();
+              this.menuToggle[0]?.focus({ preventScroll: true });
             }}"
           ></div>`
         : ''}

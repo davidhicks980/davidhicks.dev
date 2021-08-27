@@ -5,11 +5,11 @@
 /* stylelint-disable font-family-no-missing-generic-family-keyword */
 
 .katex {
+  border-color: currentColor;
   font: var(--text);
   line-height: 1;
   text-indent: 0;
   text-rendering: optimizeSpeed;
-  border-color: currentColor;
 }
 
 .katex * {
@@ -21,13 +21,13 @@
 }
 
 .katex .katex-mathml {
-  position: absolute;
-  clip: rect(1px, 1px, 1px, 1px);
-  padding: 0;
   border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
   height: 1px;
-  width: 1px;
   overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }
 
 .katex .katex-html > .newline {
@@ -35,8 +35,8 @@
 }
 
 .katex .base {
-  position: relative;
   display: inline-block;
+  position: relative;
   white-space: nowrap;
   width: min-content;
 }
@@ -86,8 +86,8 @@
 
 .katex .boldsymbol {
   font-family: KaTeX_Math;
-  font-weight: bold;
   font-style: italic;
+  font-weight: bold;
 }
 
 .katex .amsrm {
@@ -140,9 +140,9 @@
 }
 
 .katex .vlist-t {
+  border-collapse: collapse;
   display: inline-table;
   table-layout: fixed;
-  border-collapse: collapse;
 }
 
 .katex .vlist-r {
@@ -151,8 +151,8 @@
 
 .katex .vlist {
   display: table-cell;
-  vertical-align: bottom;
   position: relative;
+  vertical-align: bottom;
 }
 
 .katex .vlist > span {
@@ -176,24 +176,24 @@
 
 .katex .vlist-s {
   display: table-cell;
-  vertical-align: bottom;
   font-size: 1px;
-  width: 2px;
   min-width: 2px;
+  vertical-align: bottom;
+  width: 2px;
 }
 
 .katex .vbox {
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
   align-items: baseline;
+  display: inline-flexbox;
+  display: inline-flex;
+  flex-direction: column;
+  flex-direction: column;
 }
 
 .katex .hbox {
-  display: -ms-inline-flexbox;
+  display: inline-flexbox;
   display: inline-flex;
-  -ms-flex-direction: row;
+  flex-direction: row;
   flex-direction: row;
   width: 100%;
 }
@@ -201,8 +201,8 @@
 .katex .thinbox {
   display: inline-flex;
   flex-direction: row;
-  width: 0;
   max-width: 0;
+  width: 0;
 }
 
 .katex .msupsub {
@@ -214,9 +214,9 @@
 }
 
 .katex .mfrac .frac-line {
+  border-bottom-style: solid;
   display: inline-block;
   width: 100%;
-  border-bottom-style: solid;
 }
 
 .katex .mfrac .frac-line,
@@ -235,8 +235,8 @@
 .katex .llap,
 .katex .rlap,
 .katex .clap {
-  width: 0;
   position: relative;
+  width: 0;
 }
 
 .katex .llap > .inner,
@@ -266,23 +266,23 @@
 }
 
 .katex .rule {
-  display: inline-block;
   border: solid 0;
+  display: inline-block;
   position: relative;
 }
 
 .katex .overline .overline-line,
 .katex .underline .underline-line,
 .katex .hline {
+  border-bottom-style: solid;
   display: inline-block;
   width: 100%;
-  border-bottom-style: solid;
 }
 
 .katex .hdashline {
+  border-bottom-style: dashed;
   display: inline-block;
   width: 100%;
-  border-bottom-style: dashed;
 }
 
 .katex .sqrt > .root {
@@ -987,20 +987,20 @@
 
 .katex svg {
   display: block;
-  position: absolute;
-  width: 100%;
-  height: inherit;
   fill: currentColor;
-  stroke: currentColor;
-  fill-rule: nonzero;
   fill-opacity: 1;
-  stroke-width: 1;
+  fill-rule: nonzero;
+  height: inherit;
+  position: absolute;
+  stroke: currentColor;
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
   stroke-linecap: butt;
   stroke-linejoin: miter;
   stroke-miterlimit: 4;
-  stroke-dasharray: none;
-  stroke-dashoffset: 0;
   stroke-opacity: 1;
+  stroke-width: 1;
+  width: 100%;
 }
 
 .katex svg path {
@@ -1009,17 +1009,17 @@
 
 .katex img {
   border-style: none;
-  min-width: 0;
-  min-height: 0;
-  max-width: none;
   max-height: none;
+  max-width: none;
+  min-height: 0;
+  min-width: 0;
 }
 
 .katex .stretchy {
-  width: 100%;
   display: block;
-  position: relative;
   overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .katex .stretchy::before,
@@ -1028,44 +1028,44 @@
 }
 
 .katex .hide-tail {
-  width: 100%;
-  position: relative;
   overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .katex .halfarrow-left {
-  position: absolute;
   left: 0;
-  width: 50.2%;
   overflow: hidden;
+  position: absolute;
+  width: 50.2%;
 }
 
 .katex .halfarrow-right {
+  overflow: hidden;
   position: absolute;
   right: 0;
   width: 50.2%;
-  overflow: hidden;
 }
 
 .katex .brace-left {
-  position: absolute;
   left: 0;
-  width: 25.1%;
   overflow: hidden;
+  position: absolute;
+  width: 25.1%;
 }
 
 .katex .brace-center {
-  position: absolute;
   left: 25%;
-  width: 50%;
   overflow: hidden;
+  position: absolute;
+  width: 50%;
 }
 
 .katex .brace-right {
+  overflow: hidden;
   position: absolute;
   right: 0;
   width: 25.1%;
-  overflow: hidden;
 }
 
 .katex .x-arrow-pad {
@@ -1079,17 +1079,17 @@
 }
 
 .katex .boxpad {
-  padding: 0 0.3em 0 0.3em;
+  padding: 0 0.3em;
 }
 
 .katex .fbox,
 .katex .fcolorbox {
-  box-sizing: border-box;
   border: 0.04em solid;
+  box-sizing: border-box;
 }
 
 .katex .cancel-pad {
-  padding: 0 0.2em 0 0.2em;
+  padding: 0 0.2em;
 }
 
 .katex .cancel-lap {
@@ -1130,6 +1130,6 @@
 }
 
 .katex-display.fleqn > .katex {
-  text-align: left;
   padding-left: 2em;
+  text-align: left;
 }

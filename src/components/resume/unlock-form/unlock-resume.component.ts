@@ -11,7 +11,7 @@ interface SubmitEvent extends Event {
 }
 @customElement('hicks-unlock-resume')
 export class UnlockResumeElement extends LitElement {
-  @property({ type: Boolean, reflect: true }) isUnlocked: boolean = false;
+  @property({ type: Boolean, reflect: true }) isUnlocked = false;
   @property({ type: Number, reflect: true })
   status: Status = Status.NOT_SUBMITTED;
   @query('form')
@@ -22,7 +22,7 @@ export class UnlockResumeElement extends LitElement {
     ev.preventDefault();
     if (this.status >= Status.SUBMITTED) return;
     this.status = Status.SUBMITTED;
-    let key = new FormData(this.form).get('unlock-resume-token').toString();
+    const key = new FormData(this.form).get('unlock-resume-token').toString();
     unlockResume(key).then((resume) => {
       if (resume) {
         state.update({
@@ -52,8 +52,8 @@ export class UnlockResumeElement extends LitElement {
   }
 
   render(): TemplateResult | Symbol | string {
-    let submitted = this.status >= Status.SUBMITTED;
-    let message = this.statusTemplate(this.status);
+    const submitted = this.status >= Status.SUBMITTED;
+    const message = this.statusTemplate(this.status);
     if (this.status === Status.SUCCESSFUL) {
       return message;
     }

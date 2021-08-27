@@ -31,7 +31,7 @@ export class Resume {
   }
   get buttons(){
     return  html`
-      <div style="display: flex; flex-direction: row; gap: 1rem; "> 
+      <div style="display: flex; flex-direction: row; gap: 1rem; padding-bottom:1rem; "> 
       <hicks-toggle-button
     id="view-resume-cv"
     aria-label="Choose whether to view my CV or my resume"
@@ -66,7 +66,7 @@ export class Resume {
    
   }
   private _sortEntriesByDate(entries: ResumeEntry[]) {
-    let pred = (a, b) => Date.parse(a.startDate) - Date.parse(b.startDate);
+    const pred = (a, b) => Date.parse(a.startDate) - Date.parse(b.startDate);
     return entries.sort(pred);
   }
   private _getDetail(detail) {
@@ -100,14 +100,14 @@ export class Resume {
   }
 
   private _getSectionTemplates(entryList: ResumeEntry[], groupBy: string) {
-    let map = new Map() as Map<string, TemplateResult<1>[]>;
-    let entries = entryList.slice();
+    const map = new Map() as Map<string, TemplateResult<1>[]>;
+    const entries = entryList.slice();
     while (entries.length) {
-      let entry = entries.pop() as ResumeEntry;
-      let sectionName = entry[groupBy];
+      const entry = entries.pop() as ResumeEntry;
+      const sectionName = entry[groupBy];
       const fields = Object.entries(entry)
-      let onResume = entry.resume === 'true';
-      let content = html`
+      const onResume = entry.resume === 'true';
+      const content = html`
         <hicks-resume-entry ?on-resume="${onResume}">
           ${fields.map(([field, content]) => {
             if(field != 'resume'){
@@ -123,7 +123,7 @@ export class Resume {
     }
     const sections = Array.from(map)
     sections.sort((a,b)=>{
-      let comparison =  RESUME_SORT_ORDER.indexOf(a[0]) - RESUME_SORT_ORDER.indexOf( b[0]);
+      const comparison =  RESUME_SORT_ORDER.indexOf(a[0]) - RESUME_SORT_ORDER.indexOf( b[0]);
       return  Math.sign(comparison);
     })
     return sections.map(([title, section]) => {
@@ -133,7 +133,9 @@ export class Resume {
         content: html`
         <div class="resume__grid">
           ${section}
-        </div>`,
+        </div>
+        <br style="height: 2rem; background:white"/>
+        `,
       };
     });
   }
@@ -145,8 +147,6 @@ export const resumeSection = {
   title: 'Resume',
   marker: '📜',
   content: html`
- 
-  
     <hicks-unlock-resume></hicks-unlock-resume>
     `
 };

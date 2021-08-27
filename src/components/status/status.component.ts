@@ -63,8 +63,8 @@ export class StatusComponent extends LitElement {
     }
   }
   render(): TemplateResult | '' {
-    let icon = this.iconTemplate(this.status);
-    let placeBefore = this.iconPlacement === 'before';
+    const icon = this.iconTemplate(this.status);
+    const placeBefore = this.iconPlacement === 'before';
     return html`<div class="status-container">
       ${placeBefore ? icon : ''}<slot></slot>${placeBefore ? '' : icon}
     </div>`;
