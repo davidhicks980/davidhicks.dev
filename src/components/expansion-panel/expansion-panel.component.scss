@@ -80,9 +80,11 @@
   :host(:hover) & {
     box-shadow: 0 0 0 1px var(--gray-1);
   }
-
-  :host:not([collapsed]) & {
+  :host(:not([collapsed])) & {
     border-bottom-right-radius: 0;
+    @include media-size(zero, medium) {
+      @include radius('bottom', 0px);
+    }
   }
 }
 
@@ -123,10 +125,11 @@
   opacity: 1;
   padding: 10px;
   transform: scale(1) translateY(0);
-  transition: 250ms ease-out;
-  transition-property: transform opacity;
+  transition: transform 350ms ease-out, opacity 250ms ease-out;
   visibility: visible;
-
+  height: auto;
+  overflow: hidden;
+  box-sizing: border-box;
   &__padding {
     background: rgb(242 242 242);
     border-radius: 7px;
@@ -136,8 +139,12 @@
   :host([collapsed]:not(.is-expanding)) &,
   :host(.is-collapsing) & {
     opacity: 0;
-    transform: scale(0.5) translateY(-150px);
+    transform: scale(0.5) translateY(150px);
     visibility: hidden;
+  }
+  :host([collapsed]:not(.is-expanding)) & {
+    height: 0px;
+    padding: 0px;
   }
 }
 

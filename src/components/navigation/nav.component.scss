@@ -1,7 +1,6 @@
 /* hicks-nav */
 
 :host {
-  --nav--gap: 2rem;
   --nav--direction: row;
   --nav--direction-breakpoint: 600px;
   //////////////////
@@ -21,7 +20,6 @@
   align-items: center;
   display: flex;
   flex-direction: var(--nav--direction);
-  gap: var(--nav--gap);
   justify-content: center;
 
   &__slot {

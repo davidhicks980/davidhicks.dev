@@ -4,6 +4,8 @@ import { take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/functions/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu.toggle.properties';
 import { TableOfContents } from './components/toc/toc.component';
+import { queryHeader } from './util/functions/headers';
+import { isElement } from './util/functions/is-html-element';
 
 const elementById = (id) => document.getElementById(id) as HTMLElement;
 fromEvent(window, 'load')
@@ -11,6 +13,7 @@ fromEvent(window, 'load')
   .subscribe((ev) => {
     const app = elementById('app'),
       toggle = elementById('menu-toggle'),
+      menuIcon = document.querySelector('.menu-icon'),
       header = elementById('header'),
       toc = elementById('table-of-contents'),
       navigation = elementById('toolbar-navigation');
@@ -40,10 +43,16 @@ fromEvent(window, 'load')
           app.classList.add('has-open-menu');
           toggle.slot = TableOfContents.prototype.slotNames.toggle;
           toc.appendChild(toggle);
+          window.requestAnimationFrame(() => {
+            menuIcon?.classList.add('animate-close');
+          });
+          app.classList.add('hide-overflow');
         } else {
-          app.classList.remove('has-open-menu');
+          app.classList.remove('hide-overflow');
           toggle.slot = 'navigation-toggle';
           header.appendChild(toggle);
+          menuIcon?.classList.remove('animate-close');
+          app.classList.remove('has-open-menu');
         }
       }
     );
@@ -77,5 +86,18 @@ fromEvent(window, 'load')
         );
         //Expand resume entries on init
         state.update({ app$expand: true });
+
+        const headers = Array.from(
+          document.querySelector('.content')?.querySelectorAll('h2[id], h3[id]')
+        );
+
+        while (headers.length) {
+          let next = (headers.pop() as HTMLElement) || undefined;
+          next.classList.add('resume-header');
+          if (isElement(next) && next.id === 'resume') {
+            next.id === 'resume';
+            break;
+          }
+        }
       });
   });

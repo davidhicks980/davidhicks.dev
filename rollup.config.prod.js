@@ -14,6 +14,9 @@ const htmlPlugin = html({
 
 export default {
   input: './index.html',
+  onwarn() {
+    null;
+  },
   output: [
     {
       // Modern JS bundles (no JS compilation, ES module output)

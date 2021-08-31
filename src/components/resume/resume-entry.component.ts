@@ -1,7 +1,14 @@
 import { fastHash } from '../../util/functions/salt-id';
 import { state as stateStore } from '../../util/functions/store';
 import { CollapseController } from '../../util/controllers/expansion.controller';
-import { LitElement, html, CSSResultGroup, TemplateResult, svg } from 'lit';
+import {
+  LitElement,
+  html,
+  CSSResultGroup,
+  TemplateResult,
+  svg,
+  PropertyValues,
+} from 'lit';
 import { property, query, queryAsync } from 'lit/decorators.js';
 import {
   IntersectionController,
@@ -16,18 +23,18 @@ export class HicksResumeEntry extends LitElement {
   @property({ type: Boolean })
   hidden: boolean;
 
+  @queryAsync('.entry__expansion')
+  onPanelLoad!: Promise<HTMLElement>;
+  @query('.entry__expansion')
+  collapsingPanel!: HTMLElement;
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive = false;
   @property({ attribute: 'entry-id', type: Number })
   entryId = 0;
+  @property({ type: String })
+  root!: string;
   @property({ type: Boolean, reflect: true })
   collapsed: boolean;
-  @property({ type: Boolean, reflect: true })
-  mobile: boolean;
-  @queryAsync('.entry__expansion')
-  onPanelLoad: Promise<HTMLElement>;
-  @query('.entry__expansion', true)
-  collapsingPanel: HTMLElement;
 
   declare controllers: {
     intersection: IntersectionController;
@@ -40,10 +47,10 @@ export class HicksResumeEntry extends LitElement {
     this.entryId = Math.abs(
       fastHash('entry' + Math.floor(Math.random() * 10 ** 5))
     );
-  }
-  firstUpdated(_changedProperties) {
     this.collapsed = true;
-    const root = document.getElementsByTagName('content-tree')[0] as HTMLElement;
+  }
+  firstUpdated(_changedProperties: PropertyValues) {
+    const root = document.querySelector(this.root) as HTMLElement;
 
     this.controllers = {
       intersection: new IntersectionController(this),
@@ -54,13 +61,8 @@ export class HicksResumeEntry extends LitElement {
         this.collapsingPanel
       ),
     };
-
     this.watchScroll();
-    this.onPanelLoad.then((panel) => {
-      const height = panel.offsetHeight;
-      this.style.marginBottom = -1 * height + 'px';
-      this.controllers.expansion.collapsed = true;
-    });
+    this.controllers.expansion.collapse();
   }
 
   connectedCallback() {
@@ -69,12 +71,20 @@ export class HicksResumeEntry extends LitElement {
       new CustomEvent('resumeload', { bubbles: true, composed: true })
     );
   }
+  updated(_changedProperties: PropertyValues) {
+    if (_changedProperties.has('hidden')) {
+      if (this.hidden === false) {
+        this.controllers.expansion.collapsingPanel = this.collapsingPanel;
+      }
+    }
+  }
   watchScroll() {
     const margin = { top: '-49%', bottom: '-49%', left: '0px', right: '0px' },
       threshold = [0];
     const observe = this.controllers.intersection
       .initiate('resume-entry', null, threshold, margin)
       .observe([this as HTMLElement]);
+
     observe
       .on(IntersectionObserverType.INTERSECTING)
       .subscribe((entries: IntersectionObserverEntry[]) => {
@@ -91,9 +101,6 @@ export class HicksResumeEntry extends LitElement {
     <rect class="expand__h"  y='11.075' x="4" width="16" height="1.85" />
 </svg>`;
 
-  updateOffset() {
-    this.controllers.expansion.updateOffset();
-  }
   toggle() {
     this.controllers.expansion.toggle();
   }
@@ -105,8 +112,7 @@ export class HicksResumeEntry extends LitElement {
   }
   render(): TemplateResult {
     if (this.hidden) {
-      this.style.marginBottom = '0px';
-      return;
+      return html``;
     }
     return html`
       <div class="entry">
@@ -133,13 +139,10 @@ export class HicksResumeEntry extends LitElement {
 
           <div class="entry__expansion">
             <p class="entry__description">
-              <slot
-                @slotchange="${this.updateOffset}"
-                name="description"
-              ></slot>
+              <slot name="description"></slot>
             </p>
             <ul class="entry__detail">
-              <slot @slotchange="${this.updateOffset}" name="detail"></slot>
+              <slot name="detail"></slot>
             </ul>
           </div>
         </div>

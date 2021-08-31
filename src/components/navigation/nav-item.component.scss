@@ -4,11 +4,11 @@
 
 .link {
   display: block;
-  padding: var(--nav-item--padding);
+  padding: var(--nav-item--padding, 0.5rem);
   position: relative;
   text-decoration: none;
   transition: var(--nav-item--transition);
-
+  box-sizing: border-box;
   &__content {
     color: var(--nav-item--font-color);
     font-family: var(--body-font);
@@ -16,7 +16,6 @@
     font-weight: var(--nav-item--font-weight);
     min-height: 2rem;
     min-width: 2rem;
-    text-decoration: var(--nav-item--text-decoration);
 
     :host([selected]) & {
       color: var(--nav-item--selected--font-color);
@@ -27,6 +26,5 @@
     box-shadow: var(--nav-item--hover--box-shadow);
     color: var(--nav-item--hover--font-color);
     opacity: 1;
-    text-decoration: var(--nav-item--hover--text-decoration);
   }
 }

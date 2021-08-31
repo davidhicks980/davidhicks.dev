@@ -4,6 +4,8 @@ import { elderDrugDataURI } from '../icons/elder-drug.data-uri';
 import { state } from '../util/functions/store';
 import { ContentModification } from '../components/content/content.component';
 import { PlotEngine } from '../components/plot/plot.component';
+import { interval } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 export const portfolioSection = {
   title: 'Portfolio',
@@ -85,8 +87,12 @@ export const portfolioSection = {
               font-family: var(--body-font)
             }
       </style>
-       
-      <hicks-expansion  expansion-root="content-tree" id="kinetics-card" class="expansion-panel">
+      
+      <hicks-expansion @toggled="${()=>{
+        //Some resize issues occur when expanding the pk plot. A way of fixing this issue without polling is by waiting for the panel to toggle, then resizing the chart.
+        let plot = (document.querySelector('#plot-engine') as PlotEngine);
+        interval(200).pipe(take(3)).subscribe(()=>{plot.chart.update('resize')})}
+        }"  expansion-root="content-tree" id="kinetics-card" class="expansion-panel">
           <h1 slot="header">Pharmacokinetics Components</h1>
           <p slot="description">
             The pharmacokinetic web components project was developed to provide a customizable, portable, and interactive platform for pharmacy professors to demonstrate how changes in pharmacokinetic properties affect drug absorption and metabolism.

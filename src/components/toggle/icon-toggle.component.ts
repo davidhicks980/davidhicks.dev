@@ -1,4 +1,4 @@
-import { LitElement, html, TemplateResult } from 'lit';
+import { LitElement, html, TemplateResult, PropertyValues } from 'lit';
 import { property, queryAssignedNodes } from 'lit/decorators.js';
 import { style } from './toggle.css';
 
@@ -13,7 +13,7 @@ export class HicksIconToggle extends LitElement {
   @property({ type: String }) width = '2rem';
 
   @queryAssignedNodes('', true, 'svg')
-  slottedIcon: NodeListOf<SVGElement>;
+  slottedIcon!: NodeListOf<SVGElement>;
 
   constructor() {
     super();
@@ -40,14 +40,14 @@ export class HicksIconToggle extends LitElement {
   toggleIconClass() {
     this.slottedIcon[0].classList.toggle('toggled', this.toggled);
   }
-  update(_changedProperties) {
+  update(_changedProperties: PropertyValues) {
     super.update(_changedProperties);
     if (_changedProperties.has('toggled')) {
       this.toggleIconClass();
     }
   }
 
-  updated(_changedProperties) {
+  updated(_changedProperties: PropertyValues) {
     super.updated(_changedProperties);
 
     if (_changedProperties.has('height') || _changedProperties.has('width')) {

@@ -9,6 +9,10 @@ import {
   IntersectionObserverType,
 } from '../../util/controllers/intersection.controller';
 
+const TOOLBAR_CURVE =
+  'M1200, 0 H0 V 300 c 144, 0, 216 -120, 360 -120 s 216, 120, 360, 120, 216 -120, 360 -120, 216, 120, 360, 120V0Z';
+const TOOLBAR_FLAT =
+  'M720, 0 H0 V 300 c 144 0, 216 0, 360 0 s 216 0, 360 0, 216 0, 360 0, 216 0, 360 0 V0Z';
 export class HicksHeader extends LitElement {
   @query('.upper', true)
   upper!: HTMLElement;
@@ -52,10 +56,10 @@ export class HicksHeader extends LitElement {
           targets: this.curvedToolbar,
           keyframes: [
             {
-              d: 'M1200, 0 H0 V 300 c 144, 0, 216 -120, 360 -120 s 216, 120, 360, 120, 216 -120, 360 -120, 216, 120, 360, 120V0Z',
+              d: TOOLBAR_CURVE,
             },
             {
-              d: 'M720, 0 H0 V 300 c 144 0, 216 0, 360 0 s 216 0, 360 0, 216 0, 360 0, 216 0, 360 0 V0Z',
+              d: TOOLBAR_FLAT,
             },
           ],
 
@@ -98,10 +102,7 @@ export class HicksHeader extends LitElement {
         .subscribe(seekSVGAnimation);
     } else {
       this.isCurved = true;
-      this.curvedToolbar.setAttribute(
-        'd',
-        'M720, 0 H0 V 300 c 144 0, 216 0, 360 0 s 216 0, 360 0, 216 0, 360 0, 216 0, 360 0 V0Z'
-      );
+      this.curvedToolbar.setAttribute('d', TOOLBAR_FLAT);
     }
   }
 
@@ -121,10 +122,14 @@ export class HicksHeader extends LitElement {
 
   logo = html`<slot name="logo"></slot>`;
   nav = html`<slot name="navigation"></slot>`;
-  social = html`<slot class="toolbar__social" name="social"></slot>`;
-  toggle = html` <span class="toolbar__toggle__container">
-    <slot name="${this.slotNames.toggle}" class="toolbar__toggle"> </slot
-  ></span>`;
+  social = html` <slot class="toolbar__social" name="social"></slot> `;
+  divider = html`<div class="toolbar__divider"></div>`;
+  toggle = html`
+    ${this.divider}
+    <div class="toolbar__toggle">
+      <slot name="${this.slotNames.toggle}"> </slot>
+    </div>
+  `;
   toolbarPath = html`<svg
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -133,10 +138,7 @@ export class HicksHeader extends LitElement {
     viewBox="0 0 1440 330"
   >
     <!--This was difficult for me to figure out (esp for someone who doesn't usually work with SVG). After the c character in the path, the formatting of each point is as follows: x1 y1, x2 y2, x y. In this equation x y is the point, and x1y1 / x2y2 is the line representing the slope of the point. I wish we could just specify the slope, but alas not yet. David 05/29/2021 -->
-    <path
-      class="toolbar__svg__path"
-      d="M1200, 0 H0 V 300 c 144, 0, 216 -120, 360 -120 s 216, 120, 360, 120, 216 -120, 360 -120, 216, 120, 360, 120V0Z"
-    />
+    <path class="toolbar__svg__path" d="${TOOLBAR_CURVE}" />
   </svg>`;
 
   render() {
@@ -161,10 +163,7 @@ export class HicksHeader extends LitElement {
         <div id="animeHeaderToolbar" class="toolbar">
           <div class="toolbar__content ${toolbarVisibility}">
             ${this.logo}
-
-            <div class="toolbar__content__links">
-              ${this.social} ${this.toggle}
-            </div>
+            <div class="toolbar__right">${this.social} ${this.toggle}</div>
           </div>
           ${this.toolbarPath}
         </div>

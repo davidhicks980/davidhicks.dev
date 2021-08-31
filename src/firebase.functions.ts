@@ -40,7 +40,7 @@ export const appCheck = initializeAppCheck(app, {
 });
 
 export const unlockResume = (resumeKey: string) => {
-  const unlockResume = httpsCallable(functions, 'unlockResume');
+  const unlockResume = httpsCallable(functions, 'unlockResumeWithToken');
   return unlockResume(resumeKey)
     .then((res: HTTPSFunctionsResponse) => {
       const { hasError, result } = res.data;

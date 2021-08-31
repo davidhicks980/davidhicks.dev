@@ -116,6 +116,7 @@ export class TableOfContents extends LitElement {
       .subscribe((matches: boolean) => {
         this.mobile = matches;
       });
+
     this.controllers.item.createHandler('hicks-toc');
 
     this.addEventListener('keydown', (ev) => {
@@ -181,7 +182,7 @@ export class TableOfContents extends LitElement {
     this.positions.clear();
     const childLists = new Map() as Map<string, ListChild[]>;
     const attributes = this.getSectionAttributes(sections, this.headingLevel),
-      sortAttributes = (a, b) => {
+      sortAttributes = (a: any, b: any) => {
         return b.sortOrder - a.sortOrder;
       };
     attributes.sort(sortAttributes);
@@ -196,6 +197,7 @@ export class TableOfContents extends LitElement {
         childList,
         { path, href, title, marker, index },
       );
+
       this.positions.set(href, { title, path });
 
       //If the content is nested, group it with any other templates on the same level. Else, push the template to the tree
@@ -217,13 +219,13 @@ export class TableOfContents extends LitElement {
   ) {
     if (sublists && root) {
       return sublists.has(root)
-        ? sublists.get(root).push(item)
+        ? sublists.get(root)!.push(item)
         : sublists.set(root, [item]);
     }
   }
 
   private getSectionAttributes(sections: HTMLElement[], headingLevel: number) {
-    let rootArray = [],
+    let rootArray: number[] = [],
       rootIndex = 0,
       previousDepth = 0,
       previousIndex = 0,
@@ -247,7 +249,7 @@ export class TableOfContents extends LitElement {
       } else if (higherLevel) {
         const level = depth - headingLevel;
         rootArray = rootArray.slice(0, level + 1);
-        index = rootArray.pop();
+        index = rootArray.pop() ?? 0;
         index++;
       }
       //if at deeper level
@@ -322,9 +324,9 @@ export class TableOfContents extends LitElement {
     }
   }
 
-  private _getActivePath() {
+  private _getActivePath(): string | undefined {
     if (this.positions.has(this.activeLink)) {
-      return this.positions.get(this.activeLink).path;
+      return this.positions.get(this.activeLink)?.path || undefined;
     } else {
       throw Error('Active link does not exist');
     }

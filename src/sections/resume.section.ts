@@ -69,7 +69,7 @@ export class Resume {
     const pred = (a, b) => Date.parse(a.startDate) - Date.parse(b.startDate);
     return entries.sort(pred);
   }
-  private _getDetail(detail) {
+  private _getDetail(detail: string[] | string) {
     let details = [''];
     if (!Array.isArray(detail)) {
       details = [detail] as string[];
@@ -108,7 +108,7 @@ export class Resume {
       const fields = Object.entries(entry)
       const onResume = entry.resume === 'true';
       const content = html`
-        <hicks-resume-entry ?on-resume="${onResume}">
+        <hicks-resume-entry root="content-tree" ?on-resume="${onResume}">
           ${fields.map(([field, content]) => {
             if(field != 'resume'){
             return html`<span slot="${field}">${this._formatFieldContent(field, content)}</span> `;}

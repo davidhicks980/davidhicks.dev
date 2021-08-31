@@ -12,7 +12,7 @@ export class NavItemComponent extends LitElement {
     delegatesFocus: true,
   };
   @queryAssignedNodes('', true)
-  slotButton!: NodeListOf<HTMLElement>;
+  slotButton!: NodeListOf<Text>;
   @property({ type: Boolean, reflect: true })
   selected = false;
   @property({ type: String, reflect: true })

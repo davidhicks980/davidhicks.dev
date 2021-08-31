@@ -1,8 +1,11 @@
 node_modules/
-dist/**
-public/**
+dist/
+public/
 .rollup.cache/
 .vscode/
 yarn.lock
-private/**
-davidhicks_dev/**
+private/
+
+.bazelrc.user
+dist/
+bazel-out

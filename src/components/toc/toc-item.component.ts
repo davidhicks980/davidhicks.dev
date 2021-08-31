@@ -17,11 +17,9 @@ export class HicksListItem extends LitElement {
     ...LitElement.shadowRootOptions,
     delegatesFocus: true,
   };
-  private _path = '';
-  private _position: number[] = [0];
 
   @queryAssignedNodes('', true, LIST_ITEM_TAG_NAME)
-  childSlot: NodeListOf<HicksListItem>;
+  childSlot!: NodeListOf<HicksListItem>;
   @property({ type: Number, reflect: true })
   listChildren = 0;
   @property({ type: Boolean, reflect: true })
@@ -36,7 +34,7 @@ export class HicksListItem extends LitElement {
   mobile = false;
   controllers: { item: ListItemController };
   @property({ attribute: 'top-level', type: Boolean, reflect: true })
-  topLevel: boolean;
+  topLevel: boolean = false;
   @state()
   get position(): number[] {
     return this._position;
@@ -59,6 +57,8 @@ export class HicksListItem extends LitElement {
   }
   @property({ type: String, reflect: true })
   link = '';
+  private _path = '';
+  private _position: number[] = [0];
 
   get hasListChildren() {
     return this.listChildren > 0;
@@ -72,16 +72,8 @@ export class HicksListItem extends LitElement {
       }
     }
   }
-  /**
-   *The number of visible child elements on elements that come before this element and contain the same root
-   *
-   * @type {string}
-   * @memberof HicksListItem
-   */
-  @property({ type: Number, reflect: true })
-  offset = 0;
 
-  templates: {
+  templates!: {
     tags: {
       ul: unknown[];
     };
@@ -116,7 +108,6 @@ export class HicksListItem extends LitElement {
     this.tabIndex = 0;
   }
   updateSlots() {
-    /*[EXPANDED] const show = this.hasListChildren;*/
     const slots = {
       suffix: false ? this.createSlot('suffix') : nothing,
       prefix: this.createSlot('prefix'),
@@ -137,9 +128,6 @@ export class HicksListItem extends LitElement {
   }
   willUpdate(_changedProperties: Map<string, unknown>) {
     super.willUpdate(_changedProperties);
-    /*[EXPANDED] if (_changedProperties.has('hidden')) {
-      this.tabIndex = this.hidden ? -1 : 0;
-    }*/
 
     if (_changedProperties.has('listChildren')) {
       this.updateSlots();
@@ -147,13 +135,8 @@ export class HicksListItem extends LitElement {
   }
   updated(_changedProperties: Map<string | number | symbol, unknown>) {
     super.updated(_changedProperties);
-    /*[EXPANDED] if (_changedProperties.has('offset')) {
-      this.setCSSVar('--item--offset', this.offset);
-    }*/
   }
-  setCSSVar(name: string, value: string | number) {
-    this.style.setProperty(name, String(value));
-  }
+
   handleToggle(e: { target: { toggled: boolean } }) {
     this.expanded
       ? this.controllers.item.collapse([this.path])

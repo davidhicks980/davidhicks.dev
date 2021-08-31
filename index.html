@@ -6,13 +6,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      media="print"
-      onload="this.media='all'"
+      defer
       href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&family=Roboto:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="./dist/main.prod.css" />
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg" />
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+    <noscript>Are you kidding me? No scripts?!?</noscript>
+    <script
+      defer
+      src="./node_modules/web-animations-js/web-animations.min.js"
+    ></script>
 
-    <script src="./node_modules/web-animations-js/web-animations-next.min.js"></script>
     <script
       type="module"
       src="./dist/components/navigation/nav.component.js"
@@ -26,6 +32,7 @@
       src="./dist/components/card/card.component.js"
     ></script>
     <script
+      defer
       type="module"
       src="./dist/components/plot/plot.component.js"
     ></script>
@@ -66,11 +73,7 @@
       type="module"
       src="./dist/components/resume/resume-entry.adapter.js"
     ></script>
-    <script
-      type="module"
-      src="./dist/components/toc/toc-item.component.js"
-    ></script>
-    <script type="module" src="./dist/components/toc/toc.adapter.js"></script>
+
     <script
       type="module"
       src="./dist/components/status/status.component.js"
@@ -83,14 +86,20 @@
       type="module"
       src="./dist/components/header/header.adapter.js"
     ></script>
+
     <script type="module" src="./dist/sections/about-me.section.js"></script>
     <script type="module" src="./dist/sections/contact.section.js"></script>
     <script type="module" src="./dist/sections/portfolio.section.js"></script>
     <script type="module" src="./dist/sections/resume.section.js"></script>
     <script type="module" src="./dist/global-logic.js"></script>
-
+    <script
+      type="module"
+      src="./dist/components/toc/toc-item.component.js"
+    ></script>
+    <script type="module" src="./dist/components/toc/toc.adapter.js"></script>
     <title>The Developer Site for David Hicks</title>
   </head>
+  <!--AppCheck Debug-->
 
   <script>
     window.process = {
@@ -99,10 +108,10 @@
       },
     };
     function unhide(ev) {
-      document.body.style.visibility = 'visible';
+      document.body.style.opacity = '1';
     }
   </script>
-  <body onload="unhide()" style="visibility: hidden" id="app">
+  <body onload="unhide()" style="opacity: 0" id="app">
     <a tabindex="0" class="skip-to-content" href="#main">Skip to content</a>
     <hicks-header id="header">
       <title-component slot="brand"></title-component>

@@ -63,7 +63,7 @@ export class UnlockResumeElement extends LitElement {
         <fieldset ?disabled="${submitted}">
           <label for="unlock-resume-input">Enter Recruiter Token: </label>
           <input
-            minlength="32"
+            minlength="4"
             maxlength="32"
             required
             autocomplete="off"

@@ -14,11 +14,30 @@
   position: sticky;
   top: -1px;
 }
-
-.toolbar__toggle__container {
-  border-left: 1px solid var(--primary-7);
-  padding-left: 1rem;
-  padding-top: 0.2rem;
+.toolbar__right {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  > * {
+    margin: 0.5rem;
+  }
+}
+.toolbar__divider {
+  margin: 0 0.5rem 0 0.5rem;
+  border-right: 1px solid var(--primary-7);
+  height: 2rem;
+  width: 1px;
+  @include media-size('medium') {
+    display: none;
+  }
+}
+.toolbar__social {
+  margin-right: 1rem;
+  padding-right: 0.5rem;
+  border-right: 1px solid var(--primary-4);
+}
+.toolbar__toggle {
+  min-width: 2rem;
   @include media-size('medium') {
     display: none;
   }
@@ -45,12 +64,12 @@
   height: 90%;
   justify-content: space-between;
   left: 0;
-  padding: 0 3%;
+  padding: 0 1% 0 3%;
   position: absolute;
   right: 0;
   top: 0;
   z-index: 5;
-
+  box-shadow: 5px -3px 5px 5px #0000005c;
   &__links {
     display: inherit;
     gap: 0.75rem;

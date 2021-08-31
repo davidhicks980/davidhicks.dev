@@ -7,6 +7,7 @@ type LitProto = Constructor<LitElement>;
 
 export type ObservedStateAction = {
   property: string;
+  //@ts-ignore
   componentHandler: (...args) => unknown;
 };
 const s_actionMap = Symbol();

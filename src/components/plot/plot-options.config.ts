@@ -53,7 +53,7 @@ export function plotOptions(
       parsing: false,
       normalized: true,
       responsive: true,
-      resizeDelay: 100,
+      resizeDelay: 50,
       animation: {
         duration: 0, // general animation time
       },

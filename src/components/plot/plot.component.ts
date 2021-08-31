@@ -13,6 +13,7 @@ import { getParamNames } from '../../util/functions/get-param-names';
 import { plots } from './plot-samples';
 import { createDebouncer } from './createDebouncer';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { debounce } from '../../util/functions/debounce';
 /**
  * Component that renders a plot to the DOM given a list of parameters (see PlotParameters interface)
  * @param {PlotParameters} params - this function generates the plot element including range inputs and toggles.
@@ -108,19 +109,22 @@ export class PlotEngine extends LitElement {
       this.highlightColor
     );
     this._initPlotting(this.chart);
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target.classList.contains('container')) {
-          this.container.classList.remove('is-small');
-          const contentWidth = entry?.contentRect?.width;
-
-          if (contentWidth < 500) {
-            this.container.classList.add('is-small');
+    let debouncedFn = debounce(
+      100,
+      function (this: PlotEngine, entries: ResizeObserverEntry[]) {
+        for (const entry of entries) {
+          if (entry.target.classList.contains('container')) {
+            this.container.classList.toggle(
+              'is-small',
+              entry.contentRect.width < 500
+            );
           }
         }
-      }
-    });
+      }.bind(this)
+    );
+    const resizeObserver = new ResizeObserver(debouncedFn);
     resizeObserver.observe(this.container);
+    resizeObserver.observe(this.chartContainer);
   }
   constructor() {
     super();
@@ -315,6 +319,14 @@ export class PlotEngine extends LitElement {
   render() {
     return html`
       <div class="container">
+        <div class="container__latex">
+          <div style="overflow: auto">
+            <pk-latex
+              class="scale-equation"
+              .equation="${this.displayedEquation}"
+            ></pk-latex>
+          </div>
+        </div>
         <div class="container__chart">
           <canvas id="chart"></canvas>
         </div>
@@ -340,14 +352,6 @@ export class PlotEngine extends LitElement {
             <plot-switch @toggle="${this.fixToggle}">
               Trigger Fixed
             </plot-switch>
-          </div>
-        </div>
-        <div class="container__latex">
-          <div style="overflow: auto">
-            <pk-latex
-              class="scale-equation"
-              .equation="${this.displayedEquation}"
-            ></pk-latex>
           </div>
         </div>
       </div>

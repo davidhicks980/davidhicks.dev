@@ -45,12 +45,6 @@ export class HicksExpansionPanel extends LitElement {
     }
   }
 
-  private updateOffset(): void {
-    if (this.controllers?.expansion) {
-      this.controllers.expansion.updateOffset();
-    }
-  }
-
   private toggle(): void {
     this.dispatchEvent(
       new CustomEvent('toggled', {
@@ -59,11 +53,7 @@ export class HicksExpansionPanel extends LitElement {
         composed: true,
       })
     );
-    if (this.controllers?.expansion) {
-      this.controllers.expansion.toggle();
-    } else {
-      this.collapsed = false;
-    }
+    this.controllers.expansion.toggle();
   }
   render() {
     return html`
@@ -93,7 +83,7 @@ export class HicksExpansionPanel extends LitElement {
       </div>
       <div class="panel">
         <div class="panel__padding">
-          <slot @slotchange="${this.updateOffset}" name="content"></slot>
+          <slot name="content"></slot>
         </div>
       </div>
     `;

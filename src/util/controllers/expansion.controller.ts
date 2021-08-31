@@ -33,6 +33,7 @@ export class CollapseController implements ReactiveController {
   };
 
   private _root: HTMLElement;
+  inProgress: boolean;
   /**
    * The element that contains any elements that are expected to be affected by the expanding panel
    *
@@ -50,113 +51,97 @@ export class CollapseController implements ReactiveController {
     return handlers.get(this._handlerKey);
   }
 
-  handleAnimationEvents(anime: AnimationEvent) {
-    const { collapsed, state } = anime;
-    if (state === 'STARTED') {
-      if (collapsed) {
-        this.host.classList.add('is-expanding');
-      } else {
-        this.host.classList.add('is-collapsing');
-      }
-      return false;
-    } else if (state === 'FINISHED') {
-      if (collapsed) {
-        this.host.classList.remove('is-collapsing');
-      } else {
-        this.host.classList.remove('is-expanding');
-      }
-      this.collapsed = collapsed;
-      return true;
+  startAnimation(isCollapsed: boolean) {
+    if (isCollapsed) {
+      this.host.classList.add('is-expanding');
+    } else {
+      this.host.classList.add('is-collapsing');
     }
+    return false;
+  }
+  endAnimation(isCollapsed: boolean) {
+    if (isCollapsed) {
+      this.host.classList.remove('is-collapsing');
+    } else {
+      this.host.classList.remove('is-expanding');
+    }
+    this.collapsed = isCollapsed;
     return true;
   }
-  toggle(element?: HTMLElement) {
-    const target = element ?? this.collapsingPanel;
-    if (target) {
-      this._beginToggleAnimation(target, this.collapsed);
+  toggle() {
+    if (this.collapsingPanel) {
+      this._beginToggleAnimation(this.collapsed);
     } else {
       throw defineElementError;
     }
   }
   collapse() {
     this.collapsed = true;
-    this._displaceElement();
+    this.updateElement(this.collapsed);
   }
   expand() {
     this.collapsed = false;
-    this._displaceElement();
+    this.updateElement(this.collapsed);
   }
-  private _beginToggleAnimation(
-    element: HTMLElement,
-    currentlyCollapsed: boolean
-  ) {
-    const listener = this.elementListeners.get(element);
-    if (listener && this.handler) {
-      listener
-        .pipe(
-          filter((ev) => this.handleAnimationEvents(ev)),
-          take(1)
-        )
-        .subscribe(() => {
-          this._displaceElement();
+  private _beginToggleAnimation(currentlyCollapsed: boolean): void {
+    if (!this.inProgress) {
+      this.inProgress = true;
+
+      let offset = 0;
+      let parentHeight = this.host.offsetHeight;
+      if (currentlyCollapsed) {
+        offset = this.collapsingPanel.scrollHeight;
+        this.setOffsetRatio(this.collapsingPanel, parentHeight, offset);
+        this.collapsingPanel.style.height = 'auto';
+        this.collapsingPanel.style.marginBottom = '-' + offset + 'px';
+        this.collapsingPanel.style.visibility = 'visible';
+      } else {
+        offset = this.collapsingPanel.scrollHeight;
+        this.setOffsetRatio(this.collapsingPanel, parentHeight, offset);
+        this.collapsingPanel.style.visibility = 'visible';
+      }
+      this.startAnimation(currentlyCollapsed);
+      this.handler
+        ?.toggle(this.host, offset, currentlyCollapsed)
+        .then((collapsed) => {
+          this.endAnimation(collapsed);
+          this.updateElement(collapsed);
+          this.inProgress = false;
         });
-      this.handler.toggle(element, currentlyCollapsed);
-    } else {
-      throw defineListenerError;
-    }
+    } else return;
+  }
+
+  private updateElement(collapsed: boolean) {
+    this.collapsingPanel.style.marginBottom = '0px';
+    this.collapsingPanel.style.height = collapsed ? '0px' : 'auto';
+    this.collapsingPanel.style.visibility = collapsed ? 'hidden' : 'visible';
+    this.host.toggleAttribute('collapsed', collapsed);
+  }
+
+  /**
+   * Set the ratio of the unexpanded parent's height to the total height. This is used for scaling purposes (e.g. scaling a border).
+   *
+   * @private
+   * @param {HTMLElement} element
+   * @param {number} parentHeight
+   * @param {number} offset
+   * @memberof CollapseController
+   */
+  private setOffsetRatio(
+    element: HTMLElement,
+    parentHeight: number,
+    offset: number
+  ): void {
+    element.style.setProperty(
+      '--offset-ratio',
+      String((parentHeight + offset) / parentHeight) + 'px'
+    );
   }
 
   updatePanel(panel: HTMLElement) {
     this.collapsingPanel = panel;
-    if (this.collapsingPanel) {
-      this.updateOffset();
-    } else {
-      throw defineElementError;
-    }
   }
-  updateOffset(): number {
-    window.requestAnimationFrame(() => {
-      const height = this.collapsingPanel.offsetHeight;
-      if (height > 0) {
-        this.panelHeight = height;
-        this.watchElement(this.collapsingPanel);
-        this._displaceElement();
-        return this.panelHeight;
-      } else {
-        console.info('Panel height is zero: no expansion animation will occur');
-      }
-    });
-    return this.panelHeight;
-  }
-  private _displaceElement() {
-    this.host.toggleAttribute('collapsed', this.collapsed);
-    this.host.style.marginBottom = this.collapsed
-      ? -1 * this.panelHeight + 'px'
-      : '0px';
-  }
-  watchElement(element: HTMLElement) {
-    this.panelHeight = element.offsetHeight;
-    if (this.handler) {
-      const listener = this.handler.addAnimation(
-        element,
-        this.host,
-        this.panelHeight
-      );
-      this.elementListeners.set(element, listener);
-      if (!this.observers?.resize) {
-        this.observers = {
-          resize: new ResizeObserver(
-            debounce(50, this.updateOffset.bind(this))
-          ),
-        };
-        this.observers.resize.observe(this.collapsingPanel);
-      }
-    } else {
-      throw new TypeError(
-        'You must create an expansion handler to begin watching an element'
-      );
-    }
-  }
+
   constructor(
     host: Controller<HTMLElement>,
     handlerKey: string,
@@ -182,8 +167,5 @@ export class CollapseController implements ReactiveController {
   }
   hostConnected() {
     this.host.requestUpdate();
-  }
-  hostDisconnected() {
-    this.observers.resize.disconnect();
   }
 }

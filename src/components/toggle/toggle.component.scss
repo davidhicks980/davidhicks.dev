@@ -1,4 +1,9 @@
 .icon-button {
+  background: none;
+  border: none;
+  display: block;
+}
+.icon-button {
   display: block;
   line-height: 0px;
   opacity: 1;
@@ -6,11 +11,8 @@
   position: relative;
   transform: scale(1);
   transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
-
+  outline: none;
   &::before {
-    --icon-button--background: rgba(255, 255, 255, 0.3);
-    --icon-button--outline: rgba(255, 255, 255, 0.5);
-    --icon-button--active-outline: rgba(255, 255, 255, 1);
     background-color: var(--icon-button--background);
     border-radius: 50%;
     box-sizing: border-box;
@@ -34,31 +36,40 @@
   }
 
   &:hover:active::before {
-    border: 1px solid white;
+    border: 1px solid var(--icon-button--active-outline);
     opacity: 0.6;
     transform: scale(1.65);
+  }
+  &:active::before {
+    border: 1px solid var(--icon-button--active-outline);
+    opacity: 0.6;
+    transform: scale(1.65);
+  }
+  &:hover:focus::before {
+    border: 1px solid var(--icon-button--outline);
+    opacity: 0.6;
   }
 
   &:active::before {
     opacity: 0.3;
     transform: scale(1.65);
+    border: 1px solid var(--icon-button--active-outline);
   }
 
   &:focus::before {
-    opacity: 0.3;
+    opacity: 0.6;
+    border: 1px solid var(--icon-button--outline);
   }
 }
 
-.icon-button {
-  background: none;
-  border: none;
-  display: block;
-}
-
 :host {
+  --icon-button--background: rgba(255, 255, 255, 0.3);
+  --icon-button--outline: rgba(255, 255, 255, 0.5);
+  --icon-button--active-outline: rgba(255, 255, 255, 1);
   --icon-toggle--height: 2rem;
   --icon-toggle--width: 2rem;
   height: var(--icon-toggle--height);
   scroll-behavior: none;
   width: var(--icon-toggle--width);
+  outline: none;
 }

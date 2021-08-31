@@ -1,5 +1,6 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { customElement } from 'lit/decorators.js';
+
 @customElement('logo-component')
 export class LogoComponent extends LitElement {
   static shadowRootOptions = {
@@ -35,6 +36,9 @@ export class LogoComponent extends LitElement {
     return css`
       .fill-green {
         fill: var(--secondary-4);
+      }
+      :host {
+        display: block;
       }
     `;
   }
