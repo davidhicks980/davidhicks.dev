@@ -43,6 +43,7 @@ export class HicksHeader extends LitElement {
 
   constructor() {
     super();
+
     this.controllers = {
       breakpoint: new BreakpointController(this),
       intersection: new IntersectionController(this),
@@ -50,6 +51,8 @@ export class HicksHeader extends LitElement {
   }
 
   firstUpdated(_changedProperties): void {
+    this.classList.remove('hide-until-loaded');
+
     if (window.IntersectionObserver) {
       const animation = anime
         .timeline({

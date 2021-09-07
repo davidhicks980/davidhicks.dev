@@ -1,14 +1,12 @@
 import { initializeApp } from 'firebase/app';
+import { Resume } from './sections/resume.section';
+import 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 import {
   getFunctions,
   httpsCallable,
   HttpsCallableResult,
 } from 'firebase/functions';
-import 'firebase/app-check';
-import { Resume } from './sections/resume.section';
-const APP_CHECK_PUBLIC_KEY = '6LfNxeMbAAAAAPB86Zh6IGT_n0XJNcDsyDVHAWM3';
-
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 interface HTTPSFunctionsResponse {
   data: {
     hasError: false;
@@ -16,14 +14,16 @@ interface HTTPSFunctionsResponse {
     result: string;
   };
 }
+const APP_CHECK_PUBLIC_KEY = '6LdQ40wcAAAAALDe89pslggNXrNN2BnaxLEIEvuq';
 const firebaseConfig = {
-  apiKey: 'AIzaSyAndeR8HLJfiFdW7qXR5y-C5_lN2Z-HMus',
+  apiKey: 'AIzaSyBOuWsmLCatREt0da916Sr78ywEV7_PRHY',
   authDomain: 'davidhicks-dev.firebaseapp.com',
   databaseURL: 'https://davidhicks-dev-default-rtdb.firebaseio.com',
   projectId: 'davidhicks-dev',
   storageBucket: 'davidhicks-dev.appspot.com',
   messagingSenderId: '563180792904',
   appId: '1:563180792904:web:54a581f9bacc810ccf3c7d',
+  measurementId: 'G-Y92K36XJ1B',
 };
 
 const app = initializeApp(firebaseConfig);

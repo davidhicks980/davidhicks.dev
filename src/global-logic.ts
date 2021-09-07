@@ -1,11 +1,15 @@
 import { state } from './util/functions/store';
 import { combineLatest, fromEvent } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { filter, take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/functions/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu.toggle.properties';
 import { TableOfContents } from './components/toc/toc.component';
-import { queryHeader } from './util/functions/headers';
 import { isElement } from './util/functions/is-html-element';
+import { PlotEngine } from './components/plot/plot.component';
+import { Tree } from './components/content/content.component';
+import { render, Template, TemplateResult } from 'lit';
+import { RESUME_UNLOCK_TEMPLATE_STATE } from './components/resume/unlock-form/unlock-resume.component';
+import { removeAllChildNodes } from './util/functions/remove-children';
 
 const elementById = (id) => document.getElementById(id) as HTMLElement;
 fromEvent(window, 'load')
@@ -30,6 +34,11 @@ fromEvent(window, 'load')
       scrollToToolbar(e)
     );
     fromEvent(toggle, 'focusin').subscribe((e: Event) => scrollToToolbar(e));
+    fromEvent(document, 'toggle')
+      .pipe(take(1))
+      .subscribe((e: Event) => {
+        document.getElementById('plot-engine-anchor').append(new PlotEngine());
+      });
 
     const TOGGLED = ToggleProperties.TOGGLED,
       toggled$ = state.filteredChanges([TOGGLED]);
@@ -56,7 +65,17 @@ fromEvent(window, 'load')
         }
       }
     );
-
+    state
+      .filteredChanges([RESUME_UNLOCK_TEMPLATE_STATE])
+      .pipe(take(1))
+      .subscribe((result: Record<string, TemplateResult<1>[]>) => {
+        console.log(result);
+        let resume = elementById('resume-section'),
+          renderBefore = elementById('contact-section'),
+          content = elementById('content');
+        resume.remove();
+        render(Object.values(result), content, { renderBefore });
+      });
     fromEvent(document, 'resumeload')
       .pipe(take(1))
       .subscribe(() => {

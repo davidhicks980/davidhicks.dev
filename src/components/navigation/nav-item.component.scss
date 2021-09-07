@@ -3,12 +3,13 @@
 @use 'mixins/shadows' as *;
 
 .link {
+  box-sizing: border-box;
   display: block;
   padding: var(--nav-item--padding, 0.5rem);
   position: relative;
   text-decoration: none;
   transition: var(--nav-item--transition);
-  box-sizing: border-box;
+
   &__content {
     color: var(--nav-item--font-color);
     font-family: var(--body-font);

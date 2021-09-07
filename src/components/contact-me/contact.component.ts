@@ -1,7 +1,6 @@
 import { LitElement, html, CSSResultGroup, TemplateResult, svg } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { style } from './contact.css';
-import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import { contact } from '../../firebase.functions';
 import { Status } from '../status/status.component';
 

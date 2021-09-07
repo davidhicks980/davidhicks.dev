@@ -1,0 +1,49 @@
+.ns__container {
+  background-color: #fff;
+  box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.171);
+  display: block;
+  overflow: hidden;
+  padding: 1rem;
+  position: relative;
+  width: calc(98vw - 2rem);
+  z-index: 5000;
+}
+
+.ns__header {
+  font-size: 18pt;
+  margin-top: 0.5rem;
+}
+
+.ns__visible {
+  opacity: 1 !important;
+  visibility: visible;
+}
+
+.ns__removed {
+  display: none;
+}
+
+.ns__hidden {
+  visibility: hidden;
+}
+
+.ns__plain-text {
+  color: #000 !important;
+  margin: 0;
+  text-shadow: none !important;
+}
+
+.ns__plain-layout {
+  box-shadow: none !important;
+  display: block !important;
+  margin: 0 !important;
+  text-shadow: none !important;
+
+  &::after {
+    content: none !important;
+  }
+
+  &::before {
+    content: none !important;
+  }
+}

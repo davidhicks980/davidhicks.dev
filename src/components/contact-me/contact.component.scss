@@ -6,12 +6,14 @@
 
 h2 {
   color: var(--gray-11);
+  font-family: var(--title-font);
+  font-weight: 500;
 }
 
 input {
   @extend %common-input;
+  display: block;
   grid-column: 2 / 3;
-  max-width: 100%;
   @include media-size('zero', 'small') {
     grid-column: 1 / 2;
   }
@@ -35,6 +37,7 @@ textarea {
 label {
   @extend %common-label;
   grid-column: 1 / 2;
+  margin: 1rem 0.5rem 1rem 0;
 }
 
 button {
@@ -51,7 +54,6 @@ button {
   margin-inline-end: 0;
   margin-inline-start: 0;
   padding: 0;
-  row-gap: 1rem;
   @include media-size('zero', 'small') {
     grid-template-columns: 100%;
     width: 100%;
@@ -59,7 +61,7 @@ button {
 }
 
 abbr[title='required'] {
-  color: red;
+  color: #f00;
 }
 
 .button-container {
@@ -89,7 +91,6 @@ button {
   @include media-size('zero', 'small') {
     align-items: center;
     display: flex;
-    gap: 1rem;
     grid-column: 1 / 2;
   }
 }

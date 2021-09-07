@@ -10,6 +10,7 @@ import { css } from 'lit';
   display: block;
   line-height: 0px;
   opacity: 1;
+  outline: none;
   padding: 0;
   position: relative;
   -webkit-transform: scale(1);
@@ -18,7 +19,6 @@ import { css } from 'lit';
   -webkit-transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
   -o-transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
   transition: 250ms cubic-bezier(0.175, 0.885, 0.32, 1);
-  outline: none;
 }
 .icon-button::before {
   background-color: var(--icon-button--background);
@@ -71,15 +71,15 @@ import { css } from 'lit';
   opacity: 0.6;
 }
 .icon-button:active::before {
+  border: 1px solid var(--icon-button--active-outline);
   opacity: 0.3;
   -webkit-transform: scale(1.65);
       -ms-transform: scale(1.65);
           transform: scale(1.65);
-  border: 1px solid var(--icon-button--active-outline);
 }
 .icon-button:focus::before {
-  opacity: 0.6;
   border: 1px solid var(--icon-button--outline);
+  opacity: 0.6;
 }
 
 :host {
@@ -89,7 +89,7 @@ import { css } from 'lit';
   --icon-toggle--height: 2rem;
   --icon-toggle--width: 2rem;
   height: var(--icon-toggle--height);
+  outline: none;
   scroll-behavior: none;
   width: var(--icon-toggle--width);
-  outline: none;
 }`;

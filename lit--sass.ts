@@ -14,7 +14,7 @@ import postcssPresetEnv = require('postcss-preset-env');
 export const sassToCss = (sassFile) => {
   const renderOptions = {
     file: sassFile,
-    //outputStyle: 'compressed',
+    outputStyle: 'compressed',
     includePaths: ['src', 'src/styles'],
   };
   let stringifiedCss = function (resolve, reject) {
@@ -38,10 +38,9 @@ export const sassRender = async (file: string, dev: boolean) => {
       autoprefixer({ grid: 'autoplace' }),
       postcssPresetEnv,
     ]).process(cssString);
-    console.log(file);
     const newFileName = file
       .replace(/([\w\d\s-]+).dev.scss/, '$1.prod.css')
-      .replace('src', dev ? 'public' : 'dist');
+      .replace('src', 'dist');
     writeFile(newFileName, processedCss.css.trim());
   }
   if (/([\w\d\s-]+).component.scss/.test(file)) {

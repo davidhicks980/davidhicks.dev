@@ -33,7 +33,7 @@ export class TitleComponent extends LitElement {
     return [
       css`
         .title-icon {
-          --title-width: clamp(300px, 40vw, 400px);
+          --title-width: clamp(250px, 60vw, 400px);
           display: block;
           width: var(--title-width, 350px);
           height: 100px;

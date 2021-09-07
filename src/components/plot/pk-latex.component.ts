@@ -1,6 +1,6 @@
-import katex from 'katex';
+import { render } from 'katex';
 import AsciiMathParser from 'asciimath2tex';
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { style } from './latex.css';
 @customElement('pk-latex')
@@ -18,7 +18,7 @@ export class PkLatex extends LitElement {
   }
   set equation(input) {
     if (input && this.equationDiv)
-      this.katex.render(this.getTex.parse(input), this.equationDiv, {
+      render(this.getTex.parse(input), this.equationDiv, {
         displayMode: true,
       });
     this._equation = input;
@@ -27,7 +27,6 @@ export class PkLatex extends LitElement {
   constructor() {
     super();
     this.getTex = new AsciiMathParser();
-    this.katex = katex;
   }
 
   render() {

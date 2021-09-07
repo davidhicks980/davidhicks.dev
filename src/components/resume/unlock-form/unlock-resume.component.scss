@@ -23,10 +23,6 @@ input {
     width: 100%;
   }
 
-  &::input-placeholder {
-    color: var(--gray-8);
-  }
-
   &::placeholder {
     color: var(--gray-8);
   }
@@ -68,7 +64,6 @@ form {
 fieldset {
   @extend %form-container;
   display: grid;
-  gap: 1rem;
-  grid-template-rows: 1rem 2.5rem 2rem 2rem;
+  grid-template-rows: 2rem 2.5rem 5rem 2.5rem;
   max-width: 400px;
 }

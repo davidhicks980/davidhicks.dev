@@ -52,7 +52,7 @@ var postcssPresetEnv = require("postcss-preset-env");
 var sassToCss = function (sassFile) {
     var renderOptions = {
         file: sassFile,
-        //outputStyle: 'compressed',
+        outputStyle: 'compressed',
         includePaths: ['src', 'src/styles']
     };
     var stringifiedCss = function (resolve, reject) {
@@ -85,10 +85,9 @@ var sassRender = function (file, dev) { return __awaiter(void 0, void 0, void 0,
                     ]).process(cssString)];
             case 2:
                 processedCss = _a.sent();
-                console.log(file);
                 newFileName = file
                     .replace(/([\w\d\s-]+).dev.scss/, '$1.prod.css')
-                    .replace('src', dev ? 'public' : 'dist');
+                    .replace('src', 'dist');
                 exports.writeFile(newFileName, processedCss.css.trim());
                 _a.label = 3;
             case 3:

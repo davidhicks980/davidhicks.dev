@@ -9,7 +9,12 @@ import {
   svg,
   PropertyValues,
 } from 'lit';
-import { property, query, queryAsync } from 'lit/decorators.js';
+import {
+  property,
+  query,
+  queryAssignedNodes,
+  queryAsync,
+} from 'lit/decorators.js';
 import {
   IntersectionController,
   IntersectionObserverType,
@@ -27,6 +32,8 @@ export class HicksResumeEntry extends LitElement {
   onPanelLoad!: Promise<HTMLElement>;
   @query('.entry__expansion')
   collapsingPanel!: HTMLElement;
+  @queryAssignedNodes('endDate', true)
+  endDate;
   @property({ attribute: 'active', type: Boolean, reflect: true })
   isActive = false;
   @property({ attribute: 'entry-id', type: Number })
@@ -41,6 +48,7 @@ export class HicksResumeEntry extends LitElement {
     expansion: CollapseController;
   };
   panelLoaded = false;
+  multipleDates: boolean;
 
   constructor() {
     super();
@@ -116,20 +124,21 @@ export class HicksResumeEntry extends LitElement {
     }
     return html`
       <div class="entry">
-        <div class="entry__left">
-          <div class="entry__date">
-            <div><slot name="endDate"></slot></div>
-            <div><slot name="startDate"></slot></div>
-          </div>
+        <div class="entry__date">
+          <span><slot name="startDate"></slot></span>
+          ${this.endDate?.length
+            ? html`<span class="separator__dates">·</span>`
+            : ''}
+          <span><slot name="endDate"></slot></span>
         </div>
         <div class="entry__timeline"></div>
-        <div class="entry__right">
+        <div class="entry__content">
           <h4 @click=${this.toggle} class="entry__name">
             <slot name="name"></slot>
           </h4>
           <h5 class="entry__logistics">
             <slot name="organization"></slot>
-            ·
+            <span class="separator">·</span>
             <slot name="locale"></slot>
           </h5>
 

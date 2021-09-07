@@ -14,13 +14,12 @@
 }
 
 .header {
-  padding: 0 var(--expand-card--padding, 1rem);
+  padding: 0.4rem var(--expand-card--padding, 1rem);
   @include media-size(zero, medium) {
     @include radius('top', 7px);
     align-items: center;
     background: var(--primary-11);
     display: flex;
-    gap: 1em;
     margin: 0;
 
     &__title {
@@ -50,9 +49,8 @@
     margin: 0;
     margin-block: 0;
     @include media-size(zero, medium) {
-      color: var(--primary-3);
-      font-weight: 600;
-      letter-spacing: 1px;
+      color: var(--primary-2);
+      font-weight: 500;
       text-shadow: rgb(24 55 88) 0 1px 0;
     }
   }
@@ -63,16 +61,11 @@
   all: unset;
   background-color: #fff;
   border-radius: 7px;
-  box-shadow: 0 0 0 1px var(--gray-2);
-  //I added this because it formats way better with safari
+  box-shadow: 0 0 0 0.8px var(--gray-4);
   display: flex;
-
-  flex-direction: row;
   filter: brightness(1);
-  gap: 1em;
-
+  flex-direction: row;
   text-align: left;
-
   @include media-size(zero, medium) {
     flex-direction: column;
   }
@@ -80,10 +73,11 @@
   :host(:hover) & {
     box-shadow: 0 0 0 1px var(--gray-1);
   }
+
   :host(:not([collapsed])) & {
     border-bottom-right-radius: 0;
     @include media-size(zero, medium) {
-      @include radius('bottom', 0px);
+      @include radius('top', 7px);
     }
   }
 }
@@ -121,15 +115,16 @@
 .panel {
   @include radius('bottom', 8px);
   background-color: var(--primary-8);
+  box-sizing: border-box;
   font-family: var(--body-font);
+  height: auto;
   opacity: 1;
+  overflow: hidden;
   padding: 10px;
   transform: scale(1) translateY(0);
   transition: transform 350ms ease-out, opacity 250ms ease-out;
   visibility: visible;
-  height: auto;
-  overflow: hidden;
-  box-sizing: border-box;
+
   &__padding {
     background: rgb(242 242 242);
     border-radius: 7px;
@@ -142,9 +137,10 @@
     transform: scale(0.5) translateY(150px);
     visibility: hidden;
   }
+
   :host([collapsed]:not(.is-expanding)) & {
-    height: 0px;
-    padding: 0px;
+    height: 0;
+    padding: 0;
   }
 }
 
@@ -155,7 +151,6 @@
   padding: 0 var(--expand-card--padding);
   @include media-size(zero, medium) {
     border-radius: 7px;
-    padding: 1rem;
   }
   @include media-size(zero, small) {
     flex-direction: column;
@@ -188,7 +183,6 @@
 .footer__button {
   display: flex;
   justify-content: flex-end;
-  padding: 1rem;
 }
 
 p {
@@ -197,6 +191,7 @@ p {
 
 .body {
   --panel--max-height: 200px;
+  margin: 0;
   max-height: var(--panel--max-height);
   min-height: 100px;
   overflow: auto;
@@ -236,8 +231,8 @@ p {
   background-repeat: no-repeat;
   background-size: var(--panel--image--size);
   height: inherit;
-  transition: background-size 500ms ease, filter 500ms ease-in-out;
   min-width: 120px;
+  transition: background-size 500ms ease, filter 500ms ease-in-out;
   @include media-size(zero, medium) {
     border-radius: 7px;
     display: none;

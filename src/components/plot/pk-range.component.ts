@@ -1,7 +1,6 @@
-import { LitElement, css, html, PropertyValues } from 'lit';
+import { LitElement, html, PropertyValues } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { style } from './range.css';
-import { Variable } from './types/Variable';
 
 /**
  * @component  PlotSlider produces a range input that emits a

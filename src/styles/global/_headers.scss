@@ -1,0 +1,75 @@
+h2 {
+  font-size: 24pt;
+
+  &.resume-header::after {
+    background: #fff;
+    content: '';
+    height: 60px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    z-index: -1;
+  }
+}
+
+h3 {
+  font-size: 16pt;
+
+  &.resume-header:not(:target)::after {
+    background: #fff;
+    bottom: 0;
+    content: '';
+    height: 60px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: -20px;
+    width: 100%;
+    z-index: -1;
+  }
+
+  &.resume-header:target::after {
+    background: #fff;
+    bottom: 0;
+    content: '';
+    height: 50px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 60px;
+    width: 100%;
+    z-index: -1;
+  }
+}
+
+h4 {
+  font-size: 16pt;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--title-font), sans-serif;
+  padding: 1.5em 0 1em;
+
+  &:not(:target) {
+    margin: 0;
+  }
+
+  &:target {
+    --scroll-offset: calc(var(--toolbar-height, 65px) + 10px);
+    padding: 0;
+
+    &::before {
+      content: '';
+      margin-top: calc(-1 * var(--scroll-offset));
+    }
+  }
+}
+
+.header__container {
+  display: flex;
+}

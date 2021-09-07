@@ -3,7 +3,7 @@ export const copyConfig = (root) => {
     targets: [
       { src: 'assets', dest: root },
       { src: 'index.html', dest: root },
-      { src: 'src/main.prod.css', dest: root },
+      { src: 'dist/no-script.prod.css', dest: root + '/assets' },
       /*  {
         src: 'node_modules/lit/polyfill-support.js',
         dest: root + '/polyfills',

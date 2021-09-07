@@ -1,3 +1,4 @@
+import { html, LitElement } from 'lit';
 import './pk-range.component';
 import './pk-latex.component';
 import './toggle.component';
@@ -8,7 +9,6 @@ import { PlotParameters } from './types/PlotPage';
 import { Variable } from './types/Variable';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './plot.css';
-import { html, LitElement } from 'lit';
 import { getParamNames } from '../../util/functions/get-param-names';
 import { plots } from './plot-samples';
 import { createDebouncer } from './createDebouncer';

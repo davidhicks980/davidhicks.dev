@@ -47,7 +47,7 @@ export class HicksExpansionPanel extends LitElement {
 
   private toggle(): void {
     this.dispatchEvent(
-      new CustomEvent('toggled', {
+      new CustomEvent('toggle', {
         detail: !this.collapsed,
         bubbles: true,
         composed: true,

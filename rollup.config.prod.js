@@ -71,16 +71,16 @@ export default {
       // List of polyfills to inject (each has individual feature detection)
       polyfills: {
         hash: false,
-        coreJs: true,
-        regeneratorRuntime: true,
-        fetch: true,
+        coreJs: false,
+        regeneratorRuntime: false,
+        fetch: false,
         webcomponents: true,
         intersectionObserver: true,
         resizeObserver: true,
-        systemjs: true,
-        systemjsExtended: true,
-        esModuleShims: true,
-        abortController: true,
+        systemjs: false,
+        systemjsExtended: false,
+        esModuleShims: false,
+        abortController: false,
         dynamicImport: true,
 
         // Custom configuration for loading Lit's polyfill-support module,

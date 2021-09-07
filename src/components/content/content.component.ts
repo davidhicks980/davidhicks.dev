@@ -36,11 +36,12 @@ export class Tree {
   /**
    *Runs a recursive function over a given object to flatten into a key-value map;
    *
-   * @param {PageSection} tree
+   * @param {PageSection} sections
    * @memberof Tree
    */
-  loadTree(tree: PageSection[]) {
-    return this._buildTree(tree, 1);
+  loadSections(sections: PageSection[]) {
+    return this._buildTree(sections, 1);
+;
   }
 
   _buildTree(section: PageSection[], depth: number) {
@@ -151,7 +152,7 @@ export class ContentTree extends LitElement {
   }
   async load(sections: PageSection[]) {
     this.content.clear();
-    const order = this.tree.loadTree(sections).map((section) => {
+    const order = this.tree.loadSections(sections).map((section) => {
       const { key, template, item } = section;
       this.content.set(key, template);
       return [key, item] as [string, number];
@@ -164,7 +165,10 @@ export class ContentTree extends LitElement {
     change: ContentModification,
     entry?: PageSection
   ) {
-    const splicedSections = (clone(this._cache) || []) as (PageSection | true)[];
+    const splicedSections = (clone(this._cache) || []) as (
+      | PageSection
+      | true
+    )[];
     //If the position already exists, you can write to spliced sections
     if (splicedSections[position]) {
       switch (change) {

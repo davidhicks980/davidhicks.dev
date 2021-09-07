@@ -1,6 +1,8 @@
 import { css } from 'lit';
 
  export const style = css`.link {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   display: block;
   padding: 0.5rem;
   padding: var(--nav-item--padding, 0.5rem);
@@ -9,8 +11,6 @@ import { css } from 'lit';
   -webkit-transition: var(--nav-item--transition);
   -o-transition: var(--nav-item--transition);
   transition: var(--nav-item--transition);
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
 }
 .link__content {
   color: var(--nav-item--font-color);
