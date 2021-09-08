@@ -6,7 +6,7 @@ import { BreakpointController } from '../../util/controllers/breakpoint.controll
 import { classMap } from 'lit/directives/class-map.js';
 import {
   IntersectionController,
-  IntersectionObserverType,
+  IntersectionObserverFilter,
 } from '../../util/controllers/intersection.controller';
 
 const TOOLBAR_CURVE =
@@ -101,7 +101,7 @@ export class HicksHeader extends LitElement {
           { top: '-20px', right: '0px', left: '0px', bottom: '0px' }
         )
         .observe([this.upper, this.toolbar])
-        .on(IntersectionObserverType.ENTRY)
+        .on(IntersectionObserverFilter.ENTRY)
         .subscribe(seekSVGAnimation);
     } else {
       this.isCurved = true;

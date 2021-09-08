@@ -1,19 +1,9 @@
-import produce, {
-  enableMapSet,
-  enablePatches,
-  produceWithPatches,
-} from 'immer';
+import { enableMapSet, enablePatches, produceWithPatches } from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
-import {
-  distinct,
-  distinctUntilChanged,
-  map,
-  reduce,
-  filter,
-} from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { clone } from '../../components/content/deep-clone';
 import { documentBreakpoints } from './breakpoint-emitter.component';
-import { tap } from 'rxjs/operators';
+import { GlobalBreakpointProperties } from './global-state-entries';
 const validateObj = (o: Object) => {
   if (typeof o === 'object' && o !== null) {
     return true;
@@ -73,12 +63,13 @@ class StateStore {
         this._store.next(nextState);
         this._changes.next(clone(stateUpdate));
       }
+    } else {
+      throw Error('Provided stateUpdate is not an object!');
     }
   }
 }
 
 export const state = new StateStore();
-export const storeKeys = { BREAKPOINTS: 'store$breakpointMatches' };
 documentBreakpoints.observeAllMatches$.subscribe((matches) => {
-  state.update({ store$breakpointMatches: matches });
+  state.update({ [GlobalBreakpointProperties.MATCHES]: matches });
 });

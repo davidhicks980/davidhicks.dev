@@ -13,7 +13,7 @@ import { tocTemplates as templates } from './toc.templates';
 import { BreakpointController } from '../../util/controllers/breakpoint.controller';
 import {
   IntersectionController,
-  IntersectionObserverType,
+  IntersectionObserverFilter,
 } from '../../util/controllers/intersection.controller';
 import { ListItemController } from '../../util/controllers/item.controller';
 import { fastHash } from '../../util/functions/salt-id';
@@ -167,7 +167,7 @@ export class TableOfContents extends LitElement {
       this.controllers.intersection
         .initiate('hicks-toc', null, threshold, margin)
         .observe(this.sections)
-        .on(IntersectionObserverType.ENTRY)
+        .on(IntersectionObserverFilter.ENTRY)
         .subscribe(this.scrollSpy);
     }
   }

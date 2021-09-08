@@ -1,7 +1,4 @@
-import {
-  state,
-  storeKeys as StoreProperties,
-} from '../../util/functions/store';
+import { state } from '../../util/functions/store';
 import { mix } from '../../util/mixins/mix.with';
 import { EmitStateMixin } from '../../util/mixins/state-emitter.mixin';
 import { HicksIconToggle } from './icon-toggle.component';
@@ -12,6 +9,7 @@ import {
 import { Observable } from 'rxjs';
 import { prefix, observedProperties } from './menu.toggle.properties';
 import { TOCProperties } from '../toc/toc.properties';
+import { GlobalBreakpointProperties } from '../../util/functions/global-state-entries';
 
 //Table of contents
 const emitActiveSection = {
@@ -22,12 +20,12 @@ const emitActiveSection = {
 export const MENU_TOGGLE_TAG_NAME = 'hicks-menu-toggle';
 const action = {
   stream: state.filteredChanges([
-    StoreProperties.BREAKPOINTS,
+    GlobalBreakpointProperties.MATCHES,
     TOCProperties.OPEN,
   ]) as Observable<Record<string, unknown>>,
   actions: [
     {
-      property: StoreProperties.BREAKPOINTS,
+      property: GlobalBreakpointProperties.MATCHES,
       componentHandler(this: HicksIconToggle, propValue) {
         if (!(propValue.get('mobile') || propValue.get('tablet'))) {
           this.toggled = false;

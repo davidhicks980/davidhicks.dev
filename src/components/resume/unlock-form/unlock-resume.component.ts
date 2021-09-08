@@ -1,13 +1,11 @@
 import { LitElement, html, CSSResultGroup, TemplateResult } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './unlock-resume.css';
 import { unlockResume } from '../../../firebase.functions';
-import { state } from '../../../util/functions/store';
 import { Tree } from '../../content/content.component';
 import { Status } from '../../status/status.component';
 import { PageSection } from '../../../types/PageSection';
 
-export const RESUME_UNLOCK_TEMPLATE_STATE = 'global$ResumeTemplate';
 interface SubmitEvent extends Event {
   submitter: HTMLElement;
 }
@@ -20,20 +18,25 @@ export class UnlockResumeElement extends LitElement {
   form: HTMLFormElement;
   @query('#unlock-resume-input')
   input: HTMLElement;
+  @state({
+    hasChanged(value, oldValue) {
+      return true;
+    },
+  })
+  resumeTemplate: TemplateResult<2>[];
   async attemptUnlock(ev: SubmitEvent) {
     ev.preventDefault();
-    if (this.status >= Status.SUBMITTED) return;
+    //If the token has already been submitted or the resume is unlocked, return
+    if ([Status.SUBMITTED, Status.SUCCESSFUL].includes(this.status)) {
+      return;
+    }
     this.status = Status.SUBMITTED;
     const key = new FormData(this.form).get('unlock-resume-token').toString();
     unlockResume(key).then((resume) => {
       if (resume) {
-        let tree = new Tree()
+        this.resumeTemplate = new Tree()
           .loadSections([resume] as PageSection[])
           .map((template) => template.template);
-
-        state.update({
-          [RESUME_UNLOCK_TEMPLATE_STATE]: tree,
-        });
         this.status = Status.SUCCESSFUL;
       } else {
         this.status = Status.UNSUCCESSFUL;

@@ -1,15 +1,14 @@
 import { state } from './util/functions/store';
 import { combineLatest, fromEvent } from 'rxjs';
-import { filter, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { documentBreakpoints } from './util/functions/breakpoint-emitter.component';
 import { ToggleProperties } from './components/toggle/menu.toggle.properties';
 import { TableOfContents } from './components/toc/toc.component';
 import { isElement } from './util/functions/is-html-element';
 import { PlotEngine } from './components/plot/plot.component';
-import { Tree } from './components/content/content.component';
-import { render, Template, TemplateResult } from 'lit';
-import { RESUME_UNLOCK_TEMPLATE_STATE } from './components/resume/unlock-form/unlock-resume.component';
-import { removeAllChildNodes } from './util/functions/remove-children';
+import { render, TemplateResult } from 'lit';
+import { GlobalResumeProperties } from './util/functions/global-state-entries';
+import { UnlockResumeProperties } from './components/resume/unlock-form/unlock-resume.properties';
 
 const elementById = (id) => document.getElementById(id) as HTMLElement;
 fromEvent(window, 'load')
@@ -65,26 +64,29 @@ fromEvent(window, 'load')
         }
       }
     );
+    //When the resume section is loaded, replace the unlock resume section with the loaded resume section
     state
-      .filteredChanges([RESUME_UNLOCK_TEMPLATE_STATE])
+      .filteredChanges([UnlockResumeProperties.RESUME_TEMPLATE])
       .pipe(take(1))
       .subscribe((result: Record<string, TemplateResult<1>[]>) => {
-        console.log(result);
         let resume = elementById('resume-section'),
           renderBefore = elementById('contact-section'),
           content = elementById('content');
         resume.remove();
         render(Object.values(result), content, { renderBefore });
       });
+
+    //On resume load, add expansion and CV buttons, add classes to resume headers, and initiate the resume section with CV entries hidden and resume entries expanded
     fromEvent(document, 'resumeload')
       .pipe(take(1))
       .subscribe(() => {
-        const showDetailsToggle = elementById('show-hide-details');
-        const resumeToggle = elementById('view-resume-cv');
+        const showDetailsToggle = elementById('show-hide-details'),
+          resumeToggle = elementById('view-resume-cv'),
+          { SHOW_CV, EXPAND_STATE } = GlobalResumeProperties;
         if (showDetailsToggle) {
           fromEvent(showDetailsToggle, 'pressed').subscribe(
             (ev: CustomEvent) => {
-              state.update({ app$expand: !ev.detail });
+              state.update({ [EXPAND_STATE]: !ev.detail });
             }
           );
         } else {
@@ -92,29 +94,26 @@ fromEvent(window, 'load')
         }
         if (resumeToggle) {
           fromEvent(resumeToggle, 'pressed').subscribe((ev: CustomEvent) => {
-            state.update({ app$showcv: ev.detail });
+            state.update({ [SHOW_CV]: ev.detail });
           });
         } else {
           throw Error('CVToggle is not defined');
         }
-
-        setTimeout(
-          //Start with only resume entries showing.
-          () => state.update({ app$showcv: false }),
-          200
+        //Initially hide CV entries, but expand resume entries
+        window.requestAnimationFrame(() =>
+          state.update({ [SHOW_CV]: false, [EXPAND_STATE]: true })
         );
-        //Expand resume entries on init
-        state.update({ app$expand: true });
 
         const headers = Array.from(
           document.querySelector('.content')?.querySelectorAll('h2[id], h3[id]')
         );
 
+        //Add the resume-header class to any section headers after the resume section. This class hides content underneath the header, so that expanding the header does not reveal any visual artifacts.
+        let resumeHeader;
         while (headers.length) {
-          let next = (headers.pop() as HTMLElement) || undefined;
-          next.classList.add('resume-header');
-          if (isElement(next) && next.id === 'resume') {
-            next.id === 'resume';
+          resumeHeader = headers.pop() as HTMLElement;
+          resumeHeader.classList.add('resume-header');
+          if (isElement(resumeHeader) && resumeHeader.id === 'resume') {
             break;
           }
         }

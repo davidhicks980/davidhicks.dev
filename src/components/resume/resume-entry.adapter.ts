@@ -6,24 +6,17 @@ import {
   ObservedStateAction,
   ObserveStateMixin,
 } from '../../util/mixins/state-observer.mixin';
+import { GlobalResumeProperties } from '../../util/functions/global-state-entries';
+
+const { SHOW_CV, EXPAND_STATE } = GlobalResumeProperties;
 
 export const resumeEntryObserver = {
-  stream: state.filteredChanges([
-    'active-entry',
-    'app$showcv',
-    'app$expand',
-
-    '',
-  ]) as Observable<Record<string, unknown>>,
+  stream: state.filteredChanges([SHOW_CV, EXPAND_STATE]) as Observable<
+    Record<string, unknown>
+  >,
   actions: [
     {
-      property: 'active-entry',
-      componentHandler(this: HicksResumeEntry, propValue) {
-        this.isActive = propValue === this.entryId;
-      },
-    },
-    {
-      property: 'app$expand',
+      property: EXPAND_STATE,
       componentHandler(this: HicksResumeEntry, propValue) {
         if (this.controllers?.expansion) {
           propValue
@@ -33,7 +26,7 @@ export const resumeEntryObserver = {
       },
     },
     {
-      property: 'app$showcv',
+      property: SHOW_CV,
       componentHandler(this: HicksResumeEntry, propValue) {
         this.hidden = propValue === false ? !this.onResume : false;
         if (this.collapsed && this.controllers?.expansion) {
@@ -43,6 +36,8 @@ export const resumeEntryObserver = {
     },
   ] as ObservedStateAction[],
 };
-const e = mix(HicksResumeEntry).with(ObserveStateMixin(resumeEntryObserver));
+const StatefulResumeEntryElement = mix(HicksResumeEntry).with(
+  ObserveStateMixin(resumeEntryObserver)
+);
 
-customElements.define('hicks-resume-entry', e);
+customElements.define('hicks-resume-entry', StatefulResumeEntryElement);

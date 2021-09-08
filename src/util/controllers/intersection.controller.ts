@@ -12,7 +12,7 @@ export type IntersectionObserverRecord = {
 const undefinedID = Error(
   'An ID has not been defined for your intersection observer'
 );
-export enum IntersectionObserverType {
+export enum IntersectionObserverFilter {
   ENTRY = 'entry',
   INTERSECTING = 'intersecting',
   NOT_INTERSECTING = 'not-intersecting',
@@ -50,7 +50,7 @@ export class IntersectionController implements ReactiveController {
     this._emitEntries.next({ id, entries });
     return this;
   }
-  on(observerType: IntersectionObserverType, activeId?: string) {
+  on(observerType: IntersectionObserverFilter, activeId?: string) {
     const id = this._getObserverId(activeId);
     if (id) {
       const obs = this._entryStream$.pipe(
@@ -124,11 +124,14 @@ export class IntersectionController implements ReactiveController {
       const rootMargin = ['top', 'right', 'bottom', 'left']
         .map((dir) => margins[dir])
         .join(' ');
-      const obs = new IntersectionObserver(this._emitter(observerId).bind(this), {
-        root,
-        rootMargin,
-        threshold,
-      });
+      const obs = new IntersectionObserver(
+        this._emitter(observerId).bind(this),
+        {
+          root,
+          rootMargin,
+          threshold,
+        }
+      );
       observers.set(observerId, obs);
     }
     this._handlerKey = observerId;

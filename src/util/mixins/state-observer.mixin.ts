@@ -11,7 +11,6 @@ export type ObservedStateAction = {
   componentHandler: (...args) => unknown;
 };
 const s_actionMap = Symbol();
-//@ts-ignore
 export function ObserveStateMixin(handler: {
   stream: Observable<Record<string, unknown>>;
   actions: ObservedStateAction[];
@@ -30,7 +29,9 @@ export function ObserveStateMixin(handler: {
 
         stream.subscribe((observedProps: Record<string, unknown>) => {
           Object.entries(observedProps).forEach(([key, value]) => {
-            if (key) this[s_actionMap].get(key)(value);
+            if (key) {
+              this[s_actionMap].get(key)(value);
+            }
           });
         });
       }

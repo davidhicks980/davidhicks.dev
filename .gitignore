@@ -12,3 +12,4 @@ private/
 dist/
 bazel-out
 functions/
+src/firebase.functions.ts
