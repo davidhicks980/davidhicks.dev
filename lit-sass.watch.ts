@@ -1,4 +1,4 @@
-import { sassRender } from './lit--sass';
+import { sassRender } from './lit-sass';
 import chokidar = require('chokidar');
 const options = {
   persistent: true,
