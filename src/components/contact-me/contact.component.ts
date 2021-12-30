@@ -17,6 +17,11 @@ export class HicksContact extends LitElement {
   @query('form')
   form!: HTMLFormElement;
 
+  constructor() {
+    super();
+    this.status = Status.NOT_SUBMITTED;
+  }
+
   async handleSubmit(ev: SubmitEvent) {
     ev.preventDefault();
     if (this.status >= Status.SUBMITTED) return;
@@ -34,10 +39,6 @@ export class HicksContact extends LitElement {
         this.status = Status.UNSUCCESSFUL;
       }
     });
-  }
-  constructor() {
-    super();
-    this.status = Status.NOT_SUBMITTED;
   }
 
   greeting = html`<label for="greeting"> Preferred greeting </label>
