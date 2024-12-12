@@ -87,7 +87,6 @@ export const portfolioSection = {
               font-family: var(--body-font)
             }
       </style>
-      
       <hicks-expansion @toggled="${()=>{
         //Some resize issues occur when expanding the pk plot. A way of fixing this issue without polling is by waiting for the panel to toggle, then resizing the chart.
         let plot = (document.querySelector('#plot-engine') as PlotEngine);
@@ -105,21 +104,8 @@ export const portfolioSection = {
           <div  slot="content">
             <h2>Project Description</h2>
             <p>
-              The pharmacokinetic web components project was created to supplement
-              the UNC Eshelman School of Pharmacy's pharmacokinetics curriculum. I was tasked with upgrading our school's interactive pharmacokinetic graphs so as to improve scalability and ease-of-implementation. I decided to use web components for the project in order to ensure interoperability with any future frameworks UNC wanted to use. The resulting web components render an interactive charts with a realtime equation and auto-generated range-inputs.
+              Created to supplement the UNC Eshelman School of Pharmacy's pharmacokinetics curriculum. I was tasked with upgrading our school's interactive pharmacokinetic graphs so as to improve scalability and ease-of-implementation. I decided to use web components for the project in order to ensure interoperability with any future frameworks UNC wanted to use. The resulting web components render an interactive charts with a realtime equation and auto-generated range-inputs.
             </p>
-
-              <h3>Challenges</h3>
-                <details>
-                <summary>Multiple Dosing Equations </summary>
-                Multiple dosing equations require a kinetic
-                function to be run for each dose given to a (theoretical) patient. Alongside plot generation, this
-                is computationally intensive when working with larger numbers. To reduce jankiness when interacting with the component, web workers were used to computation on a separate thread, which greatly improved performance on lower-end devices. You can see an earlier version without web workers <a href="https://davidhicks980.github.io">here</a>.
-              </details>
-              <details>
-              <summary>Ease of use</summary>
-              The audience for these components were pharmacy professors. As such, I had to make sure that any setup was intuitive -- in other words, no LaTeX or MathML knowledge should be required to create a chart. MathJax could render ASCII, but was very slow. I decided on KaTeX, which meant I had to transform an ASCII input into LaTeX. Luckily, a library called <a href="https://github.com/christianp/asciimath2tex">ASCIIMath2Tex</a> made this transformation easy and efficient.
-              </details>
             <plot-engine id="plot-engine"></plot-engine>
           </div>
         </hicks-expansion>
@@ -142,24 +128,8 @@ export const portfolioSection = {
             <h2>Project Description</h2>
             <p>
               Beers Criteria is distributed as a PDF containing nearly 300 separate entries spread across several pages. Traditionally, a student applying the criteria to a patient's medication list could dedicate a few minutes per drug screened, which can become daunting when screening dozens of medications per patient. Elder Drug was created to make working up patients easier. It adds a comprehensive search that permits multiple drugs in a single query. Elder Drug also allows searching brands and generics even for entries pertaining to an entire therapeutic category (e.g. searching 'Abilify' would return any entries pertaining to antipsychotics). </p>
-
-              <h3>Challenges</h3>
-            <details>
-              <summary>Therapeutic Categories</summary>
-              <p>Drug classes and therapeutic categories do not have uniform nomenclature. The consequences of this can be illustrated with amitriptyline: it is an antidepressant, but if I associated all antidepressants with the effects of Amitriptyline, relatively benign drugs like Sertraline would be categorized as anticholinergics. As a result, I had to find drug classes that accurately corresponded to each entry on Beers Criteria while also containing a queryable ID on RxNorm. To do so, I created a compound index using therapeutic categories and classes from both DailyMed and Veterans Affairs. </p>
-            </details>
-          <details>
-             <summary>
-              Database Structure
-             </summary>
-             A MySQL/NodeJS instance hosted on UNC's OpenShift service was initially used to host Elder Drug's database. However, the database was migrated to Firebase upon the realization that I'd eventually be graduating. If I were to host all entries on Firebase, my 20k queries/day free tier could be reached with relatively few users (with 20 drugs queried in a single session, it would take only 1000 users to hit my limit). Considering my database of brand and generic drug names contains around 1600 drugs that each correspond to one or many of the ~300 entries on Beers criteries, I came to the conclusion that it would make more sense to serve all entries with the user, and provide a single key-value index relating drug names and their respective entry numbers (i.e. [drugName]: [...entries] ). 
-           </details>
           </div>
         </hicks-expansion>
-         
-        
-        
-        
     `
 };
 state.update({sectionAdditions: { position: 1, template: portfolioSection , change: ContentModification.INSERT}})

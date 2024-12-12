@@ -9,7 +9,7 @@ export const plots = {
       {
         name: 'Dose',
         units: 'mg',
-        symbol: 'X_0',
+        glyph: 'X_0',
         min: 500,
         max: 4500,
         value: 1000,
@@ -18,7 +18,7 @@ export const plots = {
       {
         name: 'Number of Doses',
         units: '#',
-        symbol: 'n',
+        glyph: 'n',
         min: 4,
         max: 24,
         value: 4,
@@ -27,7 +27,7 @@ export const plots = {
       {
         name: 'Volume of Distribution',
         units: 'L',
-        symbol: 'V_D',
+        glyph: 'V_D',
         min: 50,
         max: 500,
         value: 250,
@@ -36,7 +36,7 @@ export const plots = {
       {
         name: 'Clearance',
         units: 'mL/min',
-        symbol: 'Cl',
+        glyph: 'Cl',
         min: 5,
         max: 50,
         value: 100,
@@ -45,7 +45,7 @@ export const plots = {
       {
         name: 'Dosing Interval',
         units: 'hr',
-        symbol: 'tau',
+        glyph: 'tau',
         min: 1,
         max: 7,
         value: 4,
@@ -71,7 +71,7 @@ export const plots = {
       {
         name: 'Dose',
         units: 'mg',
-        symbol: 'X_0',
+        glyph: 'X_0',
         min: 250,
         max: 1000,
         value: 500,
@@ -80,7 +80,7 @@ export const plots = {
       {
         name: 'Clearance',
         units: 'mL/min',
-        symbol: 'Cl',
+        glyph: 'Cl',
         min: 5,
         max: 50,
         value: 25,
@@ -89,7 +89,7 @@ export const plots = {
       {
         name: 'Volume of Distribution',
         units: 'L',
-        symbol: 'V_D',
+        glyph: 'V_D',
         min: 50,
         max: 500,
         value: 250,
@@ -98,7 +98,7 @@ export const plots = {
       {
         name: 'k<sub>a</sub>',
         units: '1/h',
-        symbol: 'k_a',
+        glyph: 'k_a',
         min: 0.1,
         max: 1,
         value: 0.5,

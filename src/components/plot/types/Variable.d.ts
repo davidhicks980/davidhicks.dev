@@ -1,7 +1,7 @@
 export interface Variable {
   name?: string;
   units: string;
-  symbol: string;
+  glyph: string;
   min: number;
   max: number;
   value: number;

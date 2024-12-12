@@ -1,46 +1,55 @@
-import { LitElement, html, PropertyValues } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
+import { LitElement, PropertyValues, html } from 'lit';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { style } from './range.css';
 
 /**
- * @component  PlotSlider produces a range input that emits a
+ * @component PlotSlider produces a range input that emits a
  * @fires PlotSlider#shift
-
  * @param {PlotParameters} params - this parametes generates the plot element including range inputs and toggles.
- *@param {string} element - the element to append the plot to. Will default to
+ * @param {string} element - the element to append the plot to. Will default to
  */
 @customElement('plot-range')
 export class PlotRange extends LitElement {
-  /**Declarations */
-
   @query('.range')
   rangeInput!: HTMLInputElement;
-  @property({ type: String })
-  units: string;
-  @property({ type: String })
-  symbol: string;
-  @property({ type: Number })
-  min: number;
-  @property({ type: Number })
-  max: number;
-  @property({ type: Number })
-  value: number;
-  @property({ type: Array })
-  range: number[];
-  @property({ type: String })
-  name: string;
-  @property({ type: Number })
-  step: number;
+
   @query('#valueLabel')
   valueLabel!: HTMLDivElement;
+
+  @property()
+  units: string;
+
+  @property()
+  symbol: string;
+
+  @property()
+  name: string;
+
+  @property({ type: Number })
+  min: number;
+
+  @property({ type: Number })
+  max: number;
+
+  @property({ type: Number })
+  value: number;
+
+  @property({ type: Number })
+  step: number;
+
+  @property({ type: Array })
+  range: number[];
+
   @state()
   private stepArray: number[] = [1];
+
   @state()
   private hasRange = false;
 
   static get styles() {
     return [style];
   }
+
   constructor() {
     super();
     this.value = 0;
@@ -63,21 +72,15 @@ export class PlotRange extends LitElement {
   private sliderStep(step: number, max: number): number {
     if (step > 0) {
       return step;
+    } else if (max > 10) {
+      return 1;
     } else {
-      if (max > 10) {
-        step = 1;
-        return 1;
-      } else {
-        step = max / 20;
-        return step;
-      }
+      return max / 20;
     }
   }
   handleInput(e: Event) {
-    const target = e.target as HTMLInputElement;
-    const output = this.hasRange
-      ? String(this.stepArray[parseFloat(target.value) - 1])
-      : target.value;
+    const value = parseFloat((e.target as HTMLInputElement).value);
+    this.value = this.hasRange ? this.stepArray[value - 1] : value;
     target.style.backgroundSize = `${
       ((parseFloat(target.value) - this.min) / (this.max - this.min)) * 100
     }%, 10%`;
@@ -85,18 +88,10 @@ export class PlotRange extends LitElement {
     this.dispatchEvent(new InputEvent('input', { data: output }));
   }
 
-  _updateBackgroundSize(): string {
-    return `${((this.value - this.min) / (this.max - this.min)) * 100}`;
+  private get backgroundSize(): number {
+    return ((this.value - this.min) / (this.max - this.min)) * 100;
   }
-  updated(_props: PropertyValues) {
-    super.updated(_props);
-    if (_props.has('value') || _props.has('min') || _props.has('max')) {
-      this.rangeInput.style.setProperty(
-        '--range--background-size',
-        this._updateBackgroundSize()
-      );
-    }
-  }
+
   render() {
     return html`
       <div class="range-container">
@@ -115,9 +110,7 @@ export class PlotRange extends LitElement {
             step="${this.step}"
             value="${this.value}"
             class="range"
-            style="background-size:${`${
-              ((this.value - this.min) / (this.max - this.min)) * 100
-            }%, 10%`}"
+            style="background-size: ${this.backgroundSize}% 10%"
             id="${this.name}RangeInput"
           />
         </div>

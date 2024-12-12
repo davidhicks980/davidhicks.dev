@@ -1,21 +1,22 @@
 import { LitElement, html } from 'lit';
-import { property, customElement } from 'lit/decorators.js';
-import { style } from './toggle.css';
+import { customElement, property } from 'lit/decorators.js';
 import { classMap } from 'lit/directives/class-map.js';
+import { style } from './toggle.css';
 
 @customElement('plot-switch')
 export class PlotSwitch extends LitElement {
   @property({ reflect: true, type: Boolean })
   toggled = false;
+
   @property({ reflect: true, type: String })
   name = '';
 
   toggle() {
-    this.toggled = !this.toggled;
     this.dispatchEvent(
       new CustomEvent('toggle', { detail: { toggled: this.toggled } })
     );
   }
+
   render() {
     const classes = { 'is-toggled': this.toggled };
     return html`<div class="toggle">
@@ -30,6 +31,7 @@ export class PlotSwitch extends LitElement {
       </div>
     </div>`;
   }
+
   static get styles() {
     return [style];
   }

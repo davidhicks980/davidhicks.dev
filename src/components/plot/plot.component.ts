@@ -1,19 +1,19 @@
+import { Chart, registerables, ScatterDataPoint } from 'chart.js';
 import { html, LitElement } from 'lit';
-import './pk-range.component';
-import './pk-latex.component';
-import './toggle.component';
-import { Chart, ScatterDataPoint, registerables } from 'chart.js';
-import { plotOptions } from './plot-options.config';
-import { VariableSet } from './types/VariableSet';
-import { PlotParameters } from './types/PlotPage';
-import { Variable } from './types/Variable';
 import { customElement, property, query, state } from 'lit/decorators.js';
-import { style } from './plot.css';
-import { getParamNames } from '../../util/functions/get-param-names';
-import { plots } from './plot-samples';
-import { createDebouncer } from './createDebouncer';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { debounce } from '../../util/functions/debounce';
+import { getParamNames } from '../../util/functions/get-param-names';
+import { createDebouncer } from './createDebouncer';
+import './pk-latex.component';
+import './pk-range.component';
+import { plotOptions } from './plot-options.config';
+import { plots } from './plot-samples';
+import { style } from './plot.css';
+import './toggle.component';
+import { PlotParameters } from './types/PlotPage';
+import { Variable } from './types/Variable';
+import { VariableSet } from './types/VariableSet';
 /**
  * Component that renders a plot to the DOM given a list of parameters (see PlotParameters interface)
  * @param {PlotParameters} params - this function generates the plot element including range inputs and toggles.
@@ -23,28 +23,34 @@ import { debounce } from '../../util/functions/debounce';
 export class PlotEngine extends LitElement {
   /**Declarations */
   @state()
-  params: Partial<PlotParameters> = plots.multipledose;
-  private _plotType = 'multipledose';
+  private plotParameters: Partial<PlotParameters> = plots.multipledose;
 
   @property({ type: String, reflect: true })
-  public get plotType() {
-    return this._plotType;
+  get plotType() {
+    return this.#plotType;
   }
-  public set plotType(value: string) {
-    this._plotType = value;
-    this.params = plots[value];
-    this._resetWorker();
+  #plotType = 'multipledose';
+  set plotType(value: string) {
+    this.#plotType = value;
+    this.plotParameters = plots[value];
+    this.resetWorker();
   }
-  @property({ type: Object, reflect: false })
-  loaded = {};
-  @property({ type: Boolean, reflect: false })
+
+  @property({ type: Boolean })
   mobile = false;
+
   @query('#chart')
-  canvas!: HTMLCanvasElement;
+  private canvas!: HTMLCanvasElement;
+
   @query('.container', true)
-  container!: HTMLDivElement;
+  private container!: HTMLDivElement;
+
   @query('.container__chart', true)
-  chartContainer!: HTMLDivElement;
+  private chartContainer!: HTMLDivElement;
+
+  @property({ type: String })
+  displayedEquation!: string;
+
   /**Sets the highlight color of the plot */
   @property({ type: String })
   mainColor: string = getComputedStyle(
@@ -54,40 +60,34 @@ export class PlotEngine extends LitElement {
   highlightColor: string = getComputedStyle(
     document.documentElement
   ).getPropertyValue('--primary-6');
-  @property({ type: String })
-  displayedEquation!: string;
-  isMultipleDose!: boolean;
-  tauValueArray = [null, 4, 8, 12, 18, 24, 36, 48];
-  plottedEquation = '';
-  latexEquation = '';
-  range = 10;
-  labels!: string[];
-  independentVariable!: string;
-  eventDebouncer: (params: {}) => any;
+  private plottedEquation = '';
+  private range = 10;
+  private eventDebouncer: (params: {}) => any;
   private variableValues: VariableSet = {};
-  chart!: Chart;
-  scale = 40;
-  worker!: Worker;
-  lockSVG: any;
-  generateCoordinates!: (values: {}, equation: string, scale?: number) => void;
-
+  private chart!: Chart;
+  private worker!: Worker;
+  private generateCoordinates!: (
+    values: {},
+    equation: string,
+    scale?: number
+  ) => void;
   createWorker(methodBody: string) {
     const blob = new Blob(['self.onmessage = ', methodBody], {
       type: 'text/javascript',
     });
     const url = URL.createObjectURL(blob);
-
     return new Worker(url);
   }
 
-  private logToggle(e: CustomEvent<{ toggled: boolean }>): void {
+  private handleLogToggle(e: CustomEvent<{ toggled: boolean }>): void {
     if (this.chart?.options?.scales?.y) {
       this.chart.options.scales.y.type =
         e.detail.toggled ?? false ? 'logarithmic' : 'linear';
     }
     this.chart.update();
   }
-  private fixToggle(e: CustomEvent<{ toggled: boolean }>): void {
+
+  private handleFixToggle(e: CustomEvent<{ toggled: boolean }>): void {
     if (this.chart?.options?.scales?.y) {
       this.chart.options.scales.y.max =
         e.detail.toggled ?? false ? this.getMax() : undefined;
@@ -98,17 +98,19 @@ export class PlotEngine extends LitElement {
     const data = this.chart.data.datasets[0].data as ScatterDataPoint[];
     return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
   }
-  _initPlotting(chart: Chart) {
-    this._initVariables();
-    this._initiateUpdates(chart);
+
+  beginPlotting(chart: Chart) {
+    this.initVariables();
+    this.initiateUpdates(chart);
   }
+
   firstUpdated() {
-    this.chart = this._createChart(
+    this.chart = this.createChart(
       this.canvas,
       this.mainColor,
       this.highlightColor
     );
-    this._initPlotting(this.chart);
+    this.beginPlotting(this.chart);
     let debouncedFn = debounce(
       100,
       function (this: PlotEngine, entries: ResizeObserverEntry[]) {
@@ -126,41 +128,37 @@ export class PlotEngine extends LitElement {
     resizeObserver.observe(this.container);
     resizeObserver.observe(this.chartContainer);
   }
+
   constructor() {
     super();
     Chart.register(...registerables);
     this.eventDebouncer = createDebouncer(this.updatePlot.bind(this), 16);
   }
+
   /**
    * @description Sets variables using user-supplied or default values. This must be called prior to plotting any equations
    * @private
    * @memberof PlotEngine
    */
-  private _initVariables() {
-    const { equation, range, axis, independentVariable, variables } =
-      this.params;
+  private initVariables() {
+    const { equation, range, variables } = this.plotParameters;
     if (equation && Array.isArray(variables)) {
-      //Replaces user-interpolated variables and ASCII syntax with property accessor that utilize dot notations. Honestly, probably didn't need to replace anything here, but it works fine and may have a small performance benefit.
+      // Replaces user-interpolated variables and ASCII syntax with property accessor that utilize dot notations. Honestly, probably didn't need to replace anything here, but it works fine and may have a small performance benefit.
       this.plottedEquation = equation
         .replace(/v\[\"/g, 'variables.')
         .replace(/\"]/g, '')
         .replace(/\^/g, '**')
         .replace(/\`/g, '');
-      //The side of the X axis. Defaults to 100
+      // The size of the X axis. Defaults to 100.
       this.range = range || 100;
-      //Axis labels. Should be provided as ['x', 'y']
-      this.labels = axis || ['x', 'y'];
-      //The independent variable. Defaults to x. This is only used in the interpolated equation, so it does not affect the graph itself
-      this.independentVariable = independentVariable || 'x';
-      //Initiate the variable values
+      // Initiate the variable values
       for (const v of variables) {
-        this.variableValues[v.symbol] = v.value;
+        this.variableValues[v.glyph] = v.value;
       }
-      //Can now initiate graphing
-      this.loaded = true;
     }
   }
-  private _createChart(
+
+  private createChart(
     canvasElement: HTMLCanvasElement,
     color: string,
     highlight: string
@@ -170,8 +168,9 @@ export class PlotEngine extends LitElement {
       plotOptions([{ x: 0, y: 0 }], canvasElement, color, highlight)
     );
   }
-  private _initiateUpdates(chart: Chart) {
-    this._setPlotFunction(this.plotPoints.bind(this), chart);
+
+  private initiateUpdates(chart: Chart) {
+    this.setPlotFunction(this.plotPoints.bind(this), chart);
     this.updateLatexEquation();
     this.generateCoordinates(
       this.variableValues,
@@ -179,19 +178,21 @@ export class PlotEngine extends LitElement {
       this.range
     );
   }
-  private _resetWorker() {
+
+  private resetWorker() {
     this.worker.terminate();
-    this._initPlotting(this.chart);
+    this.beginPlotting(this.chart);
   }
-  private _setPlotFunction(
+
+  private setPlotFunction(
     updateChart: (points: ScatterDataPoint[], chart: Chart) => void,
     chart: Chart
   ) {
-    const { multipleDose } = this.params;
+    const { multipleDose } = this.plotParameters;
     if (window.Worker) {
       this.worker = multipleDose
-        ? this.createWorker(this.stringifyWorkerMethod(this.multipleDoseMethod))
-        : this.createWorker(this.stringifyWorkerMethod(this.bolusMethod));
+        ? this.createWorker(this.serializeWorkerMethod(this.multipleDoseMethod))
+        : this.createWorker(this.serializeWorkerMethod(this.bolusMethod));
       this.worker.onmessage = function (ev) {
         updateChart(ev.data, chart);
       };
@@ -275,9 +276,9 @@ export class PlotEngine extends LitElement {
     const interpolateLatex = (equation: string) =>
       new Function('variables', '"use strict";return (' + equation + ')');
 
-    if (this.params.equation) {
+    if (this.plotParameters.equation) {
       this.displayedEquation = interpolateLatex(
-        this.params?.equation
+        this.plotParameters?.equation
           .replace(/v\["/g, '${variables.')
           .replace(/"\]/g, '.toFixed(1)}')
       )(this.variableValues)
@@ -291,7 +292,7 @@ export class PlotEngine extends LitElement {
     this.worker.terminate();
   }
 
-  stringifyWorkerMethod(
+  serializeWorkerMethod(
     method: (values: VariableSet, equation: string) => void
   ): string {
     let stringified = method.toString(),
@@ -332,7 +333,7 @@ export class PlotEngine extends LitElement {
         </div>
         <div class="container__inputs">
           <div class="inputs__range">
-            ${this.params?.variables?.map((v: Variable) => {
+            ${this.plotParameters?.variables?.map((v: Variable) => {
               return html`<plot-range
                 value=${v.value}
                 min=${v.min}
@@ -341,15 +342,17 @@ export class PlotEngine extends LitElement {
                 units=${v.units}
                 step=${ifDefined(v.step)}
                 .range=${v.range || []}
-                symbol=${v.symbol}
-                @input="${this.eventDebouncer(v.symbol)}"
+                symbol=${v.glyph}
+                @input="${this.eventDebouncer(v.glyph)}"
               ></plot-range>`;
             })}
           </div>
 
           <div class="inputs__toggle">
-            <plot-switch @toggle="${this.logToggle}"> Trigger Log </plot-switch>
-            <plot-switch @toggle="${this.fixToggle}">
+            <plot-switch @toggle="${this.handleLogToggle}">
+              Trigger Log
+            </plot-switch>
+            <plot-switch @toggle="${this.handleFixToggle}">
               Trigger Fixed
             </plot-switch>
           </div>

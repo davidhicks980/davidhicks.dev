@@ -7,7 +7,6 @@ import { TableOfContents } from './components/toc/toc.component';
 import { isElement } from './util/functions/is-html-element';
 import { PlotEngine } from './components/plot/plot.component';
 import { render, TemplateResult } from 'lit';
-import { GlobalResumeProperties } from './util/functions/global-state-entries';
 import { UnlockResumeProperties } from './components/resume/unlock-form/unlock-resume.properties';
 
 const elementById = (id) => document.getElementById(id) as HTMLElement;
