@@ -34,8 +34,13 @@
 }
 
 header {
-  align-content: end;
   padding-left: 24px;
+  position: relative;
+}
+
+.header-container {
+  position: absolute;
+  bottom: 0;
 }
 
 main {
@@ -46,6 +51,7 @@ main {
 @media (width <= 550px) {
   .app {
     border: none;
+    min-height: 94vh;
   }
 
   body {
@@ -98,6 +104,10 @@ li::before {
 
 p {
   margin: 0.5em 0 1em;
+}
+
+em {
+  font-style: italic;
 }
 
 .anchor {
