@@ -1,5 +1,0 @@
-export const kineticsDataURI = (hexColor: string) =>
-  `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'  xmlns:xlink='http://www.w3.org/1999/xlink' x='0' y='0' version='1.1' viewBox='0 0 195.3 183.5' xml:space='preserve'%3E%3Cdefs/%3E%3Csymbol fill='${hexColor.replace(
-    '#',
-    '%23'
-  )}'  id='slider' viewBox='-71.8 -6.4 117.6 12.8'%3E%3Ccircle  cx='-32.5' r='6.4' /%3E%3Cpath  d='M-39.6 3h-29.9c-1.3 0-2.3-1.4-2.3-3.2 0-1.8 1-3.2 2.3-3.2h30.2c-.5 1-.8 2.2-.8 3.4-.1 1.1.2 2.1.5 3zM43.5 3h-69c.4-.9.6-1.9.6-3 0-1.2-.3-2.4-.8-3.4h69.2c1.3 0 2.3 1.4 2.3 3.2S44.8 3 43.5 3z' /%3E%3C/symbol%3E%3Cuse width='117.6' height='12.8' x='-71.8' y='-6.4'  transform='rotate(180 40.58645 79.8857) scale(1.2687)' xlink:href='%23slider'/%3E%3Cuse width='117.6' height='12.8' x='-71.8' y='-6.4'  transform='matrix(1.2687 0 0 -1.2687 114.158 115.7714)' xlink:href='%23slider'/%3E%3Cuse width='117.6' height='12.8' x='-71.8' y='-6.4'  transform='rotate(180 40.58645 35.8857) scale(1.2687)' xlink:href='%23slider'/%3E%3Cuse width='117.6' height='12.8' x='-71.8' y='-6.4'  transform='matrix(1.2687 0 0 -1.2687 114.158 27.7714)' xlink:href='%23slider'/%3E%3C/svg%3E`;

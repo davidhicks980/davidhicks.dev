@@ -1,9 +1,0 @@
-src/sections/**
-node_modules/
-dist/
-.vscode/
-.rollup.cache/
-**.js
-**.json
-.prettierignore
-.prettierrc
